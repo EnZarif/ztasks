@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zarif — Task Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/fflate@0.8.2/umd/index.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f9f9f8; --surface: #ffffff; --surface2: #eef3fa;
+    --border: rgba(0,0,0,0.08); --border-md: rgba(0,0,0,0.13);
+    --text: #1a1a18; --text-2: #6b6b67; --text-3: #9e9e99;
+    --teal: #2E7DD6; --teal-bg: #E6F1FB; --teal-text: #15528F;
+    --amber-bg: #FAEEDA; --amber-text: #854F0B;
+    --coral-bg: #FAECE7; --coral-text: #993C1D;
+    --blue-bg: #E6F1FB; --blue-text: #185FA5;
+    --green-bg: #E1ECFA; --green-text: #2A4F8C;
+    --purple-bg: #EEEDFE; --purple-text: #3C3489;
+    --pink-bg: #FCE7F3; --pink-text: #A6266F;
+    --radius: 10px; --radius-lg: 14px;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a1a18; --surface: #242422; --surface2: #1c2733;
+    --border: rgba(255,255,255,0.08); --border-md: rgba(255,255,255,0.14);
+    --text: #f0f0ec; --text-2: #a0a09b; --text-3: #6a6a65;
+    --teal-bg: #042C53; --teal-text: #B5D4F4;
+    --amber-bg: #412402; --amber-text: #FAC775;
+    --coral-bg: #4A1B0C; --coral-text: #F5C4B3;
+    --blue-bg: #042C53; --blue-text: #B5D4F4;
+    --green-bg: #0E2A4D; --green-text: #AFC9EE;
+    --purple-bg: #26215C; --purple-text: #CECBF6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1a1a18; --surface: #242422; --surface2: #1c2733;
+      --border: rgba(255,255,255,0.08); --border-md: rgba(255,255,255,0.14);
+      --text: #f0f0ec; --text-2: #a0a09b; --text-3: #6a6a65;
+      --teal-bg: #042C53; --teal-text: #B5D4F4;
+      --amber-bg: #412402; --amber-text: #FAC775;
+      --coral-bg: #4A1B0C; --coral-text: #F5C4B3;
+      --blue-bg: #042C53; --blue-text: #B5D4F4;
+      --green-bg: #0E2A4D; --green-text: #AFC9EE;
+      --purple-bg: #26215C; --purple-text: #CECBF6;
+      --pink-bg: #4A1238; --pink-text: #F5B8DA;
+    }
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 4rem; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
+  .wrap:has(#page-templates.active) { max-width: 1100px; }
+
+  /* NAV */
+  .nav { display: flex; gap: 2px; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 10px 1rem; position: sticky; top: 0; z-index: 10; }
+  .nav-btn { padding: 7px 16px; font-size: 13px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .nav-btn i { font-size: 15px; }
+  .nav-btn.active { background: var(--bg); color: var(--text); font-weight: 500; border: 0.5px solid var(--border-md); }
+  .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .theme-toggle-btn { margin-left: auto; padding: 7px 10px; font-size: 15px; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); display: flex; align-items: center; transition: all 0.15s; }
+  .theme-toggle-btn:hover { color: var(--text); background: var(--surface2); }
+  .nav-btn:nth-of-type(1) i { color: var(--teal); }
+  .nav-btn:nth-of-type(2) i { color: var(--purple-text); }
+  .nav-btn:nth-of-type(3) i { color: var(--coral-text); }
+  .nav-btn:nth-of-type(4) i { color: var(--green-text); }
+  .nav-btn:nth-of-type(5) i { color: var(--pink-text); }
+  .nav-btn:not(.active) i { opacity: 0.6; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* SHARED */
+  .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; gap: 12px; }
+  .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+  .header h1 i { font-size: 20px; color: var(--teal); }
+  .header p { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+  .date-pill { font-size: 15px; color: var(--text-2); background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 20px; padding: 6px 15px; white-space: nowrap; flex-shrink: 0; }
+  .section-header { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 1.25rem 0 8px; display: flex; align-items: center; gap: 6px; }
+  .section-header::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+
+  /* TASKS */
+  .today-banner { background: var(--teal-bg); border: 0.5px solid var(--teal); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--teal-text); font-weight: 500; }
+  .today-banner i { font-size: 15px; }
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat .lbl { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat .val { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .stat .sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  .progress-track { height: 3px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal); border-radius: 3px; transition: width 0.4s ease; }
+  .tabs { display: flex; gap: 2px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 3px; margin-bottom: 1.5rem; }
+  .tab { flex: 1; padding: 7px 6px; font-size: 12px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); transition: all 0.15s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .tab i { font-size: 13px; }
+  .tab.active { background: var(--bg); color: var(--text); font-weight: 500; border: 0.5px solid var(--border-md); }
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .freq-group-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); margin: 1.5rem 0 8px; }
+  .freq-group-label i { font-size: 14px; }
+  .freq-group-label:has(.ti-sun) i { color: var(--amber-text); }
+  .freq-group-label:has(.ti-calendar-week) i { color: var(--blue-text); }
+  .freq-group-label:has(.ti-calendar-month) i { color: var(--purple-text); }
+  .freq-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .fp-daily { background: var(--purple-bg); color: var(--purple-text); }
+  .fp-weekly { background: var(--blue-bg); color: var(--blue-text); }
+  .fp-fortnightly { background: var(--blue-bg); color: var(--blue-text); }
+  .fp-monthly { background: var(--amber-bg); color: var(--amber-text); }
+  .fp-once { background: var(--coral-bg); color: var(--coral-text); }
+  .task { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 7px; display: flex; gap: 12px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s; }
+  .task:hover { border-color: var(--border-md); }
+  .task.done { opacity: 0.45; }
+  .task.done .tname { text-decoration: line-through; color: var(--text-2); }
+  .cb { width: 19px; height: 19px; border: 1.5px solid var(--border-md); border-radius: 6px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: var(--surface); }
+  .cb.on { background: var(--teal); border-color: var(--teal); }
+  .cb.on i { display: block; }
+  .cb i { display: none; font-size: 12px; color: white; }
+  .tbody { flex: 1; min-width: 0; }
+  .trow1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tname { font-size: 14px; font-weight: 500; color: var(--text); }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
+  .b-high { background: var(--coral-bg); color: var(--coral-text); }
+  .b-medium { background: var(--amber-bg); color: var(--amber-text); }
+  .b-low { background: var(--green-bg); color: var(--green-text); }
+  .tmeta { font-size: 12px; color: var(--text-3); margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tmeta i { font-size: 12px; vertical-align: -1px; margin-right: 3px; }
+  .pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; border: 0.5px solid var(--border); color: var(--text-2); background: var(--surface2); }
+  .pill.me { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .tnote { font-size: 12px; color: var(--text-2); margin-top: 8px; padding: 7px 10px; background: var(--surface2); border-radius: 0 7px 7px 0; border-left: 2px solid var(--border-md); }
+  .tnote i { font-size: 12px; margin-right: 4px; vertical-align: -1px; color: var(--text-3); }
+  .footer { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+  .reset { font-size: 12px; color: var(--text-3); background: none; border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .reset:hover { color: var(--text); border-color: var(--border-md); background: var(--surface); }
+  .reset i { font-size: 13px; }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text-3); font-size: 14px; }
+
+  /* KNOWLEDGE BASE SIDEBAR */
+  .wrap:has(#page-tasks.active) { max-width: 1040px; }
+  .tasks-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .tasks-layout { grid-template-columns: 1fr; } }
+  .tasks-sidebar { position: sticky; top: 76px; }
+  .kb-card { min-height: 150px; display: flex; flex-direction: column; }
+  .kb-fact { font-size: 13px; line-height: 1.65; color: var(--text-2); flex: 1; opacity: 1; transition: opacity 0.35s ease; min-height: 60px; }
+  .kb-fact.fading { opacity: 0; }
+  .kb-dots { display: flex; gap: 5px; margin-top: 14px; justify-content: center; }
+  .kb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-md); transition: background 0.2s; cursor: pointer; border: none; padding: 0; }
+  .kb-dot.active { background: var(--teal); }
+  .kb-manage { margin-top: 14px; border-top: 0.5px solid var(--border); padding-top: 12px; }
+  .kb-manage-toggle { font-size: 11px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 4px; padding: 0; }
+  .kb-manage-toggle:hover { color: var(--text-2); }
+  .kb-list { margin-top: 10px; display: none; }
+  .kb-list.open { display: block; }
+  .kb-list-item { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--text-2); padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+  .kb-list-item:last-child { border-bottom: none; }
+  .kb-list-item span { flex: 1; }
+  .kb-add-row { display: flex; gap: 6px; margin-top: 10px; }
+  .kb-add-row input { flex: 1; }
+  .kb-add-row button { flex-shrink: 0; }
+
+  /* MESSAGE GENERATOR */
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .card-title i { font-size: 15px; color: var(--teal); }
+  #page-message .header h1 i, #page-message .card-title i { color: var(--purple-text); }
+  #page-calldata .header h1 i, #page-calldata .card-title i { color: var(--blue-text); }
+  #page-awjobs .header h1 i, #page-awjobs .card-title i { color: var(--amber-text); }
+  #page-standup .header h1 i, #page-standup .card-title i { color: var(--pink-text); }
+  #page-templates .header h1 i, #page-templates .card-title i { color: var(--coral-text); }
+  #page-meetings .header h1 i, #page-meetings .card-title i { color: var(--green-text); }
+  #page-kpi .header h1 i, #page-kpi .card-title i { color: var(--pink-text); }
+  .field-row { display: grid; grid-template-columns: 160px 1fr; gap: 10px; align-items: start; margin-bottom: 16px; }
+  .field-label { font-size: 13px; color: var(--text-2); padding-top: 8px; }
+  .field-input { width: 100%; padding: 7px 10px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .field-input:focus { border-color: var(--teal); }
+  .break-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .break-table th { text-align: left; font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 8px 8px; }
+  .break-table td { padding: 4px 8px 4px 0; vertical-align: middle; }
+  .break-table td:last-child { padding-right: 0; }
+  .break-table input { width: 100%; padding: 6px 8px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text); outline: none; }
+  .break-table input:focus { border-color: var(--teal); }
+  .add-row-btn { font-size: 12px; color: var(--teal); background: none; border: 0.5px dashed var(--teal); border-radius: 7px; padding: 5px 12px; cursor: pointer; font-family: inherit; margin-top: 8px; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .add-row-btn:hover { background: var(--teal-bg); }
+  .del-row-btn { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: 5px; font-size: 14px; display: flex; align-items: center; }
+  .del-row-btn:hover { color: var(--coral-text); background: var(--coral-bg); }
+  .generate-btn { width: 100%; padding: 11px; font-size: 14px; font-weight: 500; font-family: inherit; background: var(--teal); color: white; border: none; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s; margin-bottom: 16px; }
+  .generate-btn:hover { opacity: 0.88; }
+  .output-box { background: var(--surface2); border: 0.5px solid var(--border-md); border-radius: var(--radius); padding: 20px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text); line-height: 1.8; min-height: 120px; }
+  .output-box p { margin: 0 0 2px; white-space: pre-wrap; }
+  .output-box .gap { margin-bottom: 10px; }
+  .output-box .sep { color: var(--text-3); font-size: 11px; margin: 14px 0 10px; overflow: hidden; white-space: nowrap; }
+  .output-box .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin: 12px 0 4px; }
+  .output-box .big-header { font-size: 16px; font-weight: 600; color: var(--text); margin: 18px 0 10px; letter-spacing: -0.2px; }
+  .output-box .queue-label { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 2px; }
+  .name-green { color: #2b7a2b; font-weight: 500; }
+  .name-orange { color: #c25c00; font-weight: 500; }
+  .name-yellow { color: #8a6800; font-weight: 500; }
+  @media (prefers-color-scheme: dark) {
+    .name-green { color: #5dca5d; }
+    .name-orange { color: #f5a05a; }
+    .name-yellow { color: #f0d060; }
+  }
+  .out-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  .out-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 12px 6px 0; border-bottom: 0.5px solid var(--border-md); }
+  .out-table td { padding: 6px 12px 6px 0; border-bottom: 0.5px solid var(--border); vertical-align: top; color: var(--text); font-size: 13px; }
+  .out-table tr:last-child td { border-bottom: none; }
+  .out-table td:last-child { padding-right: 0; color: var(--text-2); }
+  .copy-btn { width: 100%; padding: 10px; font-size: 13px; font-weight: 500; font-family: inherit; background: var(--surface); color: var(--text); border: 0.5px solid var(--border-md); border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; margin-top: 10px; }
+  .copy-btn:hover { background: var(--surface2); }
+  .copy-btn.copied { color: var(--teal); border-color: var(--teal); background: var(--teal-bg); }
+  .queue-block { margin-bottom: 10px; }
+  .queue-block textarea { width: 100%; padding: 8px 10px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; resize: vertical; min-height: 60px; line-height: 1.5; }
+  .queue-block textarea:focus { border-color: var(--teal); }
+  .copy-field-label { margin-bottom: 6px; font-size: 12px; color: var(--text-3); }
+  .copy-field { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+  .copy-field-text { flex: 1; padding: 8px 10px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); white-space: pre-wrap; word-break: break-word; line-height: 1.5; }
+  .copy-field textarea.copy-field-text { resize: vertical; min-height: 90px; outline: none; }
+  .copy-field textarea.copy-field-text:focus { border-color: var(--teal); }
+  .copy-mini-btn { flex-shrink: 0; width: 42px; height: 42px; font-size: 17px; font-family: inherit; background: var(--surface); color: var(--text); border: 0.5px solid var(--border-md); border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .copy-mini-btn:hover { background: var(--surface2); }
+  .copy-mini-btn.copied { color: var(--teal); border-color: var(--teal); background: var(--teal-bg); }
+  .add-point-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .add-point-row input { flex: 1; padding: 8px 10px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; }
+  .add-point-row input:focus { border-color: var(--teal); }
+  .add-point-row button { flex-shrink: 0; padding: 0 16px; font-size: 13px; font-weight: 500; font-family: inherit; background: var(--teal); color: #fff; border: none; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .custom-task-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .custom-task-row .queue-block { flex: 1; min-width: 120px; margin-bottom: 0; }
+  .custom-task-row .queue-block:first-child { flex: 2; min-width: 200px; }
+  .task-del-btn, .task-edit-btn, .task-move-btn { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: 5px; font-size: 15px; display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; transition: all 0.15s; }
+  .task-del-btn:hover { color: var(--coral-text); background: var(--coral-bg); }
+  .task-edit-btn:hover { color: var(--teal); background: var(--teal-bg); }
+  .task-move-btn:hover { color: var(--text); background: var(--border); }
+  .task-move-btn { font-size: 13px; padding: 1px; }
+  .task-move-col { display: flex; flex-direction: column; gap: 0; flex-shrink: 0; }
+  .task-actions { display: flex; gap: 2px; align-items: center; align-self: flex-start; flex-shrink: 0; }
+  .standup-item { border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
+  .standup-item-row { display: flex; align-items: flex-start; gap: 8px; }
+  .standup-item-text { flex: 1; padding: 7px 10px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; resize: vertical; min-height: 38px; line-height: 1.4; }
+  .standup-item-text:focus { border-color: var(--teal); }
+  .standup-item-actions { display: flex; flex-direction: column; gap: 6px; }
+  .icon-btn { width: 34px; height: 34px; font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text); border: 0.5px solid var(--border-md); border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .icon-btn:hover { background: var(--surface2); }
+  .icon-btn.danger:hover { color: #e5484d; border-color: #e5484d; }
+  .icon-btn.copied { color: var(--teal); border-color: var(--teal); background: var(--teal-bg); }
+  .icon-btn:disabled { opacity: 0.5; cursor: default; }
+  .elaboration-box { margin-top: 10px; padding: 10px; font-size: 13px; line-height: 1.6; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); white-space: pre-wrap; color: var(--text-2); }
+  .standup-empty { text-align: center; color: var(--text-3); font-size: 13px; padding: 24px 0; }
+  .api-key-row { display: flex; gap: 8px; align-items: center; }
+  .api-key-row input { flex: 1; padding: 8px 10px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; }
+  .api-key-row input:focus { border-color: var(--teal); }
+  .api-key-hint { font-size: 11px; color: var(--text-3); margin-top: 6px; }
+  .template-item { border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
+  .template-item-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .template-item-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .template-item-actions { display: flex; gap: 6px; }
+  .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 800px) { .split-grid { grid-template-columns: 1fr; } }
+  .number-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; flex-wrap: nowrap; }
+  .number-item-info { min-width: 0; flex: 1; }
+  .number-item-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .number-item-value { font-size: 13px; color: var(--text-2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .number-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .drag-handle { cursor: grab; color: var(--text-3); display: flex; align-items: center; flex-shrink: 0; font-size: 16px; padding-right: 2px; }
+  .drag-handle:active { cursor: grabbing; }
+  .template-item, .number-item { transition: opacity 0.15s; }
+  .template-item.dragging, .number-item.dragging { opacity: 0.4; }
+  .meeting-item { border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; }
+  .meeting-item-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .meeting-item-meta { display: flex; align-items: center; gap: 8px; }
+  .meeting-item-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .meeting-item-actions { display: flex; gap: 6px; }
+  .meeting-item-notes { font-size: 13px; line-height: 1.6; color: var(--text-2); white-space: pre-wrap; }
+  .mtg-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .mtg-ANZWL { background: var(--purple-bg); color: var(--purple-text); }
+  .mtg-Wpay { background: var(--blue-bg); color: var(--blue-text); }
+  .mtg-DMG { background: var(--amber-bg); color: var(--amber-text); }
+  .meeting-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 16px 0 8px; }
+  .meeting-group-label:first-child { margin-top: 0; }
+
+  .kpi-upload-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .kpi-upload-row:last-child { border-bottom: none; }
+  .kpi-upload-info { flex: 1; min-width: 0; }
+  .kpi-upload-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .kpi-upload-cols { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .kpi-upload-status { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+  .kpi-upload-status.ready { color: var(--teal); }
+  .kpi-file-input { display: none; }
+  .kpi-file-btn { padding: 6px 14px; font-size: 12px; font-weight: 500; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .kpi-file-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .kpi-template-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 16px; }
+  .kpi-template-info { font-size: 13px; }
+  .kpi-template-info .kpi-tpl-name { font-weight: 500; color: var(--text); }
+  .kpi-template-info .kpi-tpl-status { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .kpi-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+  .kpi-modal-overlay.active { display: flex; }
+  .kpi-modal { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.35); }
+  .kpi-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; color: var(--text); }
+  .kpi-modal-preview { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow: auto; color: #000000; }
+  .kpi-modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <button class="nav-btn active" data-page="tasks" onclick="showPage('tasks')"><i class="ti ti-checklist"></i> Tasks</button>
+  <button class="nav-btn" data-page="message" onclick="showPage('message')"><i class="ti ti-message-2"></i> Daily message</button>
+  <button class="nav-btn" data-page="templates" onclick="showPage('templates')"><i class="ti ti-template"></i> Templates</button>
+  <button class="nav-btn" data-page="meetings" onclick="showPage('meetings')"><i class="ti ti-notes"></i> Meetings</button>
+  <button class="nav-btn" data-page="kpi" onclick="showPage('kpi')"><i class="ti ti-report-analytics"></i> KPI Report</button>
+  <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"><i class="ti ti-moon"></i></button>
+</div>
+
+<div class="wrap">
+
+  <!-- TASKS PAGE -->
+  <div class="page active" id="page-tasks">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-checklist"></i> My tasks</h1>
+        <p>Sorted by priority — tap a task to mark it done</p>
+      </div>
+      <span class="date-pill" id="datebadge"></span>
+    </div>
+
+    <div class="tasks-layout">
+    <div class="tasks-main">
+
+    <div id="today-banner" style="display:none" class="today-banner">
+      <i class="ti ti-calendar-event"></i>
+      <span id="banner-text"></span>
+    </div>
+
+    <div class="summary">
+      <div class="stat">
+        <div class="lbl">Today's tasks</div>
+        <div class="val" id="s-total">0</div>
+        <div class="sub">for <span id="s-day">today</span></div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Completed</div>
+        <div class="val" id="s-done">0</div>
+        <div class="progress-track"><div class="progress-fill" id="s-bar" style="width:0%"></div></div>
+      </div>
+      <div class="stat">
+        <div class="lbl">High priority</div>
+        <div class="val" id="s-high">0</div>
+        <div class="sub">remaining</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="today" onclick="switchTab('today')"><i class="ti ti-star"></i> Today</button>
+      <button class="tab" data-tab="daily" onclick="switchTab('daily')"><i class="ti ti-sun"></i> Daily</button>
+      <button class="tab" data-tab="weekly" onclick="switchTab('weekly')"><i class="ti ti-calendar-week"></i> Weekly</button>
+      <button class="tab" data-tab="monthly" onclick="switchTab('monthly')"><i class="ti ti-calendar-month"></i> Monthly</button>
+      <button class="tab" data-tab="all" onclick="switchTab('all')"><i class="ti ti-layout-list"></i> All</button>
+    </div>
+
+    <div id="list"></div>
+
+    <div class="footer">
+      <button class="reset" onclick="resetDay()"><i class="ti ti-refresh"></i> Reset today</button>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add your own task</div>
+      <div class="custom-task-row">
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Task name</div>
+          <input class="field-input" id="ct-name" placeholder="e.g. Check Xero invoices">
+        </div>
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Priority</div>
+          <select class="field-input" id="ct-priority">
+            <option value="HIGH">High</option>
+            <option value="MEDIUM" selected>Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+        </div>
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Frequency</div>
+          <select class="field-input" id="ct-freq" onchange="renderCustomTaskDayField()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="once">Once (today only)</option>
+          </select>
+        </div>
+        <div class="queue-block" id="ct-day-wrap"></div>
+      </div>
+      <button class="generate-btn" style="margin-top:14px; margin-bottom:0;" onclick="addCustomTask()"><i class="ti ti-plus" style="font-size:16px;"></i> Add task</button>
+    </div>
+
+    </div>
+
+    <div class="tasks-sidebar">
+      <div class="card kb-card">
+        <div class="card-title"><i class="ti ti-bulb"></i> Knowledge base</div>
+        <div class="kb-fact" id="kb-fact"></div>
+        <div class="kb-dots" id="kb-dots"></div>
+        <div class="kb-manage">
+          <button class="kb-manage-toggle" onclick="toggleKbManage()"><i class="ti ti-settings" id="kb-manage-icon"></i> Manage facts</button>
+          <div class="kb-list" id="kb-list"></div>
+          <div class="kb-add-row">
+            <input class="field-input" id="kb-new-fact" placeholder="Add a fact or tip..." onkeydown="if(event.key==='Enter') addKbFact()">
+            <button class="task-edit-btn" onclick="addKbFact()"><i class="ti ti-plus"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- MESSAGE PAGE -->
+  <div class="page" id="page-message">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-message-2"></i> Daily message</h1>
+        <p>Generate your morning Teams message</p>
+      </div>
+      <span class="date-pill" id="datebadge2"></span>
+    </div>
+
+    <!-- Queue assignments -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-layout-list"></i> Queue assignments</div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">ANZWL Qs</div>
+        <textarea id="q-anzwl">DEPLOYMENT TEAM</textarea>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Payment / Booking Qs <span style="color:var(--text-3); font-weight:400;">(enter names only — queue label is added automatically)</span></div>
+        <div class="field-row">
+          <div class="field-label">CVTS</div>
+          <input class="field-input" id="pq-cvts" value="Bella">
+        </div>
+        <div class="field-row">
+          <div class="field-label">Focus on Fiserv &amp; SMP Install, upgrade &amp; Decomm bookings new &amp; Called</div>
+          <input class="field-input" id="pq-fiserv" value="Trish/Zoe">
+        </div>
+        <div class="field-row">
+          <div class="field-label">DMG phone support/ DMG emails</div>
+          <input class="field-input" id="pq-dmg" value="Shakira">
+        </div>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Follow up / Retail Qs <span style="color:var(--text-3); font-weight:400;">(enter names only — queue label is added automatically)</span></div>
+        <div class="field-row">
+          <div class="field-label">Aldi</div>
+          <input class="field-input" id="fq-aldi" value="Jake/Kel">
+        </div>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Emails <span style="color:var(--text-3); font-weight:400;">(enter name only — queues below are added automatically)</span></div>
+        <div class="field-row">
+          <div class="field-label">Name</div>
+          <input class="field-input" id="q-email-name" value="Jake/Zarif">
+        </div>
+        <div style="font-size:12px; color:var(--text-3); line-height:1.8; padding-left:2px;">
+          Fiserv/ Helpdesk/ Smartpay Emails<br>
+          AW/ Delpro ETA emails<br>
+          WPAY Queues
+        </div>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Back log Qs <span style="color:var(--text-3); font-weight:400;">(enter names only — queue label is added automatically)</span></div>
+        <div class="field-row">
+          <div class="field-label">Payment GM - Parts Available</div>
+          <input class="field-input" id="bq-payment-gm" value="Jake & Kelly">
+        </div>
+        <div class="field-row">
+          <div class="field-label">ANZWL &amp; Fiserv Decom Dispatched BAU &amp; Clover Migration</div>
+          <input class="field-input" id="bq-anzwl-decom" value="Jack, Emily & Patricia">
+        </div>
+        <div class="field-row">
+          <div class="field-label">ANZWL, Fiserv &amp; SMP Escalated</div>
+          <input class="field-input" id="bq-anzwl-smp" value="Zoe, Bella & Krish">
+        </div>
+        <div class="field-row">
+          <div class="field-label">RTS &amp; ANZWL, FISER, SMARTPAY Install/Upgrade DISPATCHED</div>
+          <input class="field-input" id="bq-rts" value="Shakira, Damian, Ceren & Vlad">
+        </div>
+      </div>
+    </div>
+
+    <!-- Break schedule -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-coffee"></i> Break schedule</div>
+      <table class="break-table">
+        <thead>
+          <tr>
+            <th>Operator &amp; hours</th>
+            <th>Break time</th>
+            <th style="width:90px;">Blank row after</th>
+            <th style="width:32px;"></th>
+          </tr>
+        </thead>
+        <tbody id="break-rows"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addBreakRow()"><i class="ti ti-plus" style="font-size:13px;"></i> Add operator</button>
+    </div>
+
+    <button class="generate-btn" onclick="generateMessage()"><i class="ti ti-wand" style="font-size:16px;"></i> Generate message</button>
+
+    <div id="output-wrap" style="display:none;">
+      <div class="card-title" style="margin-bottom:8px;"><i class="ti ti-message-dots" style="font-size:15px;"></i> Your message</div>
+      <div class="output-box" id="output-box"></div>
+      <button class="copy-btn" id="copy-btn" onclick="copyMessage()"><i class="ti ti-copy" style="font-size:15px;"></i> Copy to clipboard</button>
+    </div>
+  </div>
+
+  <!-- CALL DATA PAGE -->
+  <div class="page" id="page-calldata">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-phone-outgoing"></i> Weekly call data</h1>
+        <p>Email templates for Wpay &amp; DMG call data</p>
+      </div>
+      <span class="date-pill" id="datebadge3"></span>
+    </div>
+
+    <!-- Wpay -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-mail"></i> Wpay call data</div>
+      <div class="copy-field-label">To</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="wpay-to">"Surya Khattri" &lt;skhattri@woolworths.com.au&gt;; "Ben Engel" &lt;bengel@woolworths.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('wpay-to', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Cc</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="wpay-cc">"Ben Portelli" &lt;ben.portelli@amtek.com.au&gt;; "Jacklin Lupeski" &lt;jacklin.lupeski@amtek.com.au&gt;; "Helpdesk Leaders" &lt;amtek.helpdeskleaders@amtek.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('wpay-cc', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Email body</div>
+      <div class="copy-field">
+        <textarea class="copy-field-text" id="wpay-body" rows="6"></textarea>
+        <button class="copy-mini-btn" onclick="copyField('wpay-body', this)"><i class="ti ti-copy"></i></button>
+      </div>
+    </div>
+
+    <!-- DMG -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-mail"></i> DMG call data</div>
+      <div class="copy-field-label">To</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="dmg-to">"Crystal Hutchings" &lt;crystal@datameshgroup.com&gt;; "Dilean Martin" &lt;dilean.martin@datameshgroup.com&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('dmg-to', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Cc</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="dmg-cc">"Helpdesk Leaders" &lt;amtek.helpdeskleaders@amtek.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('dmg-cc', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Email body</div>
+      <div class="copy-field">
+        <textarea class="copy-field-text" id="dmg-body" rows="6"></textarea>
+        <button class="copy-mini-btn" onclick="copyField('dmg-body', this)"><i class="ti ti-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AW/VIRIDIAN IT JOBS PAGE -->
+  <div class="page" id="page-awjobs">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-tools"></i> AW / Viridian IT scheduled jobs</h1>
+        <p>Email templates for Advanced Works &amp; Viridian IT</p>
+      </div>
+      <span class="date-pill" id="datebadge4"></span>
+    </div>
+
+    <!-- Advanced Works -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-mail"></i> Advanced Works</div>
+      <div class="copy-field-label">To</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="aw-to">"Advanced Works Operations" &lt;operations@advancedworks.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('aw-to', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Cc</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="aw-cc">"Patrick Le" &lt;patrick.le@amtek.com.au&gt;; "Jonathan Reynolds-Smith" &lt;jonathan.reynolds-smith@amtek.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('aw-cc', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Email body</div>
+      <div class="copy-field">
+        <textarea class="copy-field-text" id="aw-body" rows="6"></textarea>
+        <button class="copy-mini-btn" onclick="copyField('aw-body', this)"><i class="ti ti-copy"></i></button>
+      </div>
+    </div>
+
+    <!-- Viridian IT -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-mail"></i> Viridian IT</div>
+      <div class="copy-field-label">To</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="vir-to">"Viridian IT" &lt;support@viridianit.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('vir-to', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Cc</div>
+      <div class="copy-field">
+        <div class="copy-field-text" id="vir-cc">"Patrick Le" &lt;patrick.le@amtek.com.au&gt;; "Jonathan Reynolds-Smith" &lt;jonathan.reynolds-smith@amtek.com.au&gt;</div>
+        <button class="copy-mini-btn" onclick="copyField('vir-cc', this)"><i class="ti ti-copy"></i></button>
+      </div>
+      <div class="copy-field-label">Email body</div>
+      <div class="copy-field">
+        <textarea class="copy-field-text" id="vir-body" rows="6"></textarea>
+        <button class="copy-mini-btn" onclick="copyField('vir-body', this)"><i class="ti ti-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAND UP PAGE -->
+  <div class="page" id="page-standup">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-presentation"></i> Stand up notes</h1>
+        <p>Draft your talking points for stand up</p>
+      </div>
+      <span class="date-pill" id="datebadge5"></span>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-key"></i> AI elaboration</div>
+      <div class="api-key-row">
+        <input type="password" id="openai-key" placeholder="sk-... (your OpenAI API key)">
+        <button class="icon-btn" id="save-key-btn" onclick="saveApiKey()" title="Save key"><i class="ti ti-device-floppy"></i></button>
+      </div>
+      <div class="api-key-hint">Stored only in this browser (localStorage). Used to call OpenAI directly from this page so "Elaborate" can write a short script for each point.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list-details"></i> Talking points</div>
+      <div class="add-point-row">
+        <input type="text" id="new-point" placeholder="Add a point to bring up..." onkeydown="if(event.key==='Enter') addStandupPoint()">
+        <button onclick="addStandupPoint()"><i class="ti ti-plus" style="font-size:14px;"></i> Add</button>
+      </div>
+      <div id="standup-list"></div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES PAGE -->
+  <div class="page" id="page-templates">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-template"></i> Templates</h1>
+        <p>Save and search reusable message templates &amp; common numbers</p>
+      </div>
+      <span class="date-pill" id="datebadge6"></span>
+    </div>
+
+    <div class="split-grid">
+      <!-- Templates column -->
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Saved templates</div>
+          <div class="add-point-row" style="margin-bottom:14px;">
+            <input type="text" id="tpl-search" placeholder="Search templates by name..." oninput="renderTemplates()">
+          </div>
+          <div id="templates-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add a template</div>
+          <div class="queue-block">
+            <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Name</div>
+            <input class="field-input" id="tpl-name" placeholder="e.g. Booking confirmation email">
+          </div>
+          <div class="queue-block">
+            <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">To <span style="font-weight:400;">(optional)</span></div>
+            <input class="field-input" id="tpl-to" placeholder="e.g. &quot;Name&quot; &lt;email@example.com&gt;">
+          </div>
+          <div class="queue-block">
+            <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Cc <span style="font-weight:400;">(optional)</span></div>
+            <input class="field-input" id="tpl-cc" placeholder="e.g. &quot;Name&quot; &lt;email@example.com&gt;">
+          </div>
+          <div class="queue-block">
+            <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Body</div>
+            <textarea id="tpl-body" rows="6" placeholder="Template text..."></textarea>
+          </div>
+          <button class="generate-btn" onclick="addTemplate()"><i class="ti ti-device-floppy" style="font-size:16px;"></i> Save template</button>
+        </div>
+      </div>
+
+      <!-- Numbers column -->
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Saved numbers</div>
+          <div class="add-point-row" style="margin-bottom:14px;">
+            <input type="text" id="num-search" placeholder="Search numbers by name..." oninput="renderNumbers()">
+          </div>
+          <div id="numbers-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add a number</div>
+          <div class="queue-block">
+            <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Name</div>
+            <input class="field-input" id="num-name" placeholder="e.g. Fiserv Helpdesk">
+          </div>
+          <div class="queue-block">
+            <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Number</div>
+            <input class="field-input" id="num-value" placeholder="e.g. 1300 123 456">
+          </div>
+          <button class="generate-btn" onclick="addNumber()"><i class="ti ti-device-floppy" style="font-size:16px;"></i> Save number</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEETINGS PAGE -->
+  <div class="page" id="page-meetings">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-notes"></i> Meetings</h1>
+        <p>Meeting minutes for ANZWL, Wpay &amp; DMG</p>
+      </div>
+      <span class="date-pill" id="datebadge7"></span>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add meeting notes</div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Meeting</div>
+        <select class="field-input" id="mtg-type">
+          <option value="ANZWL">ANZWL</option>
+          <option value="Wpay">Wpay</option>
+          <option value="DMG">DMG</option>
+        </select>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Date</div>
+        <input class="field-input" type="date" id="mtg-date">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Notes</div>
+        <textarea id="mtg-notes" rows="6" placeholder="What was discussed, action items, follow ups..."></textarea>
+      </div>
+      <button class="generate-btn" onclick="addMeeting()"><i class="ti ti-device-floppy" style="font-size:16px;"></i> Save notes</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Past meetings</div>
+      <div class="add-point-row" style="margin-bottom:14px;">
+        <select class="field-input" id="mtg-filter" style="flex:0 0 140px;" onchange="renderMeetings()">
+          <option value="">All meetings</option>
+          <option value="ANZWL">ANZWL</option>
+          <option value="Wpay">Wpay</option>
+          <option value="DMG">DMG</option>
+        </select>
+        <input type="text" id="mtg-search" placeholder="Search notes..." oninput="renderMeetings()">
+      </div>
+      <div id="meetings-list"></div>
+    </div>
+  </div>
+
+  <!-- KPI REPORT PAGE -->
+  <div class="page" id="page-kpi">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-report-analytics"></i> KPI Report</h1>
+        <p>Generate the daily Helpdesk Metrics report from your data exports</p>
+      </div>
+      <span class="date-pill" id="datebadge8"></span>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-file-spreadsheet" style="font-size:13px;"></i> Report template</div>
+      <div class="kpi-template-row">
+        <div class="kpi-template-info">
+          <div class="kpi-tpl-name">Helpdesk Daily Metrics template</div>
+          <div class="kpi-tpl-status" id="kpi-tpl-status">No template loaded</div>
+        </div>
+        <input type="file" id="kpi-template-input" class="kpi-file-input" accept=".xlsx" onchange="kpiSaveTemplate(this.files[0])">
+        <button class="kpi-file-btn" onclick="document.getElementById('kpi-template-input').click()">Upload template</button>
+      </div>
+
+      <div class="card-title"><i class="ti ti-upload" style="font-size:13px;"></i> Daily data exports</div>
+      <div id="kpi-upload-list"></div>
+
+      <button class="generate-btn" id="kpi-generate-btn" style="margin-top:16px;" onclick="kpiGenerateReport()"><i class="ti ti-download" style="font-size:16px;"></i> Generate report</button>
+      <div id="kpi-generate-status" style="font-size:12px; color:var(--text-3); text-align:center;"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><i class="ti ti-mail" style="font-size:13px;"></i> Operator KPI emails</div>
+      <div class="kpi-template-row">
+        <div class="kpi-template-info">
+          <div class="kpi-tpl-name">Refreshed daily report file</div>
+          <div class="kpi-tpl-status" id="kpi-ops-status">No file loaded</div>
+        </div>
+        <input type="file" id="kpi-ops-input" class="kpi-file-input" accept=".xlsx" onchange="kpiOpsLoadFile(this.files[0])">
+        <button class="kpi-file-btn" onclick="document.getElementById('kpi-ops-input').click()">Upload report</button>
+      </div>
+      <div id="kpi-ops-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="kpi-modal-overlay" id="kpi-ops-modal-overlay">
+  <div class="kpi-modal">
+    <div class="kpi-modal-header">
+      <strong>Email preview</strong>
+      <button class="icon-btn" onclick="kpiOpsModalClose()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="kpi-modal-preview" id="kpi-ops-modal-preview"></div>
+    <div class="kpi-modal-actions">
+      <button class="kpi-file-btn" onclick="kpiOpsModalClose()">Close</button>
+      <button class="generate-btn" id="kpi-ops-modal-copy-btn" style="width:auto; margin-bottom:0; padding:8px 18px;" onclick="kpiOpsModalCopy()"><i class="ti ti-copy" style="font-size:15px;"></i> Copy email</button>
+    </div>
+  </div>
+</div>
+
+<div class="kpi-modal-overlay" id="task-edit-modal-overlay">
+  <div class="kpi-modal">
+    <div class="kpi-modal-header">
+      <strong>Edit task</strong>
+      <button class="icon-btn" onclick="closeTaskEditModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="kpi-modal-preview">
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Task name</div>
+        <input class="field-input" id="te-name">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Priority</div>
+        <select class="field-input" id="te-priority">
+          <option value="HIGH">High</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="LOW">Low</option>
+        </select>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Frequency</div>
+        <select class="field-input" id="te-freq" onchange="renderTaskEditDayField(this.value)">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="fortnightly">Fortnightly</option>
+          <option value="monthly">Monthly</option>
+          <option value="once">Once (today only)</option>
+        </select>
+      </div>
+      <div class="queue-block" id="te-day-wrap"></div>
+    </div>
+    <div class="kpi-modal-actions">
+      <button class="kpi-file-btn" onclick="closeTaskEditModal()">Cancel</button>
+      <button class="generate-btn" style="width:auto; margin-bottom:0; padding:8px 18px;" onclick="saveTaskEdit()"><i class="ti ti-check" style="font-size:15px;"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TASKS = [
+  {id:1,  freq:'daily',   days:'all', name:'Daily tasks message',                    priority:'HIGH',   assignees:['Zarif','Fin','Nalani'], note:''},
+  {id:2,  freq:'daily',   days:'all', name:'Daily KPIs to operators',                priority:'HIGH',   assignees:['Zarif','Fin','Nalani'], note:''},
+  {id:3,  freq:'daily',   days:'all', name:'Daily AW/Viridian IT scheduled jobs',    priority:'HIGH',   assignees:['Zarif','Emily'],        note:''},
+  {id:4,  freq:'daily',   days:'all', name:'Fiserv RTS',                             priority:'HIGH',   assignees:['All TLs'],              note:'Currently assigned to Bella & Zoe — keep track of the queue and push them.'},
+  {id:5,  freq:'daily',   days:'all', name:'File load',                              priority:'HIGH',   assignees:['All TLs'],              note:'Fiserv KDS files are to be actioned ASAP.'},
+  {id:6,  freq:'daily',   days:'all', name:'Phone reviews',                          priority:'MEDIUM', assignees:['All TLs'],              note:''},
+  {id:7,  freq:'daily',   days:'all', name:'Stand up',                               priority:'LOW',    assignees:['All TLs'],              note:'Try your best to do at least twice a week.'},
+  {id:8,  freq:'weekly',  days:[1],   name:'Weekly call data to Wpay & DMG',         priority:'HIGH',   assignees:['Zarif'],                note:'Send every Monday.'},
+  {id:9,  freq:'weekly',  days:[1],   name:'Nickel Operator Xero approval',          priority:'HIGH',   assignees:['Zarif','Emily'],        note:'Every Monday. If Monday is a public holiday, remind operator to do timesheet the Friday before.'},
+  {id:10, freq:'weekly',  days:'all', name:'Modules completion — Elmo / Wpay / Fiserv', priority:'MEDIUM', assignees:['Zarif','Fin','Nalani'], note:'Zac still needs to complete his modules for all 3.'},
+  {id:11, freq:'weekly',      days:[3],                  name:'ANZWL meetings',     priority:'MEDIUM', assignees:['Zarif','Emily'],        note:'Every Wednesday.'},
+  {id:12, freq:'fortnightly', anchor:[2026,6,4],         name:'DMG meetings',       priority:'MEDIUM', assignees:['Zarif','Fin','Nalani'], note:'Every other Thursday, starting 4 June 2026.'},
+  {id:13, freq:'fortnightly', anchor:[2026,6,9],         name:'Wpay meetings',      priority:'MEDIUM', assignees:['Zarif','Fin'],          note:'Every other Tuesday, starting 9 June 2026.'},
+  {id:14, freq:'weekly',  days:'all', name:'Prospend bills from Nickel',             priority:'LOW',    assignees:['Zarif'],                note:''},
+  {id:15, freq:'monthly', days:'all', name:'Monthly meeting — inbound/outbound operators', priority:'HIGH', assignees:['Zarif','Fin','Nalani'], note:'Set up meeting for all operators including night shift.'},
+  {id:16, freq:'monthly', dayRange:[1,10], name:'KPIs report',                       priority:'LOW',    assignees:['Zarif','Fin','Nalani'], note:'Complete and send out within the first 10 days of the month.'},
+  {id:17, freq:'monthly', dayRange:[1,10], name:'NSLA report',                       priority:'LOW',    assignees:['Zarif','Fin','Nalani'], note:'Complete and send out within the first 10 days of the month.'},
+];
+
+const DEFAULT_BREAKS = [
+  {op:'Krish (6am-6pm)',    brk:'OFF',           sep:false},
+  {op:'Jack (6am-6pm)',     brk:'OFF',           sep:false},
+  {op:'Kelly (7am-3pm)',    brk:'11:30am-12pm',  sep:true},
+  {op:'Jake (9am-5pm)',     brk:'1pm-1:30pm',    sep:false},
+  {op:'Shakira (10am-6pm)', brk:'2pm-2:30pm',    sep:false},
+  {op:'Trish (9am-5pm)',    brk:'1:30pm-2pm',    sep:false},
+  {op:'Zoe (12:30pm-4:30pm)', brk:'NA',          sep:true},
+  {op:'Bella (8:30am-4:30pm)', brk:'12:30pm-1pm', sep:false},
+  {op:'Damian (9am-5pm)',   brk:'1pm-1:30pm',    sep:false},
+  {op:'Renee (9am-5pm)',    brk:'1pm-1:30pm',    sep:false},
+  {op:'Uttam (9am-5pm)',    brk:'1pm-1:30pm',    sep:false},
+  {op:'Roja (9am-5pm)',     brk:'OFF',           sep:false},
+];
+
+// ===== THEME TOGGLE =====
+function applyTheme(theme) {
+  if (theme === 'light' || theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', theme);
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  const icon = document.querySelector('#theme-toggle-btn i');
+  if (icon) {
+    const resolved = (theme === 'light' || theme === 'dark') ? theme : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    icon.className = resolved === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+  }
+}
+
+function toggleTheme() {
+  const current = localStorage.getItem('zarif_theme') || 'auto';
+  const resolved = current === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : current;
+  const next = resolved === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('zarif_theme', next);
+  applyTheme(next);
+}
+
+applyTheme(localStorage.getItem('zarif_theme') || 'auto');
+
+const PO = {HIGH:0, MEDIUM:1, LOW:2};
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const now = new Date();
+const todayDow = now.getDay();
+const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+
+let currentTab = 'today';
+let done = JSON.parse(localStorage.getItem('zarif_done_v2') || '{}');
+let breaks = JSON.parse(localStorage.getItem('zarif_breaks') || 'null') || DEFAULT_BREAKS.map(r => ({...r}));
+let customTasks = JSON.parse(localStorage.getItem('zarif_custom_tasks') || '[]');
+let taskOverrides = JSON.parse(localStorage.getItem('zarif_task_overrides') || '{}');
+let taskOrder = JSON.parse(localStorage.getItem('zarif_task_order') || '{}');
+{
+  const before = customTasks.length;
+  customTasks = customTasks.filter(t => !(t.freq === 'once' && t.date !== todayInputDate()));
+  if (customTasks.length !== before) saveCustomTasks();
+}
+
+const DEFAULT_KB_FACTS = [
+  "Tip: Use the 'All' tab to see every task grouped by frequency, regardless of whether it's due today.",
+  "Tip: Click the pencil icon on a task to change its name, priority, or how often it repeats.",
+  "Tip: Use the up/down arrows on a task to reorder it within its priority group.",
+  "Tip: Tasks marked 'Once' automatically disappear after their date has passed.",
+  "Reminder: Reset today's checklist at the start of each shift using the 'Reset today' button.",
+  "Tip: Add your own one-off or recurring tasks using the 'Add your own task' card below the list.",
+];
+let kbFacts = JSON.parse(localStorage.getItem('zarif_kb_facts') || 'null') || DEFAULT_KB_FACTS.slice();
+let kbIndex = 0;
+let kbTimer = null;
+
+function save() { try { localStorage.setItem('zarif_done_v2', JSON.stringify(done)); } catch(e){} }
+function saveBreaks() { try { localStorage.setItem('zarif_breaks', JSON.stringify(breaks)); } catch(e){} }
+function saveCustomTasks() { try { localStorage.setItem('zarif_custom_tasks', JSON.stringify(customTasks)); } catch(e){} }
+function saveTaskOverrides() { try { localStorage.setItem('zarif_task_overrides', JSON.stringify(taskOverrides)); } catch(e){} }
+function saveTaskOrder() { try { localStorage.setItem('zarif_task_order', JSON.stringify(taskOrder)); } catch(e){} }
+function getOrder(id) { return taskOrder[id] !== undefined ? taskOrder[id] : 0; }
+function getAllTasks() {
+  return [...TASKS, ...customTasks].map(t => taskOverrides[t.id] ? {...t, ...taskOverrides[t.id]} : t);
+}
+function taskKey(id) { return `${todayKey}_${id}`; }
+function isDone(id) { return !!done[taskKey(id)]; }
+function toggle(id) { const k = taskKey(id); done[k] = !done[k]; save(); renderTasks(); }
+function resetDay() { getAllTasks().forEach(t => { delete done[taskKey(t.id)]; }); save(); renderTasks(); }
+
+function renderCustomTaskDayField() {
+  const freq = document.getElementById('ct-freq').value;
+  const wrap = document.getElementById('ct-day-wrap');
+  if (freq === 'weekly') {
+    wrap.innerHTML = `<div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Day</div>
+      <select class="field-input" id="ct-day">
+        <option value="all">Every day</option>
+        ${DAY_NAMES.map((d,i) => `<option value="${i}">${d}</option>`).join('')}
+      </select>`;
+  } else if (freq === 'monthly') {
+    wrap.innerHTML = `<div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Day of month</div>
+      <select class="field-input" id="ct-day">
+        <option value="all">Every month</option>
+        ${Array.from({length:31}, (_,i) => i+1).map(d => `<option value="${d}">${d}</option>`).join('')}
+      </select>`;
+  } else {
+    wrap.innerHTML = '';
+  }
+}
+
+function addCustomTask() {
+  const nameEl = document.getElementById('ct-name');
+  const name = nameEl.value.trim();
+  if (!name) return;
+  const priority = document.getElementById('ct-priority').value;
+  const freq = document.getElementById('ct-freq').value;
+  const dayEl = document.getElementById('ct-day');
+  const dayVal = dayEl ? dayEl.value : 'all';
+
+  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note: '', custom: true };
+  if (freq === 'weekly' && dayVal !== 'all') {
+    task.days = [parseInt(dayVal, 10)];
+  } else if (freq === 'monthly' && dayVal !== 'all') {
+    task.dayRange = [parseInt(dayVal, 10), parseInt(dayVal, 10)];
+  } else if (freq === 'once') {
+    task.date = todayInputDate();
+  }
+
+  customTasks.push(task);
+  saveCustomTasks();
+  nameEl.value = '';
+  renderTasks();
+}
+
+function deleteCustomTask(id) {
+  customTasks = customTasks.filter(t => t.id !== id);
+  delete done[taskKey(id)];
+  delete taskOverrides[id];
+  saveCustomTasks();
+  saveTaskOverrides();
+  save();
+  renderTasks();
+}
+
+// ===== KNOWLEDGE BASE SIDEBAR =====
+function saveKbFacts() { try { localStorage.setItem('zarif_kb_facts', JSON.stringify(kbFacts)); } catch(e){} }
+
+function renderKbFact() {
+  const factEl = document.getElementById('kb-fact');
+  const dotsEl = document.getElementById('kb-dots');
+  if (!factEl) return;
+  if (!kbFacts.length) {
+    factEl.textContent = 'No facts yet — add one below.';
+    dotsEl.innerHTML = '';
+    return;
+  }
+  if (kbIndex >= kbFacts.length) kbIndex = 0;
+  factEl.classList.add('fading');
+  setTimeout(() => {
+    factEl.textContent = kbFacts[kbIndex];
+    factEl.classList.remove('fading');
+  }, 300);
+  dotsEl.innerHTML = kbFacts.map((_,i) => `<button class="kb-dot${i===kbIndex?' active':''}" onclick="kbGoTo(${i})"></button>`).join('');
+}
+
+function kbNext() {
+  if (!kbFacts.length) return;
+  kbIndex = (kbIndex + 1) % kbFacts.length;
+  renderKbFact();
+}
+
+function kbGoTo(i) {
+  kbIndex = i;
+  renderKbFact();
+  startKbRotation();
+}
+
+function startKbRotation() {
+  if (kbTimer) clearInterval(kbTimer);
+  if (kbFacts.length > 1) kbTimer = setInterval(kbNext, 9000);
+}
+
+function toggleKbManage() {
+  const list = document.getElementById('kb-list');
+  const open = list.classList.toggle('open');
+  document.getElementById('kb-manage-icon').className = open ? 'ti ti-chevron-up' : 'ti ti-settings';
+  if (open) renderKbList();
+}
+
+function renderKbList() {
+  const list = document.getElementById('kb-list');
+  if (!list.classList.contains('open')) return;
+  list.innerHTML = kbFacts.map((f,i) => `<div class="kb-list-item"><span>${esc(f)}</span><button class="task-del-btn" onclick="deleteKbFact(${i})"><i class="ti ti-trash"></i></button></div>`).join('') || '<div class="kb-list-item"><span style="color:var(--text-3);">No facts yet.</span></div>';
+}
+
+function addKbFact() {
+  const input = document.getElementById('kb-new-fact');
+  const val = input.value.trim();
+  if (!val) return;
+  kbFacts.push(val);
+  saveKbFacts();
+  input.value = '';
+  renderKbList();
+  kbIndex = kbFacts.length - 1;
+  renderKbFact();
+  startKbRotation();
+}
+
+function deleteKbFact(i) {
+  kbFacts.splice(i, 1);
+  saveKbFacts();
+  if (kbIndex >= kbFacts.length) kbIndex = 0;
+  renderKbList();
+  renderKbFact();
+  startKbRotation();
+}
+
+// ===== TASK EDIT MODAL =====
+let editingTaskId = null;
+
+function renderTaskEditDayField(freq, task) {
+  const wrap = document.getElementById('te-day-wrap');
+  if (freq === 'weekly') {
+    const current = (task && task.freq === 'weekly' && Array.isArray(task.days)) ? task.days[0] : 'all';
+    wrap.innerHTML = `<div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Day</div>
+      <select class="field-input" id="te-day">
+        <option value="all"${current==='all'?' selected':''}>Every day</option>
+        ${DAY_NAMES.map((d,i) => `<option value="${i}"${current===i?' selected':''}>${d}</option>`).join('')}
+      </select>`;
+  } else if (freq === 'monthly') {
+    const current = (task && task.freq === 'monthly' && task.dayRange) ? task.dayRange[0] : 'all';
+    wrap.innerHTML = `<div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Day of month</div>
+      <select class="field-input" id="te-day">
+        <option value="all"${current==='all'?' selected':''}>Every month</option>
+        ${Array.from({length:31}, (_,i) => i+1).map(d => `<option value="${d}"${current===d?' selected':''}>${d}</option>`).join('')}
+      </select>`;
+  } else {
+    wrap.innerHTML = '';
+  }
+}
+
+function openTaskEdit(id) {
+  const task = getAllTasks().find(t => String(t.id) === String(id));
+  if (!task) return;
+  editingTaskId = task.id;
+  document.getElementById('te-name').value = task.name;
+  document.getElementById('te-priority').value = task.priority;
+  document.getElementById('te-freq').value = task.freq;
+  renderTaskEditDayField(task.freq, task);
+  document.getElementById('task-edit-modal-overlay').classList.add('active');
+}
+
+function closeTaskEditModal() {
+  document.getElementById('task-edit-modal-overlay').classList.remove('active');
+  editingTaskId = null;
+}
+
+function saveTaskEdit() {
+  if (editingTaskId == null) return;
+  const name = document.getElementById('te-name').value.trim();
+  const priority = document.getElementById('te-priority').value;
+  const freq = document.getElementById('te-freq').value;
+  const dayEl = document.getElementById('te-day');
+  const dayVal = dayEl ? dayEl.value : 'all';
+
+  const override = { name, priority, freq };
+  if (freq === 'weekly') {
+    override.days = dayVal === 'all' ? 'all' : [parseInt(dayVal, 10)];
+    override.dayRange = null;
+    override.date = null;
+  } else if (freq === 'monthly') {
+    override.days = 'all';
+    override.dayRange = dayVal !== 'all' ? [parseInt(dayVal, 10), parseInt(dayVal, 10)] : null;
+    override.date = null;
+  } else if (freq === 'once') {
+    override.days = 'all';
+    override.dayRange = null;
+    override.date = todayInputDate();
+  } else if (freq === 'daily') {
+    override.days = 'all';
+    override.dayRange = null;
+    override.date = null;
+  }
+  // fortnightly: leave days/dayRange/date/anchor untouched
+
+  taskOverrides[editingTaskId] = { ...(taskOverrides[editingTaskId] || {}), ...override };
+  saveTaskOverrides();
+  closeTaskEditModal();
+  renderTasks();
+}
+
+function isToday(task) {
+  if (task.freq === 'daily') return true;
+  if (task.freq === 'weekly') { if (task.days === 'all') return true; return task.days.includes(todayDow); }
+  if (task.freq === 'fortnightly') {
+    const [y, m, day] = task.anchor;
+    const anchor = new Date(y, m-1, day);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffDays = Math.round((today - anchor) / 86400000);
+    return diffDays >= 0 && diffDays % 14 === 0;
+  }
+  if (task.freq === 'monthly') {
+    if (task.dayRange) { const day = now.getDate(); return day >= task.dayRange[0] && day <= task.dayRange[1]; }
+    return true;
+  }
+  if (task.freq === 'once') return task.date === todayInputDate();
+  return false;
+}
+function getTodayTasks() { return getAllTasks().filter(isToday).sort((a,b) => PO[a.priority]-PO[b.priority] || getOrder(a.id)-getOrder(b.id)); }
+
+function moveTask(id, dir) {
+  const all = getAllTasks();
+  const task = all.find(t => String(t.id) === String(id));
+  if (!task) return;
+  let group;
+  if (currentTab === 'today') {
+    group = getTodayTasks().filter(t => t.priority === task.priority);
+  } else if (currentTab === 'all') {
+    group = all.filter(t => t.freq === task.freq && t.priority === task.priority)
+      .sort((a,b) => getOrder(a.id)-getOrder(b.id));
+  } else {
+    group = all.filter(t => t.freq === currentTab && t.priority === task.priority)
+      .sort((a,b) => getOrder(a.id)-getOrder(b.id));
+  }
+  group.forEach((t,i) => taskOrder[t.id] = i);
+  const idx = group.findIndex(t => String(t.id) === String(id));
+  const target = idx + dir;
+  if (target < 0 || target >= group.length) return;
+  const tmp = taskOrder[group[idx].id];
+  taskOrder[group[idx].id] = taskOrder[group[target].id];
+  taskOrder[group[target].id] = tmp;
+  saveTaskOrder();
+  renderTasks();
+}
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === 'page-'+p));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.page === p));
+}
+
+function switchTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === t));
+  renderTasks();
+}
+
+const FREQ_ICONS = {daily:'ti-sun', weekly:'ti-calendar-week', fortnightly:'ti-calendar-week', monthly:'ti-calendar-month', once:'ti-calendar-event'};
+const FREQ_LABELS = {daily:'Daily', weekly:'Weekly', fortnightly:'Fortnightly', monthly:'Monthly', once:'Once'};
+
+function taskHTML(t, showFreqPill) {
+  const d = isDone(t.id);
+  const bCls = t.priority==='HIGH'?'b-high':t.priority==='MEDIUM'?'b-medium':'b-low';
+  const bLbl = t.priority[0]+t.priority.slice(1).toLowerCase();
+  const pills = t.assignees.map(a=>`<span class="pill${a==='Zarif'?' me':''}">${a}</span>`).join('');
+  const note = t.note ? `<div class="tnote"><i class="ti ti-info-circle"></i>${t.note}</div>` : '';
+  const freq = (t.id === 8 && todayDow === 1) ? 'daily' : t.freq;
+  const freqPill = showFreqPill
+    ? `<span class="freq-pill fp-${freq}">${FREQ_LABELS[freq]}</span>`
+    : `<span><i class="ti ${FREQ_ICONS[freq]}"></i>${FREQ_LABELS[freq]}</span>`;
+  const click = t.id === 1 ? `showPage('message')` : t.id === 8 ? `showPage('calldata')` : t.id === 3 ? `showPage('awjobs')` : t.id === 7 ? `showPage('standup')` : `toggle('${t.id}')`;
+  const delBtn = t.custom ? `<button class="task-del-btn" onclick="event.stopPropagation(); deleteCustomTask('${t.id}')"><i class="ti ti-trash"></i></button>` : '';
+  const editBtn = `<button class="task-edit-btn" onclick="event.stopPropagation(); openTaskEdit('${t.id}')"><i class="ti ti-pencil"></i></button>`;
+  const upBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', -1)"><i class="ti ti-chevron-up"></i></button>`;
+  const downBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', 1)"><i class="ti ti-chevron-down"></i></button>`;
+  return `<div class="task${d?' done':''}" onclick="${click}">
+    <div class="cb${d?' on':''}"><i class="ti ti-check"></i></div>
+    <div class="tbody">
+      <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}">${bLbl}</span></div>
+      <div class="tmeta">${freqPill}<div class="pills">${pills}</div></div>
+      ${note}
+    </div>
+    <div class="task-actions">
+      <div class="task-move-col">${upBtn}${downBtn}</div>
+      ${editBtn}${delBtn}
+    </div>
+  </div>`;
+}
+
+function renderTasks() {
+  const todayTasks = getTodayTasks();
+  const todayTotal = todayTasks.length;
+  const todayDone = todayTasks.filter(t => isDone(t.id)).length;
+  const todayHigh = todayTasks.filter(t => t.priority==='HIGH' && !isDone(t.id)).length;
+
+  document.getElementById('s-day').textContent = DAY_NAMES[todayDow];
+  document.getElementById('s-total').textContent = todayTotal;
+  document.getElementById('s-done').textContent = todayDone;
+  document.getElementById('s-high').textContent = todayHigh;
+  document.getElementById('s-bar').style.width = todayTotal ? Math.round(todayDone/todayTotal*100)+'%' : '0%';
+
+  const banner = document.getElementById('today-banner');
+  if (currentTab === 'today' && todayDow === 1) {
+    banner.style.display = 'flex';
+    document.getElementById('banner-text').textContent = "It's Monday — your weekly Monday tasks are included below.";
+  } else { banner.style.display = 'none'; }
+
+  let tasks, html = '';
+  if (currentTab === 'today') {
+    tasks = todayTasks;
+    if (!tasks.length) { document.getElementById('list').innerHTML = '<div class="empty">No tasks for today.</div>'; return; }
+    let lastP = null;
+    tasks.forEach(t => {
+      if (t.priority !== lastP) { html += `<div class="section-header">${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
+      html += taskHTML(t, true);
+    });
+  } else if (currentTab === 'all') {
+    ['daily','weekly','fortnightly','monthly','once'].forEach(freq => {
+      const group = getAllTasks().filter(t => t.freq===freq).sort((a,b) => PO[a.priority]-PO[b.priority] || getOrder(a.id)-getOrder(b.id));
+      if (!group.length) return;
+      html += `<div class="freq-group-label"><i class="ti ${FREQ_ICONS[freq]}"></i>${FREQ_LABELS[freq]} tasks</div>`;
+      let lastP = null;
+      group.forEach(t => {
+        if (t.priority !== lastP) { html += `<div class="section-header">${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
+        html += taskHTML(t, false);
+      });
+    });
+  } else {
+    tasks = getAllTasks().filter(t => t.freq===currentTab).sort((a,b) => PO[a.priority]-PO[b.priority] || getOrder(a.id)-getOrder(b.id));
+    if (!tasks.length) { document.getElementById('list').innerHTML = '<div class="empty">No tasks here.</div>'; return; }
+    let lastP = null;
+    tasks.forEach(t => {
+      if (t.priority !== lastP) { html += `<div class="section-header">${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
+      html += taskHTML(t, false);
+    });
+  }
+  document.getElementById('list').innerHTML = html;
+}
+
+function renderBreakTable() {
+  const tbody = document.getElementById('break-rows');
+  tbody.innerHTML = '';
+  breaks.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input value="${row.op}" oninput="breaks[${i}].op=this.value;saveBreaks();" placeholder="Name (hours)"></td>
+      <td><input value="${row.brk}" oninput="breaks[${i}].brk=this.value;saveBreaks();" placeholder="e.g. 1pm-1:30pm or OFF"></td>
+      <td style="text-align:center;"><input type="checkbox" ${row.sep?'checked':''} onchange="breaks[${i}].sep=this.checked;saveBreaks();"></td>
+      <td><button class="del-row-btn" onclick="delBreakRow(${i})"><i class="ti ti-x"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function addBreakRow() { breaks.push({op:'', brk:'', sep:false}); saveBreaks(); renderBreakTable(); }
+function delBreakRow(i) { if (!confirm('Delete this operator?')) return; breaks.splice(i,1); saveBreaks(); renderBreakTable(); }
+
+const PAYMENT_SUBQUEUES = [
+  {id:'pq-cvts',   label:'CVTS'},
+  {id:'pq-fiserv', label:'Focus on Fiserv & SMP Install, upgrade & Decomm bookings new & Called'},
+  {id:'pq-dmg',    label:'DMG phone support/ DMG emails'},
+];
+const FOLLOWUP_SUBQUEUES = [
+  {id:'fq-aldi', label:'Aldi'},
+];
+const EMAIL_QUEUES = [
+  'Fiserv/ Helpdesk/ Smartpay Emails',
+  'AW/ Delpro ETA emails',
+  'WPAY Queues',
+];
+const BACKLOG_SUBQUEUES = [
+  {id:'bq-payment-gm',  label:'Payment GM - Parts Available'},
+  {id:'bq-anzwl-decom', label:'ANZWL & Fiserv Decom Dispatched BAU & Clover Migration'},
+  {id:'bq-anzwl-smp',   label:'ANZWL, Fiserv & SMP Escalated'},
+  {id:'bq-rts',         label:'RTS & ANZWL, FISER, SMARTPAY Install/Upgrade DISPATCHED'},
+];
+
+function buildQueueText(subqueues) {
+  return subqueues.map(sq => {
+    const val = document.getElementById(sq.id).value.trim();
+    return val ? `${val} (${sq.label})` : '';
+  }).filter(Boolean).join(', ');
+}
+
+function buildBacklogRows() {
+  return BACKLOG_SUBQUEUES.map(bq => ({
+    name: document.getElementById(bq.id).value.trim(),
+    label: bq.label,
+  })).filter(r => r.name);
+}
+
+function buildEmailRows() {
+  return [document.getElementById('q-email-name').value.trim(), ...EMAIL_QUEUES];
+}
+
+function esc(t) { return t.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function colorNames(text, cls) {
+  return esc(text).replace(/([A-Z][a-zA-Z]*(?:\/[A-Z][a-zA-Z]*)*)(\s*\([^)]*\))?/g, (match, name, paren) => {
+    return `<span class="${cls}">${name}</span>${paren ? `<span style="color:var(--text-2)">${esc(paren)}</span>` : ''}`;
+  });
+}
+
+function buildPlainMsg() {
+  const d = new Date();
+  const dayName = DAY_NAMES[d.getDay()];
+  const sep = '--------------------------------------------------------------------------------------------------------------';
+  const backlogLines = buildBacklogRows().map(r => `${r.name}\t${r.label}`);
+  const breakLines = breaks.map(r => `${r.op}\t${r.brk}`);
+  return `Good morning,
+
+Happy ${dayName}!
+
+Daily Reminders 🎉
+BE ON AVAILABLE AT ALL TIME 📱
+Ensure your OUTBOUNDS are met 📞
+Ensure you are creating phone support job for every TS call received 📝
+Ensure you communicate to your group 💬
+Ensure all jobs in your Qs are being followed up ✅
+Please reach out if you are unsure about ANYTHING 🤝
+
+${sep}
+Daily tasks for the day:
+ANZWL Qs: ${document.getElementById('q-anzwl').value.trim()}
+Payment/ Booking Qs: ${buildQueueText(PAYMENT_SUBQUEUES)}
+Follow up/ Retail Qs: ${buildQueueText(FOLLOWUP_SUBQUEUES)}
+Emails: ${buildEmailRows().join('\n')}
+
+BACK LOG Qs:
+
+Name\tQueues
+${backlogLines.join('\n')}
+
+${sep}
+
+BREAK TIME:
+
+Operator\tBreak:
+${breakLines.join('\n')}`;
+}
+
+function generateMessage() {
+  const d = new Date();
+  const dayName = DAY_NAMES[d.getDay()];
+  const sep = '<div class="sep">──────────────────────────────────────────────────────────────────────</div>';
+
+  const anzwl = document.getElementById('q-anzwl').value.trim();
+  const payment = buildQueueText(PAYMENT_SUBQUEUES);
+  const followup = buildQueueText(FOLLOWUP_SUBQUEUES);
+
+  const reminders = [
+    'BE ON AVAILABLE AT ALL TIMES',
+    'Ensure your OUTBOUNDS are met',
+    'Ensure you are creating phone support job for every TS call received',
+    'Ensure you communicate to your group',
+    'Ensure all jobs in your Qs are being followed up',
+    'Please reach out if you are unsure about ANYTHING',
+  ].map(r => `<p>${esc(r)}</p>`).join('');
+
+  const emailLines = buildEmailRows().map((l,i) =>
+    i===0 ? `<p>${colorNames(l,'name-yellow')}</p>` : `<p style="color:var(--text-2)">${esc(l)}</p>`
+  ).join('<div class="gap"></div>');
+
+  const backlogRows = buildBacklogRows().map(r =>
+    `<tr><td>${esc(r.name)}</td><td>${esc(r.label)}</td></tr>`
+  ).join('');
+
+  const breakRows = breaks.map(r => {
+    const nameOnly = r.op.replace(/\s*\(.*\)/, '').trim();
+    const hours = r.op.match(/\(([^)]*)\)/)?.[0] || '';
+    return `<tr><td><span class="name-green">${esc(nameOnly)}</span><span style="color:var(--text-2)"> ${esc(hours)}</span></td><td>${esc(r.brk)}</td></tr>`;
+  }).join('');
+
+  const html = `
+    <p><strong>Good morning,</strong></p>
+    <p class="gap">Happy ${esc(dayName)}!</p>
+    <p><strong>Daily Reminders 📣</strong></p>
+    ${reminders}
+    ${sep}
+    <p class="section-title gap">Daily tasks for the day:</p>
+    <p class="queue-label">ANZWL Qs</p>
+    <p class="gap">${colorNames(anzwl,'name-green')}</p>
+    <p class="queue-label">Payment / Booking Qs</p>
+    <p class="gap">${colorNames(payment,'name-green')}</p>
+    <p class="queue-label">Follow up / Retail Qs</p>
+    <p class="gap">${colorNames(followup,'name-orange')}</p>
+    <p class="queue-label">Emails</p>
+    <div class="gap">${emailLines}</div>
+    ${sep}
+    <p class="big-header">Back log Qs</p>
+    <table class="out-table">
+      <thead><tr><th>Name</th><th>Queues</th></tr></thead>
+      <tbody>${backlogRows}</tbody>
+    </table>
+    ${sep}
+    <p class="big-header">Break time</p>
+    <table class="out-table">
+      <thead><tr><th>Operator</th><th>Break</th></tr></thead>
+      <tbody>${breakRows}</tbody>
+    </table>`;
+
+  document.getElementById('output-box').innerHTML = html;
+  document.getElementById('output-wrap').style.display = 'block';
+  document.getElementById('copy-btn').innerHTML = '<i class="ti ti-copy" style="font-size:15px;"></i> Copy to clipboard';
+  document.getElementById('copy-btn').classList.remove('copied');
+  document.getElementById('output-wrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function buildTeamsHtml() {
+  const d = new Date();
+  const dayName = DAY_NAMES[d.getDay()];
+
+  const anzwl = document.getElementById('q-anzwl').value.trim();
+  const payment = buildQueueText(PAYMENT_SUBQUEUES);
+  const followup = buildQueueText(FOLLOWUP_SUBQUEUES);
+
+  const C = { green:'#3FB54A', orange:'#FF8A50', yellow:'#D6DE23', backlog:'#F2596B' };
+
+  const colorTag = (text, color) =>
+    `<font color="${color}"><span style="color:${color};"><strong>${esc(text)}</strong></span></font>`;
+
+  // Colors "Name" parts inline within a sentence, leaving "(Description)" parts plain.
+  const colorNamesInline = (text, color) => {
+    return esc(text).replace(/([A-Z][a-zA-Z]*(?:\/[A-Z][a-zA-Z]*)*)(\s*\([^)]*\))?/g, (match, name, paren) => {
+      return `${colorTag(name, color)}${paren ? ' ' + esc(paren.trim()) : ''}`;
+    });
+  };
+
+  const dashes = '-'.repeat(110);
+
+  const reminders = [
+    ['BE ON AVAILABLE AT ALL TIME', '📱'],
+    ['Ensure your OUTBOUNDS are met', '📞'],
+    ['Ensure you are creating phone support job for every TS call received', '📝'],
+    ['Ensure you communicate to your group', '💬'],
+    ['Ensure all jobs in your Qs are being followed up', '✅'],
+    ['Please reach out if you are unsure about ANYTHING', '🤝'],
+  ].map(([txt, emoji]) => `<div>${esc(txt)} ${emoji}</div>`).join('');
+
+  const emailLines = buildEmailRows().map((l,i) =>
+    i===0 ? colorTag(l, C.yellow) : esc(l)
+  ).join('<br>');
+
+  const tableAttrs = 'border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;"';
+
+  const backlogRows = buildBacklogRows().map(r =>
+    `<tr><td>${esc(r.name)}</td><td>${esc(r.label)}</td></tr>`
+  ).join('');
+
+  const breakRows = breaks.map(r => {
+    const row = `<tr><td>${esc(r.op)}</td><td>${esc(r.brk)}</td></tr>`;
+    const blank = r.sep ? '<tr><td>&nbsp;</td><td>&nbsp;</td></tr>' : '';
+    return row + blank;
+  }).join('');
+
+  const header = (text) => `<div style="font-size:20px;"><strong>${text}</strong></div>`;
+
+  return `<div style="font-family:'Segoe UI',Helvetica,Arial,sans-serif; font-size:14px; line-height:1.5;">
+    ${header('Good morning,')}
+    <div>&nbsp;</div>
+    ${header(`Happy ${esc(dayName)}!`)}
+    <div>&nbsp;</div>
+    ${header('Daily Reminders 🎉')}
+    <div>&nbsp;</div>
+    ${reminders}
+    <div>&nbsp;</div>
+    <div>${dashes}</div>
+    <div>&nbsp;</div>
+    ${header('<u>Daily tasks for the day:</u>')}
+    <div>&nbsp;</div>
+    <div><strong>ANZWL Qs:</strong> ${colorNamesInline(anzwl, C.green)}</div>
+    <div><strong>Payment/ Booking Qs:</strong> ${colorNamesInline(payment, C.green)}</div>
+    <div><strong>Follow up/ Retail Qs:</strong> ${colorNamesInline(followup, C.orange)}</div>
+    <div><strong>Emails:</strong> ${emailLines}</div>
+    <div>&nbsp;</div>
+    <div style="font-size:24px;"><strong><u><span style="color:${C.backlog}">BACK LOG Qs:</span></u></strong></div>
+    <div>&nbsp;</div>
+    <table ${tableAttrs}>
+      <tr><td><strong>Name</strong></td><td><strong>Queues</strong></td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+      ${backlogRows}
+    </table>
+    <div>&nbsp;</div>
+    <div>${dashes}</div>
+    <div>&nbsp;</div>
+    ${header('BREAK TIME:')}
+    <div>&nbsp;</div>
+    <table ${tableAttrs}>
+      <tr><td><strong>Operator</strong></td><td><strong>Break:</strong></td></tr>
+      ${breakRows}
+    </table>
+  </div>`;
+}
+
+function copyMessage() {
+  const text = buildPlainMsg();
+  const html = buildTeamsHtml();
+  const finish = () => {
+    const btn = document.getElementById('copy-btn');
+    btn.innerHTML = '<i class="ti ti-check" style="font-size:15px;"></i> Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '<i class="ti ti-copy" style="font-size:15px;"></i> Copy to clipboard';
+      btn.classList.remove('copied');
+    }, 2500);
+    done[taskKey(1)] = true;
+    save();
+    renderTasks();
+  };
+
+  if (window.ClipboardItem) {
+    const item = new ClipboardItem({
+      'text/html': new Blob([html], {type: 'text/html'}),
+      'text/plain': new Blob([text], {type: 'text/plain'}),
+    });
+    navigator.clipboard.write([item]).then(finish, () => navigator.clipboard.writeText(text).then(finish));
+  } else {
+    navigator.clipboard.writeText(text).then(finish);
+  }
+}
+
+function copyField(id, btn) {
+  const el = document.getElementById(id);
+  const text = 'value' in el ? el.value : el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i>';
+    btn.classList.add('copied');
+    if (id === 'wpay-body') { done[taskKey(8)] = true; save(); renderTasks(); }
+    if (id === 'dmg-body') { done[taskKey(8)] = true; save(); renderTasks(); }
+    if (id === 'aw-body' || id === 'vir-body') { done[taskKey(3)] = true; save(); renderTasks(); }
+    setTimeout(() => {
+      btn.innerHTML = original;
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function prevWeekRange() {
+  const daysSinceMonday = (todayDow + 6) % 7;
+  const thisMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceMonday);
+  const monday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 7);
+  const sunday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 1);
+  const fmt = d => `${d.getDate()}/${d.getMonth()+1}`;
+  return `${fmt(monday)} - ${fmt(sunday)}`;
+}
+
+const dateStr = `${DAY_NAMES[todayDow]}, ${now.getDate()} ${MON_NAMES[now.getMonth()]} ${now.getFullYear()}`;
+document.getElementById('datebadge').textContent = dateStr;
+document.getElementById('datebadge2').textContent = dateStr;
+document.getElementById('datebadge3').textContent = dateStr;
+document.getElementById('datebadge4').textContent = dateStr;
+document.getElementById('datebadge5').textContent = dateStr;
+document.getElementById('datebadge6').textContent = dateStr;
+document.getElementById('datebadge7').textContent = dateStr;
+document.getElementById('datebadge8').textContent = dateStr;
+document.getElementById('s-day').textContent = DAY_NAMES[todayDow];
+
+const weekRange = prevWeekRange();
+document.getElementById('wpay-body').value = `Hi team,\n\nPlease see the Wpay call data from ${weekRange} below:\n\nKind regards,`;
+document.getElementById('dmg-body').value = `Hi team,\n\nPlease see the DMG call data from ${weekRange} below:\n\nKind regards,`;
+document.getElementById('aw-body').value = `Hi team,\n\nPlease see attached the ANZ WL, Fiserv, SmartPay Scheduled Jobs allocated to Advanced Works.\n\nKind regards,`;
+document.getElementById('vir-body').value = `Hi team,\n\nPlease see attached ANZ WL, Fiserv, SmartPay Scheduled Jobs allocated to Viridian IT.\n\nKind regards,`;
+
+// ---- Stand up notes ----
+let standupPoints = JSON.parse(localStorage.getItem('zarif_standup_points') || 'null') || [];
+let nextStandupId = standupPoints.reduce((m,p) => Math.max(m, p.id), 0) + 1;
+
+function saveStandup() { try { localStorage.setItem('zarif_standup_points', JSON.stringify(standupPoints)); } catch(e){} }
+
+function saveApiKey() {
+  const key = document.getElementById('openai-key').value.trim();
+  try { localStorage.setItem('zarif_openai_key', key); } catch(e){}
+  const btn = document.getElementById('save-key-btn');
+  btn.innerHTML = '<i class="ti ti-check"></i>';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.innerHTML = '<i class="ti ti-device-floppy"></i>'; btn.classList.remove('copied'); }, 1500);
+}
+
+function addStandupPoint() {
+  const input = document.getElementById('new-point');
+  const text = input.value.trim();
+  if (!text) return;
+  standupPoints.push({id: nextStandupId++, text, elaboration: ''});
+  saveStandup();
+  input.value = '';
+  renderStandup();
+}
+
+function deleteStandupPoint(id) {
+  if (!confirm('Delete this point?')) return;
+  standupPoints = standupPoints.filter(p => p.id !== id);
+  saveStandup();
+  renderStandup();
+}
+
+function updateStandupText(id, text) {
+  const p = standupPoints.find(p => p.id === id);
+  if (p) { p.text = text; saveStandup(); }
+}
+
+async function elaboratePoint(id, btn) {
+  const point = standupPoints.find(p => p.id === id);
+  if (!point || !point.text.trim()) return;
+  const apiKey = localStorage.getItem('zarif_openai_key') || '';
+  if (!apiKey) {
+    alert('Add your OpenAI API key above first.');
+    return;
+  }
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i>';
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {role:'system', content:'You help a team lead prepare for a daily stand up. Given a short bullet point, write a brief elaboration (3-5 sentences) the person can use as a mini script when speaking about it. Keep it natural, concise and conversational.'},
+          {role:'user', content: point.text},
+        ],
+        temperature: 0.7,
+      }),
+    });
+    if (!res.ok) throw new Error(`OpenAI error: ${res.status}`);
+    const data = await res.json();
+    point.elaboration = data.choices?.[0]?.message?.content?.trim() || '';
+    saveStandup();
+    renderStandup();
+  } catch (e) {
+    alert(`Failed to elaborate: ${e.message}`);
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
+
+function copyElaboration(id, btn) {
+  const point = standupPoints.find(p => p.id === id);
+  if (!point) return;
+  navigator.clipboard.writeText(point.elaboration).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i>';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function renderStandup() {
+  const list = document.getElementById('standup-list');
+  if (!standupPoints.length) {
+    list.innerHTML = '<div class="standup-empty">No points yet — add what you want to bring up in stand up.</div>';
+    return;
+  }
+  list.innerHTML = standupPoints.map(p => `
+    <div class="standup-item">
+      <div class="standup-item-row">
+        <textarea class="standup-item-text" rows="2" onchange="updateStandupText(${p.id}, this.value)">${esc(p.text)}</textarea>
+        <div class="standup-item-actions">
+          <button class="icon-btn" title="Elaborate with AI" onclick="elaboratePoint(${p.id}, this)"><i class="ti ti-sparkles"></i></button>
+          <button class="icon-btn danger" title="Delete" onclick="deleteStandupPoint(${p.id})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      ${p.elaboration ? `
+        <div class="elaboration-box">${esc(p.elaboration)}</div>
+        <div style="display:flex; justify-content:flex-end; margin-top:6px;">
+          <button class="icon-btn" title="Copy script" onclick="copyElaboration(${p.id}, this)"><i class="ti ti-copy"></i></button>
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+const savedKey = localStorage.getItem('zarif_openai_key');
+if (savedKey) document.getElementById('openai-key').value = savedKey;
+
+// ---- Templates ----
+const DEFAULT_TEMPLATES = [
+  {id:1, name:'Booking - Scheduled', to:'', cc:'', body:
+`Called:
+Confirmed address:
+Confirmed trading hours:
+Booked for:
+Please call prior to arrival: Yes,`},
+  {id:2, name:'Email Escalation', to:'', cc:'', body:
+`Amtek Job:
+TID:
+MID:
+Name:
+Address:
+Contact name:
+Contact number:
+Job Type:`},
+  {id:3, name:'Phone Support', to:'', cc:'', body:
+`TID:
+Caller (Merchant):
+Contact number:
+Confirmed Business Address:
+Confirmed Trading Hours:
+Contact on Site:
+Reported Issue:
+Troubleshooting Performed:
+Outcome:`},
+  {id:4, name:'Product Support', to:'', cc:'', body:
+`Site Name:
+Merchant or Tech:
+Merchant/Tech Name & Phone Number:
+Urgent/Onsite:
+Job Number:
+Have I checked the Wiki:
+Fault:`},
+];
+
+let templates = JSON.parse(localStorage.getItem('zarif_templates') || 'null') || DEFAULT_TEMPLATES.map(t => ({...t}));
+let nextTemplateId = templates.reduce((m,t) => Math.max(m, t.id), 0) + 1;
+
+function saveTemplates() { try { localStorage.setItem('zarif_templates', JSON.stringify(templates)); } catch(e){} }
+
+function addTemplate() {
+  const name = document.getElementById('tpl-name').value.trim();
+  const to = document.getElementById('tpl-to').value.trim();
+  const cc = document.getElementById('tpl-cc').value.trim();
+  const body = document.getElementById('tpl-body').value.trim();
+  if (!name || !body) { alert('Please enter at least a name and a body.'); return; }
+  templates.push({id: nextTemplateId++, name, to, cc, body});
+  saveTemplates();
+  document.getElementById('tpl-name').value = '';
+  document.getElementById('tpl-to').value = '';
+  document.getElementById('tpl-cc').value = '';
+  document.getElementById('tpl-body').value = '';
+  renderTemplates();
+}
+
+function deleteTemplate(id) {
+  if (!confirm('Delete this template?')) return;
+  templates = templates.filter(t => t.id !== id);
+  saveTemplates();
+  renderTemplates();
+}
+
+function copyTemplateField(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i>';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function jsAttr(text) { return JSON.stringify(text).replace(/"/g, '&quot;'); }
+function escAttr(text) { return esc(text || '').replace(/"/g, '&quot;'); }
+
+let editingTemplateId = null;
+let editingNumberId = null;
+
+// ---- Drag to reorder (templates & numbers) ----
+let dragState = null;
+
+function onDragStart(e, type, id) {
+  dragState = {type, id};
+  e.dataTransfer.effectAllowed = 'move';
+  e.target.closest(type === 'template' ? '.template-item' : '.number-item').classList.add('dragging');
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onDragEnd(e) {
+  e.target.closest('.template-item, .number-item')?.classList.remove('dragging');
+}
+
+function onDrop(e, type, targetId) {
+  e.preventDefault();
+  if (!dragState || dragState.type !== type || dragState.id === targetId) return;
+  const arr = type === 'template' ? templates : numbers;
+  const fromIdx = arr.findIndex(x => x.id === dragState.id);
+  const toIdx = arr.findIndex(x => x.id === targetId);
+  if (fromIdx === -1 || toIdx === -1) return;
+  const [moved] = arr.splice(fromIdx, 1);
+  arr.splice(toIdx, 0, moved);
+  dragState = null;
+  if (type === 'template') { saveTemplates(); renderTemplates(); } else { saveNumbers(); renderNumbers(); }
+}
+
+function renderTemplates() {
+  const list = document.getElementById('templates-list');
+  const query = document.getElementById('tpl-search').value.trim().toLowerCase();
+  const filtered = templates.filter(t => t.name.toLowerCase().includes(query));
+  if (!filtered.length) {
+    list.innerHTML = `<div class="standup-empty">${templates.length ? 'No templates match your search.' : 'No templates saved yet.'}</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(t => {
+    if (editingTemplateId === t.id) {
+      return `
+    <div class="template-item">
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Name</div>
+        <input class="field-input" id="tpl-edit-name-${t.id}" value="${escAttr(t.name)}">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">To <span style="font-weight:400;">(optional)</span></div>
+        <input class="field-input" id="tpl-edit-to-${t.id}" value="${escAttr(t.to)}">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Cc <span style="font-weight:400;">(optional)</span></div>
+        <input class="field-input" id="tpl-edit-cc-${t.id}" value="${escAttr(t.cc)}">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Body</div>
+        <textarea id="tpl-edit-body-${t.id}" rows="6">${esc(t.body)}</textarea>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="generate-btn" style="margin-top:0;" onclick="saveTemplateEdit(${t.id})"><i class="ti ti-check" style="font-size:16px;"></i> Save</button>
+        <button class="copy-btn" style="margin-top:0;" onclick="cancelTemplateEdit()"><i class="ti ti-x" style="font-size:15px;"></i> Cancel</button>
+      </div>
+    </div>`;
+    }
+    return `
+    <div class="template-item" draggable="true" ondragstart="onDragStart(event,'template',${t.id})" ondragover="onDragOver(event)" ondrop="onDrop(event,'template',${t.id})" ondragend="onDragEnd(event)">
+      <div class="template-item-header">
+        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+          <span class="drag-handle" title="Drag to reorder"><i class="ti ti-grip-vertical"></i></span>
+          <div class="template-item-name">${esc(t.name)}</div>
+        </div>
+        <div class="template-item-actions">
+          <button class="copy-mini-btn" title="Copy body" onclick="copyTemplateField(${jsAttr(t.body)}, this)"><i class="ti ti-copy"></i></button>
+          <button class="icon-btn" title="Edit" onclick="toggleEditTemplate(${t.id})"><i class="ti ti-pencil"></i></button>
+          <button class="icon-btn danger" title="Delete" onclick="deleteTemplate(${t.id})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      ${t.to ? `
+        <div class="copy-field-label">To</div>
+        <div class="copy-field">
+          <div class="copy-field-text">${esc(t.to)}</div>
+          <button class="copy-mini-btn" onclick="copyTemplateField(${jsAttr(t.to)}, this)"><i class="ti ti-copy"></i></button>
+        </div>
+      ` : ''}
+      ${t.cc ? `
+        <div class="copy-field-label">Cc</div>
+        <div class="copy-field">
+          <div class="copy-field-text">${esc(t.cc)}</div>
+          <button class="copy-mini-btn" onclick="copyTemplateField(${jsAttr(t.cc)}, this)"><i class="ti ti-copy"></i></button>
+        </div>
+      ` : ''}
+      <div class="copy-field-label">Body</div>
+      <div class="copy-field">
+        <div class="copy-field-text" style="flex:1;">${esc(t.body)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleEditTemplate(id) {
+  editingTemplateId = editingTemplateId === id ? null : id;
+  renderTemplates();
+}
+
+function cancelTemplateEdit() {
+  editingTemplateId = null;
+  renderTemplates();
+}
+
+function saveTemplateEdit(id) {
+  const t = templates.find(t => t.id === id);
+  if (!t) return;
+  const name = document.getElementById(`tpl-edit-name-${id}`).value.trim();
+  const body = document.getElementById(`tpl-edit-body-${id}`).value.trim();
+  if (!name || !body) { alert('Please enter at least a name and a body.'); return; }
+  t.name = name;
+  t.to = document.getElementById(`tpl-edit-to-${id}`).value.trim();
+  t.cc = document.getElementById(`tpl-edit-cc-${id}`).value.trim();
+  t.body = body;
+  saveTemplates();
+  editingTemplateId = null;
+  renderTemplates();
+}
+
+// ---- Numbers ----
+const DEFAULT_NUMBERS = [
+  {id:1, name:'Call Back', value:'0399 178 049'},
+  {id:2, name:'ANZ Call Back', value:'03 9624 4117'},
+  {id:3, name:'Smartpay', value:'03 9667 9252'},
+  {id:4, name:'ANZ Swap', value:'1800 653 079'},
+  {id:5, name:'7Eleven Transfer', value:'1800 655 160'},
+  {id:6, name:'Startrack Number', value:'1300 019 660'},
+  {id:7, name:'Merchant Services Number', value:'1800 243 444 - Option 2 then 2 again.'},
+  {id:8, name:'Clover HD', value:'1800 999 592'},
+  {id:9, name:'Customer Relations', value:'02 9959 7910'},
+];
+
+let numbers = JSON.parse(localStorage.getItem('zarif_numbers') || 'null') || DEFAULT_NUMBERS.map(n => ({...n}));
+let nextNumberId = numbers.reduce((m,n) => Math.max(m, n.id), 0) + 1;
+
+function saveNumbers() { try { localStorage.setItem('zarif_numbers', JSON.stringify(numbers)); } catch(e){} }
+
+function addNumber() {
+  const name = document.getElementById('num-name').value.trim();
+  const value = document.getElementById('num-value').value.trim();
+  if (!name || !value) { alert('Please enter both a name and a number.'); return; }
+  numbers.push({id: nextNumberId++, name, value});
+  saveNumbers();
+  document.getElementById('num-name').value = '';
+  document.getElementById('num-value').value = '';
+  renderNumbers();
+}
+
+function deleteNumber(id) {
+  if (!confirm('Delete this number?')) return;
+  numbers = numbers.filter(n => n.id !== id);
+  saveNumbers();
+  renderNumbers();
+}
+
+function renderNumbers() {
+  const list = document.getElementById('numbers-list');
+  const query = document.getElementById('num-search').value.trim().toLowerCase();
+  const filtered = numbers.filter(n => n.name.toLowerCase().includes(query));
+  if (!filtered.length) {
+    list.innerHTML = `<div class="standup-empty">${numbers.length ? 'No numbers match your search.' : 'No numbers saved yet.'}</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(n => {
+    if (editingNumberId === n.id) {
+      return `
+    <div class="number-item">
+      <div class="number-item-info" style="display:flex; gap:8px; flex:1;">
+        <input class="field-input" id="num-edit-name-${n.id}" value="${escAttr(n.name)}" placeholder="Name">
+        <input class="field-input" id="num-edit-value-${n.id}" value="${escAttr(n.value)}" placeholder="Number">
+      </div>
+      <div class="number-item-actions">
+        <button class="icon-btn" title="Save" onclick="saveNumberEdit(${n.id})"><i class="ti ti-check"></i></button>
+        <button class="icon-btn" title="Cancel" onclick="cancelNumberEdit()"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`;
+    }
+    return `
+    <div class="number-item" draggable="true" ondragstart="onDragStart(event,'number',${n.id})" ondragover="onDragOver(event)" ondrop="onDrop(event,'number',${n.id})" ondragend="onDragEnd(event)">
+      <span class="drag-handle" title="Drag to reorder"><i class="ti ti-grip-vertical"></i></span>
+      <div class="number-item-info">
+        <div class="number-item-name" title="${esc(n.name)}">${esc(n.name)}</div>
+        <div class="number-item-value" title="${esc(n.value)}">${esc(n.value)}</div>
+      </div>
+      <div class="number-item-actions">
+        <button class="copy-mini-btn" onclick="copyTemplateField(${jsAttr(n.value)}, this)"><i class="ti ti-copy"></i></button>
+        <button class="icon-btn" title="Edit" onclick="toggleEditNumber(${n.id})"><i class="ti ti-pencil"></i></button>
+        <button class="icon-btn danger" title="Delete" onclick="deleteNumber(${n.id})"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleEditNumber(id) {
+  editingNumberId = editingNumberId === id ? null : id;
+  renderNumbers();
+}
+
+function cancelNumberEdit() {
+  editingNumberId = null;
+  renderNumbers();
+}
+
+function saveNumberEdit(id) {
+  const n = numbers.find(n => n.id === id);
+  if (!n) return;
+  const name = document.getElementById(`num-edit-name-${id}`).value.trim();
+  const value = document.getElementById(`num-edit-value-${id}`).value.trim();
+  if (!name || !value) { alert('Please enter both a name and a number.'); return; }
+  n.name = name;
+  n.value = value;
+  saveNumbers();
+  editingNumberId = null;
+  renderNumbers();
+}
+
+// ---- Meetings ----
+let meetings = JSON.parse(localStorage.getItem('zarif_meetings') || 'null') || [];
+let nextMeetingId = meetings.reduce((m,x) => Math.max(m, x.id), 0) + 1;
+let editingMeetingId = null;
+
+function saveMeetings() { try { localStorage.setItem('zarif_meetings', JSON.stringify(meetings)); } catch(e){} }
+
+function todayInputDate() {
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
+function fmtMeetingDate(dateStr) {
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m-1, d);
+  return `${DAY_NAMES[date.getDay()]}, ${d} ${MON_NAMES[m-1]} ${y}`;
+}
+
+function addMeeting() {
+  const type = document.getElementById('mtg-type').value;
+  const date = document.getElementById('mtg-date').value;
+  const notes = document.getElementById('mtg-notes').value.trim();
+  if (!date || !notes) { alert('Please pick a date and enter some notes.'); return; }
+  meetings.push({id: nextMeetingId++, type, date, notes});
+  saveMeetings();
+  document.getElementById('mtg-notes').value = '';
+  renderMeetings();
+}
+
+function deleteMeeting(id) {
+  if (!confirm('Delete these meeting notes?')) return;
+  meetings = meetings.filter(m => m.id !== id);
+  saveMeetings();
+  renderMeetings();
+}
+
+function toggleEditMeeting(id) {
+  editingMeetingId = editingMeetingId === id ? null : id;
+  renderMeetings();
+}
+
+function cancelMeetingEdit() {
+  editingMeetingId = null;
+  renderMeetings();
+}
+
+function saveMeetingEdit(id) {
+  const m = meetings.find(m => m.id === id);
+  if (!m) return;
+  const date = document.getElementById(`mtg-edit-date-${id}`).value;
+  const notes = document.getElementById(`mtg-edit-notes-${id}`).value.trim();
+  if (!date || !notes) { alert('Please pick a date and enter some notes.'); return; }
+  m.type = document.getElementById(`mtg-edit-type-${id}`).value;
+  m.date = date;
+  m.notes = notes;
+  saveMeetings();
+  editingMeetingId = null;
+  renderMeetings();
+}
+
+function renderMeetings() {
+  const list = document.getElementById('meetings-list');
+  const typeFilter = document.getElementById('mtg-filter').value;
+  const query = document.getElementById('mtg-search').value.trim().toLowerCase();
+  const filtered = meetings
+    .filter(m => !typeFilter || m.type === typeFilter)
+    .filter(m => m.notes.toLowerCase().includes(query))
+    .sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="standup-empty">${meetings.length ? 'No meeting notes match your search.' : 'No meeting notes saved yet.'}</div>`;
+    return;
+  }
+
+  let lastDate = null;
+  list.innerHTML = filtered.map(m => {
+    let groupLabel = '';
+    if (m.date !== lastDate) {
+      groupLabel = `<div class="meeting-group-label">${fmtMeetingDate(m.date)}</div>`;
+      lastDate = m.date;
+    }
+    if (editingMeetingId === m.id) {
+      return groupLabel + `
+    <div class="meeting-item">
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Meeting</div>
+        <select class="field-input" id="mtg-edit-type-${m.id}">
+          <option value="ANZWL"${m.type==='ANZWL'?' selected':''}>ANZWL</option>
+          <option value="Wpay"${m.type==='Wpay'?' selected':''}>Wpay</option>
+          <option value="DMG"${m.type==='DMG'?' selected':''}>DMG</option>
+        </select>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Date</div>
+        <input class="field-input" type="date" id="mtg-edit-date-${m.id}" value="${m.date}">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Notes</div>
+        <textarea id="mtg-edit-notes-${m.id}" rows="6">${esc(m.notes)}</textarea>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="generate-btn" style="margin-top:0;" onclick="saveMeetingEdit(${m.id})"><i class="ti ti-check" style="font-size:16px;"></i> Save</button>
+        <button class="copy-btn" style="margin-top:0;" onclick="cancelMeetingEdit()"><i class="ti ti-x" style="font-size:15px;"></i> Cancel</button>
+      </div>
+    </div>`;
+    }
+    return groupLabel + `
+    <div class="meeting-item">
+      <div class="meeting-item-header">
+        <div class="meeting-item-meta">
+          <span class="mtg-pill mtg-${m.type}">${m.type}</span>
+        </div>
+        <div class="meeting-item-actions">
+          <button class="copy-mini-btn" title="Copy notes" onclick="copyTemplateField(${jsAttr(m.notes)}, this)"><i class="ti ti-copy"></i></button>
+          <button class="icon-btn" title="Edit" onclick="toggleEditMeeting(${m.id})"><i class="ti ti-pencil"></i></button>
+          <button class="icon-btn danger" title="Delete" onclick="deleteMeeting(${m.id})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="meeting-item-notes">${esc(m.notes)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== KPI REPORT GENERATOR =====
+const KPI_TEMPLATE_KEY = 'zarif_kpi_template';
+
+const KPI_SOURCES = {
+  phoneCreated: {
+    label: 'CMS Output — Phone Support Created',
+    headers: ['Job #','Contract','Job Type','Created At','Created by'],
+    sheetFile: 'xl/worksheets/sheet1.xml',
+    tableFile: 'xl/tables/table2.xml',
+    colStart: 1
+  },
+  userActions: {
+    label: 'CMS Output — User Actions',
+    headers: ['Column1','Job #','Created At','Created By','User Team','Contract','Job Type','Status','Action'],
+    sheetFile: 'xl/worksheets/sheet1.xml',
+    tableFile: 'xl/tables/table1.xml',
+    colStart: 7
+  },
+  dmgCms: {
+    label: 'DMG CMS Output',
+    headers: ['Job #','Contract','Job Type','Created At','Created by','Column1'],
+    sheetFile: 'xl/worksheets/sheet2.xml',
+    tableFile: 'xl/tables/table3.xml',
+    colStart: 1
+  },
+  dmgSla: {
+    label: 'DMG SLA',
+    headers: ['Queue','Agent','Contacts handled incoming'],
+    sheetFile: 'xl/worksheets/sheet3.xml',
+    tableFile: 'xl/tables/table4.xml',
+    colStart: 1
+  },
+  phonestats: {
+    label: 'KPI Phonestats',
+    headers: ['Agent','Agent Answer Rate','RX Missed Call/Task time','Service level 60 seconds',['AHT','Average handle time'],'Contacts handled','Contacts handled incoming','Contacts handled outbound','Agent idle time Calc','Online Time Calc','Meeting Time Calc','Lunch Time Calc','Training Time Calc','Missed/Task Time Calc'],
+    sheetFile: 'xl/worksheets/sheet4.xml',
+    tableFile: 'xl/tables/table5.xml',
+    colStart: 1
+  },
+  fiservSla: {
+    label: 'Fiserv SLA',
+    headers: ['Queue','Agent','Contacts answered in 60 seconds','Contacts handled incoming'],
+    sheetFile: 'xl/worksheets/sheet5.xml',
+    tableFile: 'xl/tables/table6.xml',
+    colStart: 1
+  },
+  anzIncoming: {
+    label: 'ANZ Incoming',
+    headers: ['Queue','Agent','Contacts handled incoming'],
+    sheetFile: 'xl/worksheets/sheet6.xml',
+    tableFile: 'xl/tables/table7.xml',
+    colStart: 1
+  },
+  sevenElevenIncoming: {
+    label: '7-Eleven Incoming',
+    headers: ['Queue','Agent','Contacts handled incoming'],
+    sheetFile: 'xl/worksheets/sheet7.xml',
+    tableFile: 'xl/tables/table8.xml',
+    colStart: 1
+  },
+  msSla: {
+    label: 'MS SLA',
+    headers: ['Queue','Agent','Contacts answered in 60 seconds','Contacts handled incoming'],
+    sheetFile: 'xl/worksheets/sheet8.xml',
+    tableFile: 'xl/tables/table9.xml',
+    colStart: 1
+  }
+};
+
+const SSML_NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+
+function arrayBufferToBase64(buf) {
+  let binary = '';
+  const bytes = new Uint8Array(buf);
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function base64ToUint8Array(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function kpiSaveTemplate(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    localStorage.setItem(KPI_TEMPLATE_KEY, JSON.stringify({ name: file.name, data: arrayBufferToBase64(reader.result) }));
+    renderKpiPage();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function kpiGetTemplate() {
+  const raw = localStorage.getItem(KPI_TEMPLATE_KEY);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function colLetter(n) {
+  let s = '';
+  while (n > 0) {
+    const m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+
+function colNumFromRef(ref) {
+  const m = ref.match(/^([A-Z]+)/);
+  let n = 0;
+  for (const ch of m[1]) n = n * 26 + (ch.charCodeAt(0) - 64);
+  return n;
+}
+
+function toExcelSerial(d) {
+  return 25569 + (d.getTime() - d.getTimezoneOffset() * 60000) / 86400000;
+}
+
+function normalizeValue(val, isDateCol) {
+  if (val === null || val === undefined) return null;
+  if (val instanceof Date) return val;
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string') {
+    const s = val.trim();
+    if (s === '') return null;
+    if (isDateCol) {
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) return d;
+      return s;
+    }
+    if (s.endsWith('%')) {
+      const n = parseFloat(s);
+      if (!isNaN(n)) return n / 100;
+    }
+    if (/^\d{1,2}:\d{2}:\d{2}$/.test(s)) {
+      const [h, m, sec] = s.split(':').map(Number);
+      return h * 3600 + m * 60 + sec;
+    }
+    if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    return s;
+  }
+  return val;
+}
+
+async function readSheetFile(file) {
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array', cellDates: true });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+}
+
+function mapColumns(rows, expectedHeaders) {
+  if (!rows.length) return [];
+  const headerRow = rows[0].map(h => (h == null ? '' : String(h)).trim().toLowerCase());
+  const idxMap = expectedHeaders.map(eh => {
+    const names = Array.isArray(eh) ? eh : [eh];
+    for (const name of names) {
+      const idx = headerRow.indexOf(name.trim().toLowerCase());
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  });
+  const dateCols = expectedHeaders.map(eh => {
+    const names = Array.isArray(eh) ? eh : [eh];
+    return names.some(name => name.trim().toLowerCase() === 'created at');
+  });
+  const dataRows = rows.slice(1).filter(r => r.some(c => c !== null && c !== ''));
+  return dataRows.map(r => idxMap.map((idx, j) => {
+    const raw = idx === -1 ? null : (r[idx] === undefined ? null : r[idx]);
+    return normalizeValue(raw, dateCols[j]);
+  }));
+}
+
+function insertRowSorted(sheetDoc, sheetData, rowEl, rowNum) {
+  const rows = Array.from(sheetData.getElementsByTagName('row'));
+  for (const r of rows) {
+    if (parseInt(r.getAttribute('r'), 10) > rowNum) {
+      sheetData.insertBefore(rowEl, r);
+      return;
+    }
+  }
+  sheetData.appendChild(rowEl);
+}
+
+function insertCellSorted(rowEl, cellEl, colNum) {
+  const cells = Array.from(rowEl.getElementsByTagName('c'));
+  for (const c of cells) {
+    if (colNumFromRef(c.getAttribute('r')) > colNum) {
+      rowEl.insertBefore(cellEl, c);
+      return;
+    }
+  }
+  rowEl.appendChild(cellEl);
+}
+
+function fillSheetTable(sheetXmlStr, tableXmlStr, colStart, dataRows) {
+  const parser = new DOMParser();
+  const sheetDoc = parser.parseFromString(sheetXmlStr, 'application/xml');
+  const tableDoc = tableXmlStr ? parser.parseFromString(tableXmlStr, 'application/xml') : null;
+  const sheetData = sheetDoc.getElementsByTagName('sheetData')[0];
+
+  let maxRow = 1;
+  if (tableDoc) {
+    const ref = tableDoc.documentElement.getAttribute('ref');
+    const m = ref.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    maxRow = parseInt(m[4], 10);
+  }
+
+  const numDataRows = dataRows.length;
+  const neededMaxRow = 1 + numDataRows;
+
+  const rowEls = {};
+  Array.from(sheetData.getElementsByTagName('row')).forEach(r => {
+    rowEls[parseInt(r.getAttribute('r'), 10)] = r;
+  });
+
+  for (let i = 0; i < numDataRows; i++) {
+    const rowNum = i + 2;
+    let rowEl = rowEls[rowNum];
+    if (!rowEl) {
+      rowEl = sheetDoc.createElementNS(SSML_NS, 'row');
+      rowEl.setAttribute('r', String(rowNum));
+      insertRowSorted(sheetDoc, sheetData, rowEl, rowNum);
+      rowEls[rowNum] = rowEl;
+    }
+    const rowVals = dataRows[i];
+    for (let j = 0; j < rowVals.length; j++) {
+      const colNum = colStart + j;
+      const ref = colLetter(colNum) + rowNum;
+      const existing = Array.from(rowEl.getElementsByTagName('c')).find(c => c.getAttribute('r') === ref);
+      const existingStyle = existing ? existing.getAttribute('s') : null;
+      if (existing) rowEl.removeChild(existing);
+
+      const val = rowVals[j];
+      if (val === null || val === undefined || val === '') {
+        if (existingStyle) {
+          const newC = sheetDoc.createElementNS(SSML_NS, 'c');
+          newC.setAttribute('r', ref);
+          newC.setAttribute('s', existingStyle);
+          insertCellSorted(rowEl, newC, colNum);
+        }
+        continue;
+      }
+
+      const newC = sheetDoc.createElementNS(SSML_NS, 'c');
+      newC.setAttribute('r', ref);
+      if (val instanceof Date) {
+        newC.setAttribute('s', existingStyle || '5');
+        const v = sheetDoc.createElementNS(SSML_NS, 'v');
+        v.textContent = String(toExcelSerial(val));
+        newC.appendChild(v);
+      } else if (typeof val === 'number') {
+        if (existingStyle) newC.setAttribute('s', existingStyle);
+        const v = sheetDoc.createElementNS(SSML_NS, 'v');
+        v.textContent = String(val);
+        newC.appendChild(v);
+      } else {
+        if (existingStyle) newC.setAttribute('s', existingStyle);
+        newC.setAttribute('t', 'inlineStr');
+        const is = sheetDoc.createElementNS(SSML_NS, 'is');
+        const t = sheetDoc.createElementNS(SSML_NS, 't');
+        t.textContent = String(val);
+        is.appendChild(t);
+        newC.appendChild(is);
+      }
+      insertCellSorted(rowEl, newC, colNum);
+    }
+  }
+
+  if (tableDoc && neededMaxRow > maxRow) {
+    const tableEl = tableDoc.documentElement;
+    const ref = tableEl.getAttribute('ref');
+    const m = ref.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    tableEl.setAttribute('ref', `${m[1]}${m[2]}:${m[3]}${neededMaxRow}`);
+    const af = tableEl.getElementsByTagName('autoFilter')[0];
+    if (af) {
+      const afRef = af.getAttribute('ref');
+      const am = afRef.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+      if (am) af.setAttribute('ref', `${am[1]}${am[2]}:${am[3]}${neededMaxRow}`);
+    }
+  }
+
+  const dim = sheetDoc.getElementsByTagName('dimension')[0];
+  if (dim) {
+    const ref = dim.getAttribute('ref');
+    const m = ref.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    if (m) {
+      const newLastRow = Math.max(parseInt(m[4], 10), neededMaxRow);
+      dim.setAttribute('ref', `${m[1]}${m[2]}:${m[3]}${newLastRow}`);
+    }
+  }
+
+  const serializer = new XMLSerializer();
+  return {
+    sheetXml: serializer.serializeToString(sheetDoc),
+    tableXml: tableDoc ? serializer.serializeToString(tableDoc) : null
+  };
+}
+
+function renderKpiPage() {
+  const tpl = kpiGetTemplate();
+  const statusEl = document.getElementById('kpi-tpl-status');
+  if (statusEl) statusEl.textContent = tpl ? `Loaded: ${tpl.name}` : 'No template loaded';
+
+  const list = document.getElementById('kpi-upload-list');
+  if (!list) return;
+  list.innerHTML = Object.keys(KPI_SOURCES).map(key => {
+    const src = KPI_SOURCES[key];
+    return `
+    <div class="kpi-upload-row">
+      <div class="kpi-upload-info">
+        <div class="kpi-upload-name">${esc(src.label)}</div>
+        <div class="kpi-upload-cols">${esc(src.headers.join(', '))}</div>
+      </div>
+      <div class="kpi-upload-status" id="kpi-status-${key}">Not selected</div>
+      <input type="file" id="kpi-file-${key}" class="kpi-file-input" accept=".xlsx,.xls,.csv" onchange="kpiFileSelected('${key}', this.files[0])">
+      <button class="kpi-file-btn" onclick="document.getElementById('kpi-file-${key}').click()">Choose file</button>
+    </div>`;
+  }).join('');
+}
+
+function kpiFileSelected(key, file) {
+  const statusEl = document.getElementById(`kpi-status-${key}`);
+  if (!statusEl) return;
+  if (file) {
+    statusEl.textContent = file.name;
+    statusEl.classList.add('ready');
+  } else {
+    statusEl.textContent = 'Not selected';
+    statusEl.classList.remove('ready');
+  }
+}
+
+async function kpiGenerateReport() {
+  const statusEl = document.getElementById('kpi-generate-status');
+  const tpl = kpiGetTemplate();
+  if (!tpl) { alert('Please upload the KPI report template first.'); return; }
+
+  const btn = document.getElementById('kpi-generate-btn');
+  btn.disabled = true;
+  statusEl.textContent = 'Reading data files...';
+
+  try {
+    const datasets = {};
+    for (const key of Object.keys(KPI_SOURCES)) {
+      const input = document.getElementById(`kpi-file-${key}`);
+      const file = input && input.files[0];
+      if (file) {
+        const rows = await readSheetFile(file);
+        datasets[key] = mapColumns(rows, KPI_SOURCES[key].headers);
+      }
+    }
+
+    statusEl.textContent = 'Building report...';
+    const zipData = fflate.unzipSync(base64ToUint8Array(tpl.data));
+    const decoder = new TextDecoder('utf-8');
+    const encoder = new TextEncoder();
+
+    for (const key of Object.keys(KPI_SOURCES)) {
+      const dataRows = datasets[key];
+      if (!dataRows) continue;
+      const src = KPI_SOURCES[key];
+      const sheetXml = decoder.decode(zipData[src.sheetFile]);
+      const tableXml = src.tableFile ? decoder.decode(zipData[src.tableFile]) : null;
+      const result = fillSheetTable(sheetXml, tableXml, src.colStart, dataRows);
+      zipData[src.sheetFile] = encoder.encode(result.sheetXml);
+      if (src.tableFile) zipData[src.tableFile] = encoder.encode(result.tableXml);
+    }
+
+    const wbXml = decoder.decode(zipData['xl/workbook.xml']);
+    zipData['xl/workbook.xml'] = encoder.encode(wbXml.replace(/<calcPr[^/]*\/>/, '<calcPr calcId="191028" fullCalcOnLoad="1"/>'));
+
+    const out = fflate.zipSync(zipData, { level: 6 });
+    const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const dayNum = d.getDate();
+    const dayName = DAY_NAMES[d.getDay()];
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    a.download = `${dayNum}. Helpdesk Daily Metrics ${dayName} ${dd}.${mm}.${yyyy}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+    statusEl.textContent = 'Report generated. Remember to refresh the pivot table in Excel.';
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+renderKpiPage();
+
+// ===== OPERATOR KPI EMAILS =====
+const KPI_OPS_COLUMNS = [
+  { header: 'CMS Name',                                  headBg: '#4472C4', headColor: '#FFFFFF', headBold: true,  cellBg: '#DAE3F3', cellColor: '#000000' },
+  { header: 'Email',                                     headBg: '#4472C4', headColor: '#FFFFFF', headBold: true,  cellBg: '#DAE3F3', cellColor: '#000000' },
+  { header: 'Agent answer rate',                         headBg: '#FFF2CC', headColor: '#000000', headBold: false, cellBg: '#FFF2CC', cellColor: '#000000' },
+  { header: 'AHT raw data',                              headBg: '#F2F2F2', headColor: '#D9D9D9', headBold: false, cellBg: '#F2F2F2', cellColor: '#D9D9D9' },
+  { header: 'AHT',                                       headBg: '#FFF2CC', headColor: '#006100', headBold: false, cellBg: '#FFF2CC', cellColor: '#006100' },
+  { header: 'Service level 60 seconds',                  headBg: '#FFF2CC', headColor: '#000000', headBold: false, cellBg: '#FFF2CC', cellColor: '#000000' },
+  { header: 'Contacts handled',                          headBg: '#E2EFDA', headColor: '#000000', headBold: false, cellBg: '#E2EFDA', cellColor: '#000000' },
+  { header: 'Contacts handled incoming',                 headBg: '#E2EFDA', headColor: '#000000', headBold: false, cellBg: '#E2EFDA', cellColor: '#000000' },
+  { header: 'Contacts handled outbound',                 headBg: '#E2EFDA', headColor: '#000000', headBold: false, cellBg: '#E2EFDA', cellColor: '#000000' },
+  { header: 'CMS Job Interactions',                      headBg: '#E2EFDA', headColor: '#000000', headBold: false, cellBg: '#E2EFDA', cellColor: '#000000' },
+  { header: 'Fiserv CMS Phone Support Jobs Created',     headBg: '#DEEBF7', headColor: '#000000', headBold: false, cellBg: '#DEEBF7', cellColor: '#000000' },
+  { header: 'Fiserv Contacts answered in 60 seconds',    headBg: '#DEEBF7', headColor: '#000000', headBold: false, cellBg: '#DEEBF7', cellColor: '#000000' },
+  { header: 'Fiserv Contacts handled incoming',          headBg: '#DEEBF7', headColor: '#000000', headBold: false, cellBg: '#DEEBF7', cellColor: '#000000' },
+  { header: 'Fiserv MS Contacts answered in 60 seconds', headBg: '#DEEBF7', headColor: '#000000', headBold: false, cellBg: '#DEEBF7', cellColor: '#000000' },
+  { header: 'Fiserv MS Contacts handled incoming',       headBg: '#DEEBF7', headColor: '#000000', headBold: false, cellBg: '#DEEBF7', cellColor: '#000000' },
+  { header: 'Datamesh Contacts handled Incoming',        headBg: '#FBE5D6', headColor: '#000000', headBold: true,  cellBg: '#FBE5D6', cellColor: '#000000' },
+  { header: 'Datamesh CMS Phone Support Created',        headBg: '#FBE5D6', headColor: '#000000', headBold: true,  cellBg: '#FBE5D6', cellColor: '#000000' },
+  { header: '7Eleven Incoming Calls',                    headBg: '#EDE2F6', headColor: '#000000', headBold: true,  cellBg: '#EDE2F6', cellColor: '#000000' },
+  { header: 'ANZ Incoming Calls',                        headBg: '#FFE1E1', headColor: '#000000', headBold: true,  cellBg: '#FFE1E1', cellColor: '#000000' },
+  { header: 'ANZ Jobs Scheduled',                        headBg: '#FFE1E1', headColor: '#000000', headBold: true,  cellBg: '#FFE1E1', cellColor: '#000000' }
+];
+
+let kpiOpsRows = [];
+let kpiOpsTotals = null;
+
+const KPI_OPS_COL_WIDTHS = [180, 281, 104, 82, 70, 104, 100, 152, 64, 106, 129, 140, 94, 85, 104, 64, 64, 64, 64, 64];
+
+function normalizeHeader(h) {
+  return (h == null ? '' : String(h)).replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+function isZeroValue(v) {
+  const s = (v == null ? '' : String(v)).trim();
+  if (s === '' || s === '-') return true;
+  if (/^0+(\.0+)?%?$/.test(s)) return true;
+  if (/^0{1,2}:0{2}:0{2}$/.test(s)) return true;
+  return false;
+}
+
+function parseAhtRawSeconds(v) {
+  const s = (v == null ? '' : String(v)).trim();
+  if (s === '') return null;
+  let m = s.match(/^(\d+):(\d{2}):(\d{2})$/);
+  if (m) return (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]);
+  m = s.match(/^(\d+):(\d{2})$/);
+  if (m) return (+m[1]) * 60 + (+m[2]);
+  const n = Number(s);
+  return isNaN(n) ? null : n;
+}
+
+function formatAht(seconds) {
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function findAhtRawMap(wb) {
+  const map = {};
+  for (const sheetName of wb.SheetNames) {
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+    if (!rows.length) continue;
+    const headerRow = rows[0].map(normalizeHeader);
+    const agentIdx = headerRow.indexOf('agent');
+    let ahtIdx = headerRow.indexOf('average handle time');
+    if (ahtIdx === -1) ahtIdx = headerRow.indexOf('aht');
+    if (agentIdx === -1 || ahtIdx === -1) continue;
+    for (let i = 1; i < rows.length; i++) {
+      const agent = (rows[i][agentIdx] || '').toString().trim().toLowerCase();
+      if (!agent) continue;
+      const val = parseAhtRawSeconds(rows[i][ahtIdx]);
+      if (val !== null) map[agent] = val;
+    }
+  }
+  return map;
+}
+
+function parseKpiOpsDateLabel(filename) {
+  const m = filename.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if (!m) return 'yesterday';
+  const day = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10);
+  const year = parseInt(m[3], 10);
+  const date = new Date(year, month - 1, day);
+  if (isNaN(date.getTime())) return 'yesterday';
+  return `${DAY_NAMES[date.getDay()]}, ${day} ${MON_NAMES[month - 1]} ${year}`;
+}
+
+let kpiOpsDateLabel = 'yesterday';
+
+async function kpiOpsLoadFile(file) {
+  const statusEl = document.getElementById('kpi-ops-status');
+  if (!file) return;
+  statusEl.textContent = 'Reading...';
+  try {
+    kpiOpsDateLabel = parseKpiOpsDateLabel(file.name);
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array', cellDates: true });
+    const sheetName = wb.SheetNames.find(n => n.trim().toLowerCase() === 'report') || wb.SheetNames[wb.SheetNames.length - 1];
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+    if (!rows.length) throw new Error('Sheet is empty');
+
+    const headerRow = rows[0].map(normalizeHeader);
+    const colIdx = KPI_OPS_COLUMNS.map(c => headerRow.indexOf(normalizeHeader(c.header)));
+    if (colIdx[0] === -1) throw new Error('Could not find "CMS Name" column');
+
+    const ahtRawMap = findAhtRawMap(wb);
+
+    kpiOpsRows = [];
+    kpiOpsTotals = null;
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      const name = (r[colIdx[0]] || '').toString().trim();
+      const values = KPI_OPS_COLUMNS.map((c, j) => {
+        const idx = colIdx[j];
+        return idx === -1 ? '' : (r[idx] == null ? '' : String(r[idx]).trim());
+      });
+      if (!name) {
+        if (values.some(v => v !== '')) kpiOpsTotals = values;
+        break;
+      }
+      if (isZeroValue(values[4])) {
+        let rawSeconds = parseAhtRawSeconds(values[3]);
+        if (rawSeconds === null || rawSeconds === 0) {
+          const email = (values[1] || '').toLowerCase();
+          if (ahtRawMap[email] != null) rawSeconds = ahtRawMap[email];
+        }
+        if (rawSeconds !== null && rawSeconds > 0) values[4] = formatAht(rawSeconds);
+      }
+      if (values.slice(2).every(isZeroValue)) continue;
+      kpiOpsRows.push(values);
+    }
+
+    statusEl.textContent = `Loaded: ${file.name} (${kpiOpsRows.length} operators)`;
+    renderKpiOpsList();
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Error: ' + err.message;
+  }
+}
+
+function renderKpiOpsList() {
+  const list = document.getElementById('kpi-ops-list');
+  if (!list) return;
+  if (!kpiOpsRows.length) { list.innerHTML = ''; return; }
+  list.innerHTML = kpiOpsRows.map((row, i) => `
+    <div class="kpi-upload-row">
+      <div class="kpi-upload-info">
+        <div class="kpi-upload-name">${esc(row[0])}</div>
+        <div class="kpi-upload-cols">${esc(row[1])}</div>
+      </div>
+      <button class="kpi-file-btn" onclick="kpiOpsCopy(${i})">Preview &amp; copy</button>
+    </div>`).join('');
+}
+
+function buildKpiOpsTableHtml(row) {
+  const baseStyle = 'border:1px solid #999999; padding:1px 4px; font-family:Calibri,sans-serif; font-size:11pt; text-align:center; line-height:1.2;';
+  const thStyle = baseStyle + ' white-space:normal; word-wrap:break-word;';
+  const tdStyle = baseStyle + ' white-space:nowrap;';
+
+  let html = '<table cellspacing="0" cellpadding="0" style="border-collapse:collapse; table-layout:fixed;">';
+  html += '<colgroup>' + KPI_OPS_COL_WIDTHS.map(w => `<col style="width:${w}px;">`).join('') + '</colgroup>';
+  html += '<tr>' + KPI_OPS_COLUMNS.map(c => {
+    return `<th style="${thStyle} background:${c.headBg}; color:${c.headColor}; font-weight:bold;">${esc(c.header)}</th>`;
+  }).join('') + '</tr>';
+  html += '<tr>' + KPI_OPS_COLUMNS.map((c, i) => {
+    return `<td style="${tdStyle} background:${c.cellBg}; color:${c.cellColor};">${esc(row[i])}</td>`;
+  }).join('') + '</tr>';
+
+  if (kpiOpsTotals && kpiOpsTotals.some(v => v !== '')) {
+    html += '<tr>' + KPI_OPS_COLUMNS.map((c, i) => {
+      const val = kpiOpsTotals[i];
+      if (!val) return '<td style="border:none; padding:1px 4px;"></td>';
+      return `<td style="${tdStyle} background:${c.cellBg}; color:${c.cellColor}; font-weight:bold;">${esc(val)}</td>`;
+    }).join('') + '</tr>';
+  }
+
+  html += '</table>';
+  return html;
+}
+
+let kpiOpsCurrentHtml = '';
+let kpiOpsCurrentText = '';
+
+function kpiOpsCopy(i) {
+  const row = kpiOpsRows[i];
+  const firstName = row[0].split(/\s+/)[0] || row[0];
+  const table = buildKpiOpsTableHtml(row);
+  const html = `<div style="font-family:Aptos,sans-serif; font-size:12pt; margin:0; padding:0;">
+    <div style="margin:0 0 12px 0;">Hi ${esc(firstName)},</div>
+    <div style="margin:0 0 12px 0;">Here are the KPI's from ${esc(kpiOpsDateLabel)}:</div>
+    ${table}
+    <div style="margin:12px 0 0 0;">Kind regards,</div>
+  </div>`;
+  let text = `Hi ${firstName},\n\nHere are the KPI's from ${kpiOpsDateLabel}:\n\n` +
+    KPI_OPS_COLUMNS.map(c => c.header).join('\t') + '\n' +
+    row.join('\t');
+  if (kpiOpsTotals && kpiOpsTotals.some(v => v !== '')) {
+    text += '\n' + kpiOpsTotals.join('\t');
+  }
+  text += '\n\nKind regards,';
+
+  kpiOpsCurrentHtml = html;
+  kpiOpsCurrentText = text;
+  document.getElementById('kpi-ops-modal-preview').innerHTML = html;
+  document.getElementById('kpi-ops-modal-overlay').classList.add('active');
+}
+
+function kpiOpsModalClose() {
+  document.getElementById('kpi-ops-modal-overlay').classList.remove('active');
+}
+
+function kpiOpsModalCopy() {
+  copyRichText(kpiOpsCurrentHtml, kpiOpsCurrentText).then(() => {
+    const btn = document.getElementById('kpi-ops-modal-copy-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check" style="font-size:15px;"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = original; }, 1500);
+  });
+}
+
+async function copyRichText(html, text) {
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([text], { type: 'text/plain' })
+      })
+    ]);
+  } catch (err) {
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    document.body.appendChild(container);
+    const range = document.createRange();
+    range.selectNodeContents(container);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    document.body.removeChild(container);
+  }
+}
+
+document.getElementById('mtg-date').value = todayInputDate();
+
+renderBreakTable();
+renderTasks();
+renderKbFact();
+startKbRotation();
+renderStandup();
+renderTemplates();
+renderNumbers();
+renderMeetings();
+</script>
+</body>
+</html>
