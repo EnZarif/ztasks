@@ -704,13 +704,23 @@
       <span class="date-pill" id="datebadge5"></span>
     </div>
 
-    <div class="card">
-      <div class="card-title"><i class="ti ti-list-details"></i> Talking points</div>
-      <div class="add-point-row">
-        <input type="text" id="new-point" placeholder="Add a point to bring up..." onkeydown="if(event.key==='Enter') addStandupPoint()">
-        <button onclick="addStandupPoint()"><i class="ti ti-plus" style="font-size:14px;"></i> Add</button>
+    <div class="split-grid" style="align-items: start;">
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add a point</div>
+          <div class="add-point-row">
+            <input type="text" id="new-point" placeholder="Add a point to bring up..." onkeydown="if(event.key==='Enter') addStandupPoint()">
+            <button onclick="addStandupPoint()"><i class="ti ti-plus" style="font-size:14px;"></i> Add</button>
+          </div>
+          <div class="ai-hint" style="margin-top:8px;">Hit the <i class="ti ti-sparkles" style="font-size:11px;"></i> button on any point to have AI expand it into a short speaking script.</div>
+        </div>
       </div>
-      <div id="standup-list"></div>
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-list-details"></i> Talking points</div>
+          <div id="standup-list"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -793,6 +803,8 @@
       <span class="date-pill" id="datebadge7"></span>
     </div>
 
+    <div class="split-grid">
+    <div>
     <div class="card">
       <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add meeting notes</div>
       <div class="queue-block">
@@ -828,7 +840,9 @@
       </div>
       <button class="generate-btn" onclick="addMeeting()"><i class="ti ti-device-floppy" style="font-size:16px;"></i> Save notes</button>
     </div>
+    </div><!-- end left col -->
 
+    <div>
     <div class="card">
       <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Past meetings</div>
       <div class="add-point-row" style="margin-bottom:14px;">
@@ -843,6 +857,8 @@
       </div>
       <div id="meetings-list"></div>
     </div>
+    </div><!-- end right col -->
+    </div><!-- end split-grid -->
   </div>
 
   <!-- KPI REPORT PAGE -->
@@ -3276,7 +3292,9 @@ async function runAiModal() {
     copyBtn.style.display = '';
   } catch(e) {
     if (e.message === 'NO_KEY') {
-      resultEl.textContent = 'No Gemini API key set. Go to Settings to add your key.';
+      resultEl.textContent = 'No Gemini API key set — go to Settings to add your key.';
+    } else if (e.message.includes('429')) {
+      resultEl.textContent = 'Rate limit hit (too many requests). Wait about a minute and try again — the free tier allows 15 requests per minute.';
     } else {
       resultEl.textContent = `Error: ${e.message}`;
     }
