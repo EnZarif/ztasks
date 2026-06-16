@@ -452,6 +452,81 @@
   #page-kpi .header h1 i, #page-kpi .card-title i { color: var(--pink-text); }
   #page-wishlist .header h1 i, #page-wishlist .card-title i { color: var(--purple-text); }
 
+  /* PROJECTS */
+  #page-projects .header h1 i { color: var(--amber-text); }
+  .proj-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .proj-filter-row { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .proj-filter-btn { font-size: 12px; padding: 5px 13px; border-radius: 20px; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-3); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .proj-filter-btn:hover { color: var(--text); border-color: var(--text-3); }
+  .proj-filter-btn.active { background: var(--amber-bg); border-color: var(--amber-text); color: var(--amber-text); }
+  .proj-add-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 7px 16px; border-radius: 10px; border: 0.5px solid var(--amber-text); background: var(--amber-bg); color: var(--amber-text); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.15s; flex-shrink: 0; }
+  .proj-add-btn:hover { background: var(--amber-text); color: #000; }
+  .proj-stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .proj-stat { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+  .proj-stat-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .proj-stat-n { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1; }
+  .proj-stat-l { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .proj-list { display: flex; flex-direction: column; gap: 14px; }
+  .proj-card { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 14px; overflow: hidden; }
+  .proj-card-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; cursor: pointer; transition: background 0.15s; }
+  .proj-card-head:hover { background: var(--surface2); }
+  .proj-card-chev { font-size: 14px; color: var(--text-3); transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
+  .proj-card.open .proj-card-chev { transform: rotate(180deg); }
+  .proj-card-info { flex: 1; min-width: 0; }
+  .proj-card-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .proj-card-desc { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .proj-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .proj-type-pill { font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+  .ptype-operational { background: var(--blue-bg); color: var(--blue-text); }
+  .ptype-handover    { background: var(--purple-bg); color: var(--purple-text); }
+  .ptype-rollout     { background: var(--amber-bg); color: var(--amber-text); }
+  .ptype-internal    { background: var(--teal-bg); color: var(--teal-text); }
+  .ptype-managerial  { background: var(--coral-bg); color: var(--coral-text); }
+  .proj-status-pill { font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+  .pstatus-active    { background: rgba(99,153,34,0.15); color: var(--green-text); }
+  .pstatus-onhold    { background: var(--amber-bg); color: var(--amber-text); }
+  .pstatus-delivered { background: var(--surface2); color: var(--text-3); }
+  .proj-sub-count { font-size: 11px; color: var(--text-3); margin-left: auto; flex-shrink: 0; }
+  .proj-card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .proj-icon-btn { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 15px; padding: 4px 6px; border-radius: 7px; transition: all 0.15s; }
+  .proj-icon-btn:hover { color: var(--text); background: var(--surface2); }
+  .proj-body { display: none; border-top: 0.5px solid var(--border); }
+  .proj-card.open .proj-body { display: block; }
+  .proj-sub-list { padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .proj-sub-add-row { display: flex; gap: 8px; align-items: center; padding: 8px 18px 12px; border-top: 0.5px solid var(--border); }
+  .proj-sub-add-input { flex: 1; font-size: 13px; padding: 6px 10px; border: 0.5px solid var(--border-md); border-radius: 8px; background: var(--bg); color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; }
+  .proj-sub-add-input:focus { border-color: var(--amber-text); }
+  .proj-sub-add-btn { font-size: 12px; padding: 6px 12px; border-radius: 8px; border: 0.5px solid var(--amber-text); background: var(--amber-bg); color: var(--amber-text); cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
+  .proj-sub-add-btn:hover { background: var(--amber-text); color: #000; }
+  .proj-sub-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; background: var(--bg); border: 0.5px solid var(--border); transition: border-color 0.15s; }
+  .proj-sub-row:hover { border-color: var(--border-md); }
+  .proj-sub-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .proj-sub-dot.pstatus-active    { background: var(--green-text); }
+  .proj-sub-dot.pstatus-onhold    { background: var(--amber-text); }
+  .proj-sub-dot.pstatus-delivered { background: var(--text-3); }
+  .proj-sub-name { font-size: 13px; color: var(--text); flex: 1; min-width: 0; }
+  .proj-sub-name.delivered { text-decoration: line-through; color: var(--text-3); }
+  .proj-sub-status { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
+  .proj-sub-date { font-size: 10px; color: var(--text-3); flex-shrink: 0; }
+  .proj-sub-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 5px; transition: color 0.15s; }
+  .proj-sub-del:hover { color: #ef4444; }
+  .proj-empty { text-align: center; padding: 60px 20px; color: var(--text-3); }
+  .proj-empty i { font-size: 36px; opacity: 0.25; display: block; margin-bottom: 12px; }
+  .proj-empty-title { font-size: 15px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+  .proj-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .proj-modal { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; }
+  .proj-modal-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .proj-modal-title i { color: var(--amber-text); }
+  .proj-field { margin-bottom: 14px; }
+  .proj-field label { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 5px; }
+  .proj-field input, .proj-field select, .proj-field textarea { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: 9px; background: var(--bg); color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; resize: vertical; }
+  .proj-field input:focus, .proj-field select:focus, .proj-field textarea:focus { border-color: var(--amber-text); }
+  .proj-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .proj-modal-cancel { font-size: 13px; padding: 8px 16px; border-radius: 9px; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-2); cursor: pointer; font-family: inherit; }
+  .proj-modal-cancel:hover { border-color: var(--text-3); color: var(--text); }
+  .proj-modal-save { font-size: 13px; padding: 8px 18px; border-radius: 9px; border: none; background: var(--amber-text); color: #000; cursor: pointer; font-family: inherit; font-weight: 500; }
+  .proj-modal-save:hover { opacity: 0.88; }
+
   /* WISHLIST */
   .wl-form { display: flex; flex-direction: column; gap: 10px; }
   .wl-tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
@@ -1014,11 +1089,44 @@
 
   <!-- PROJECTS HUB -->
   <div class="page" id="page-projects">
-    <div class="hub-head">
-      <h1><i class="ti ti-folders" style="color:var(--amber-text);"></i> Projects</h1>
-      <p>Project work and notes.</p>
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-folders"></i> Projects</h1>
+        <p>Major projects, responsibilities, and deliverables</p>
+      </div>
+      <span class="date-pill" id="datebadge-proj"></span>
     </div>
-    <div class="hub-grid" id="hub-grid-projects"></div>
+
+    <div class="proj-stats">
+      <div class="proj-stat">
+        <div class="proj-stat-ico" style="background:var(--amber-bg);color:var(--amber-text)"><i class="ti ti-folders"></i></div>
+        <div><div class="proj-stat-n" id="proj-stat-total">0</div><div class="proj-stat-l">Projects</div></div>
+      </div>
+      <div class="proj-stat">
+        <div class="proj-stat-ico" style="background:var(--green-bg);color:var(--green-text)"><i class="ti ti-activity"></i></div>
+        <div><div class="proj-stat-n" id="proj-stat-active">0</div><div class="proj-stat-l">Active</div></div>
+      </div>
+      <div class="proj-stat">
+        <div class="proj-stat-ico" style="background:var(--teal-bg);color:var(--teal-text)"><i class="ti ti-circle-check"></i></div>
+        <div><div class="proj-stat-n" id="proj-stat-delivered">0</div><div class="proj-stat-l">Delivered</div></div>
+      </div>
+      <div class="proj-stat">
+        <div class="proj-stat-ico" style="background:var(--surface2);color:var(--text-3)"><i class="ti ti-subtask"></i></div>
+        <div><div class="proj-stat-n" id="proj-stat-subs">0</div><div class="proj-stat-l">Sub-projects</div></div>
+      </div>
+    </div>
+
+    <div class="proj-toolbar">
+      <div class="proj-filter-row">
+        <button class="proj-filter-btn active" data-pf="all" onclick="setProjFilter('all')">All</button>
+        <button class="proj-filter-btn" data-pf="active" onclick="setProjFilter('active')">Active</button>
+        <button class="proj-filter-btn" data-pf="onhold" onclick="setProjFilter('onhold')">On hold</button>
+        <button class="proj-filter-btn" data-pf="delivered" onclick="setProjFilter('delivered')">Delivered</button>
+      </div>
+      <button class="proj-add-btn" onclick="openProjModal()"><i class="ti ti-plus" style="font-size:15px"></i> Add project</button>
+    </div>
+
+    <div class="proj-list" id="proj-list"></div>
   </div>
 
   <!-- PERSONAL HUB -->
@@ -4573,6 +4681,211 @@ async function copyRichText(html, text) {
 
 document.getElementById('mtg-date').value = todayInputDate();
 
+// ===== PROJECTS =====
+let projects = [];
+let nextProjectId = 1;
+let _projFilter = 'all';
+
+function saveProjects() { dbSet('zarif_projects', projects); }
+
+const PROJ_TYPE_LABELS = { operational:'Operational', handover:'Handover', rollout:'Rollout', internal:'Internal', managerial:'Managerial' };
+const PROJ_STATUS_LABELS = { active:'Active', onhold:'On hold', delivered:'Delivered' };
+
+function openProjModal(id) {
+  const existing = id ? projects.find(p => p.id === id) : null;
+  const html = `<div class="proj-modal-bg" id="proj-modal" onclick="if(event.target===this)closeProjModal()">
+    <div class="proj-modal">
+      <div class="proj-modal-title"><i class="ti ti-folders"></i>${existing ? 'Edit project' : 'New project'}</div>
+      <div class="proj-field"><label>Project title</label><input id="pm-title" placeholder="e.g. ANZ WL Rollout Phase 2" value="${existing ? esc(existing.title) : ''}"></div>
+      <div class="proj-field"><label>Description <span style="font-weight:400;color:var(--text-3)">(optional)</span></label><textarea id="pm-desc" rows="2" placeholder="Brief overview…">${existing ? esc(existing.description || '') : ''}</textarea></div>
+      <div class="proj-field"><label>Type</label>
+        <select id="pm-type">
+          <option value="operational" ${(!existing||existing.type==='operational')?'selected':''}>Operational — ongoing responsibility</option>
+          <option value="managerial" ${existing&&existing.type==='managerial'?'selected':''}>Managerial — coverage / delegation</option>
+          <option value="handover" ${existing&&existing.type==='handover'?'selected':''}>Handover — transition work</option>
+          <option value="rollout" ${existing&&existing.type==='rollout'?'selected':''}>Rollout — external project</option>
+          <option value="internal" ${existing&&existing.type==='internal'?'selected':''}>Internal — improvement / process</option>
+        </select>
+      </div>
+      <div class="proj-field"><label>Status</label>
+        <select id="pm-status">
+          <option value="active" ${(!existing||existing.status==='active')?'selected':''}>Active</option>
+          <option value="onhold" ${existing&&existing.status==='onhold'?'selected':''}>On hold</option>
+          <option value="delivered" ${existing&&existing.status==='delivered'?'selected':''}>Delivered</option>
+        </select>
+      </div>
+      <div class="proj-modal-actions">
+        <button class="proj-modal-cancel" onclick="closeProjModal()">Cancel</button>
+        <button class="proj-modal-save" onclick="saveProjModal('${id||''}')">Save project</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  document.getElementById('pm-title').focus();
+}
+
+function closeProjModal() {
+  const el = document.getElementById('proj-modal');
+  if (el) el.remove();
+}
+
+function saveProjModal(id) {
+  const title = (document.getElementById('pm-title').value || '').trim();
+  if (!title) { document.getElementById('pm-title').focus(); return; }
+  const type   = document.getElementById('pm-type').value;
+  const status = document.getElementById('pm-status').value;
+  const desc   = (document.getElementById('pm-desc').value || '').trim();
+  if (id) {
+    const p = projects.find(p => String(p.id) === String(id));
+    if (p) { p.title = title; p.type = type; p.status = status; p.description = desc;
+      if (status === 'delivered' && !p.deliveredAt) p.deliveredAt = new Date().toISOString(); }
+  } else {
+    projects.push({ id: nextProjectId++, title, type, status, description: desc, subs: [], createdAt: new Date().toISOString(), deliveredAt: status === 'delivered' ? new Date().toISOString() : null });
+  }
+  saveProjects();
+  closeProjModal();
+  renderProjects();
+}
+
+function deleteProject(id) {
+  if (!confirm('Delete this project and all its sub-projects?')) return;
+  projects = projects.filter(p => p.id !== id);
+  saveProjects();
+  renderProjects();
+}
+
+function toggleProjOpen(id) {
+  const card = document.getElementById('proj-card-' + id);
+  if (card) card.classList.toggle('open');
+}
+
+function addSubProject(projId) {
+  const inp = document.getElementById('sub-inp-' + projId);
+  const title = (inp ? inp.value.trim() : '');
+  if (!title) { if (inp) inp.focus(); return; }
+  const p = projects.find(p => p.id === projId);
+  if (!p) return;
+  if (!p.subs) p.subs = [];
+  p.subs.push({ id: Date.now(), title, status: 'active', notes: '', createdAt: new Date().toISOString(), deliveredAt: null });
+  saveProjects();
+  inp.value = '';
+  renderProjects();
+  // re-open the card
+  const card = document.getElementById('proj-card-' + projId);
+  if (card) card.classList.add('open');
+}
+
+function cycleSubStatus(projId, subId) {
+  const p = projects.find(p => p.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(s => s.id === subId);
+  if (!s) return;
+  const cycle = { active: 'onhold', onhold: 'delivered', delivered: 'active' };
+  s.status = cycle[s.status] || 'active';
+  if (s.status === 'delivered' && !s.deliveredAt) s.deliveredAt = new Date().toISOString();
+  if (s.status !== 'delivered') s.deliveredAt = null;
+  saveProjects();
+  renderProjects();
+  const card = document.getElementById('proj-card-' + projId);
+  if (card) card.classList.add('open');
+}
+
+function deleteSubProject(projId, subId) {
+  const p = projects.find(p => p.id === projId);
+  if (!p) return;
+  p.subs = (p.subs || []).filter(s => s.id !== subId);
+  saveProjects();
+  renderProjects();
+  const card = document.getElementById('proj-card-' + projId);
+  if (card) card.classList.add('open');
+}
+
+function setProjFilter(f) {
+  _projFilter = f;
+  document.querySelectorAll('.proj-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.pf === f));
+  renderProjects();
+}
+
+function renderProjects() {
+  const badge = document.getElementById('datebadge-proj');
+  if (badge) badge.textContent = new Date().toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'short'});
+
+  const total     = projects.length;
+  const active    = projects.filter(p => p.status === 'active').length;
+  const delivered = projects.filter(p => p.status === 'delivered').length;
+  const subs      = projects.reduce((n, p) => n + (p.subs || []).length, 0);
+  const st = id => { const el = document.getElementById(id); if (el) el.textContent = {
+    'proj-stat-total': total, 'proj-stat-active': active,
+    'proj-stat-delivered': delivered, 'proj-stat-subs': subs }[id]; };
+  ['proj-stat-total','proj-stat-active','proj-stat-delivered','proj-stat-subs'].forEach(st);
+
+  const list = document.getElementById('proj-list');
+  if (!list) return;
+
+  const filtered = projects.filter(p => _projFilter === 'all' || p.status === _projFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="proj-empty"><i class="ti ti-folders"></i><div class="proj-empty-title">${_projFilter === 'all' ? 'No projects yet' : 'Nothing here'}</div><div style="font-size:13px">Click <strong>+ Add project</strong> to get started.</div></div>`;
+    return;
+  }
+
+  // preserve open state
+  const openIds = new Set([...document.querySelectorAll('.proj-card.open')].map(c => c.id.replace('proj-card-','')));
+
+  list.innerHTML = filtered.map(p => {
+    const subs = p.subs || [];
+    const activeSubs = subs.filter(s => s.status === 'active').length;
+    const isOpen = openIds.has(String(p.id));
+    const subRows = subs.map(s => {
+      const sLbl = PROJ_STATUS_LABELS[s.status] || s.status;
+      const sColor = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
+      const delivDate = s.deliveredAt ? ' · ' + new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return `<div class="proj-sub-row">
+        <div class="proj-sub-dot ${sColor}"></div>
+        <span class="proj-sub-name${s.status==='delivered'?' delivered':''}">${esc(s.title)}</span>
+        <button class="proj-sub-status ${sColor}" onclick="cycleSubStatus(${p.id},${s.id})" title="Click to change status">${sLbl}</button>
+        <span class="proj-sub-date">${delivDate}</span>
+        <button class="proj-sub-del" onclick="deleteSubProject(${p.id},${s.id})" title="Delete"><i class="ti ti-trash"></i></button>
+      </div>`;
+    }).join('');
+
+    const typeLabel  = PROJ_TYPE_LABELS[p.type] || p.type;
+    const statusLabel = PROJ_STATUS_LABELS[p.status] || p.status;
+    const statusCls  = p.status === 'active' ? 'pstatus-active' : p.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
+    const delivNote  = p.deliveredAt ? `<span style="font-size:10px;color:var(--text-3)">Delivered ${new Date(p.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}</span>` : '';
+    const createdNote = `<span style="font-size:10px;color:var(--text-3)">Started ${new Date(p.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}</span>`;
+
+    return `<div class="proj-card${isOpen?' open':''}" id="proj-card-${p.id}">
+      <div class="proj-card-head" onclick="toggleProjOpen(${p.id})">
+        <i class="ti ti-chevron-down proj-card-chev"></i>
+        <div class="proj-card-info">
+          <div class="proj-card-title">${esc(p.title)}</div>
+          ${p.description ? `<div class="proj-card-desc">${esc(p.description)}</div>` : ''}
+          <div class="proj-card-meta">
+            <span class="proj-type-pill ptype-${p.type}">${typeLabel}</span>
+            <span class="proj-status-pill ${statusCls}">${statusLabel}</span>
+            ${delivNote || createdNote}
+          </div>
+        </div>
+        <span class="proj-sub-count">${subs.length} sub-project${subs.length!==1?'s':''}</span>
+        <div class="proj-card-actions" onclick="event.stopPropagation()">
+          <button class="proj-icon-btn" onclick="openProjModal(${p.id})" title="Edit"><i class="ti ti-pencil"></i></button>
+          <button class="proj-icon-btn" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-sub-list">
+          ${subRows || '<div style="font-size:12px;color:var(--text-3);padding:4px 0">No sub-projects yet — add one below.</div>'}
+        </div>
+        <div class="proj-sub-add-row">
+          <input class="proj-sub-add-input" id="sub-inp-${p.id}" placeholder="Add sub-project…" onkeydown="if(event.key==='Enter')addSubProject(${p.id})">
+          <button class="proj-sub-add-btn" onclick="addSubProject(${p.id})"><i class="ti ti-plus" style="font-size:13px"></i> Add</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ===== WISHLIST =====
 const DEFAULT_WISHLIST = [
   // ── Features ──────────────────────────────────────────────────────────
@@ -4683,6 +4996,16 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.7.0', type: 'minor', date: '17 Jun 2026', title: 'Projects revamp', changes: [
+    'Replaced the empty Projects hub with a full project management page',
+    'Add major projects with title, description, type (Operational / Managerial / Handover / Rollout / Internal) and status',
+    'Each project expands to show nested sub-projects',
+    'Sub-projects added inline with Enter or the Add button; status cycles Active → On hold → Delivered on click',
+    'Delivered sub-projects record a deliveredAt timestamp — ready to feed into Personal deliverables later',
+    'Filter bar: All / Active / On hold / Delivered',
+    'Stats bar: total projects, active, delivered, sub-project count',
+    'All data persisted in Supabase as zarif_projects',
+  ]},
   { ver: '3.6.0', type: 'minor', date: '17 Jun 2026', title: 'Theme system', changes: [
     'Added 5 new themes: Ink (pure black + white), Forest (deep green), Aurora (navy + purple/teal/pink), Ember (warm brown + gold), Slate (cool blue-grey)',
     'Midnight remains the default theme',
@@ -5333,6 +5656,9 @@ function initNotes() {
   if (!dbGet('zarif_wishlist')) saveWishlist();
   nextWishlistId = wishlist.reduce((m,w) => Math.max(m, w.id || 0), 0) + 1;
 
+  projects       = dbGet('zarif_projects')       || [];
+  nextProjectId  = projects.reduce((m,p) => Math.max(m, p.id || 0), 0) + 1;
+
   // Filter expired once-tasks
   const _before = customTasks.length;
   customTasks = customTasks.filter(t => !(t.freq === 'once' && t.date !== todayInputDate()));
@@ -5355,6 +5681,7 @@ function initNotes() {
   renderMeetings();
   initNotes();
   renderWishlist();
+  renderProjects();
 })();
 </script>
 </body>
