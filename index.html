@@ -551,6 +551,28 @@
 
   /* WIDGETS — POMODORO */
   .widgets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .widgets-grid .notes-card { grid-column: 1 / -1; }
+
+  /* SCRATCH PAD */
+  .notes-card { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .notes-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .notes-card-head h3 { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .notes-card-head h3 i { font-size: 17px; color: var(--amber-text); }
+  .notes-saved-badge { font-size: 11px; color: var(--green-text); opacity: 0; transition: opacity 0.4s; }
+  .notes-saved-badge.show { opacity: 1; }
+  .notes-textarea { width: 100%; min-height: 160px; max-height: 420px; resize: vertical; background: var(--surface2); border: 0.5px solid var(--border-md); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; line-height: 1.65; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; }
+  .notes-textarea:focus { border-color: var(--amber-text); }
+  .notes-textarea::placeholder { color: var(--text-3); }
+  .notes-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .notes-ai-btn { display: flex; align-items: center; gap: 7px; padding: 8px 14px; font-size: 13px; font-weight: 500; border: none; border-radius: var(--radius); background: var(--amber-bg); color: var(--amber-text); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .notes-ai-btn:hover { filter: brightness(1.15); }
+  .notes-ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .notes-char-count { font-size: 12px; color: var(--text-3); margin-left: auto; }
+  .notes-ai-result { background: var(--surface2); border: 0.5px solid var(--border-md); border-radius: var(--radius); padding: 14px 16px; font-size: 13.5px; line-height: 1.7; color: var(--text); white-space: pre-wrap; display: none; }
+  .notes-ai-result.visible { display: block; }
+  .notes-ai-result-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .notes-ai-result-actions button { font-size: 12px; padding: 5px 12px; border-radius: 7px; border: 0.5px solid var(--border-md); background: var(--surface2); color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .notes-ai-result-actions button:hover { background: var(--border-md); color: var(--text); }
   .pomo-card { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 26px 22px; }
   .pomo-modes { display: flex; gap: 4px; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px; }
   .pomo-mode-btn { font-size: 13px; font-family: inherit; padding: 6px 18px; border: none; background: transparent; color: var(--text-3); border-radius: 20px; cursor: pointer; transition: all 0.15s; }
@@ -734,6 +756,25 @@
           </div>
         </div>
         <div class="pomo-meta"><i class="ti ti-flame"></i> <span id="pomo-count">0</span> focus sessions today</div>
+      </div>
+
+      <!-- SCRATCH PAD -->
+      <div class="card notes-card">
+        <div class="notes-card-head">
+          <h3><i class="ti ti-notes"></i> Scratch Pad</h3>
+          <span class="notes-saved-badge" id="notes-saved-badge"><i class="ti ti-check"></i> Saved</span>
+        </div>
+        <textarea class="notes-textarea" id="notes-textarea" placeholder="Dump your thoughts here — ideas, brainstorms, things to figure out…" oninput="notesOnInput()"></textarea>
+        <div class="notes-actions">
+          <button class="notes-ai-btn" id="notes-ai-btn" onclick="notesElaborate()"><i class="ti ti-sparkles"></i> Elaborate with AI</button>
+          <span class="notes-char-count" id="notes-char-count">0 chars</span>
+        </div>
+        <div class="notes-ai-result" id="notes-ai-result"></div>
+        <div class="notes-ai-result-actions" id="notes-ai-result-actions" style="display:none">
+          <button onclick="notesInsertResult()"><i class="ti ti-corner-down-left"></i> Insert into notes</button>
+          <button onclick="notesCopyResult()"><i class="ti ti-copy"></i> Copy</button>
+          <button onclick="notesDismissResult()"><i class="ti ti-x"></i> Dismiss</button>
+        </div>
       </div>
     </div>
   </div>
@@ -4366,6 +4407,83 @@ function elaboratePoint(id, btn) {
   openAiModal('standup', id);
 }
 
+// ===== SCRATCH PAD =====
+let _notesTimer = null;
+let _notesAiResult = '';
+
+function notesOnInput() {
+  const ta = document.getElementById('notes-textarea');
+  const cc = document.getElementById('notes-char-count');
+  if (cc) cc.textContent = ta.value.length + ' chars';
+  clearTimeout(_notesTimer);
+  _notesTimer = setTimeout(() => {
+    dbSet('zarif_notes', ta.value);
+    const badge = document.getElementById('notes-saved-badge');
+    if (badge) { badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 1800); }
+  }, 600);
+}
+
+async function notesElaborate() {
+  const ta = document.getElementById('notes-textarea');
+  const notes = ta.value.trim();
+  if (!notes) return;
+  const btn = document.getElementById('notes-ai-btn');
+  const resultEl = document.getElementById('notes-ai-result');
+  const actionsEl = document.getElementById('notes-ai-result-actions');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> Thinking…';
+  resultEl.classList.remove('visible');
+  actionsEl.style.display = 'none';
+  try {
+    const result = await geminiCall(
+      `You are a creative thinking partner. The user has jotted down raw notes or ideas below. Expand on them — develop the ideas, connect the dots, suggest new angles, highlight what's interesting, and help them think further. Be practical and insightful.\n\nNotes:\n${notes}`
+    );
+    _notesAiResult = result;
+    resultEl.textContent = result;
+    resultEl.classList.add('visible');
+    actionsEl.style.display = 'flex';
+  } catch(e) {
+    resultEl.textContent = e.message === 'NO_KEY' ? 'No Groq API key set — go to Settings to add your key.' : 'Error: ' + (e.detail || e.message);
+    resultEl.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-sparkles"></i> Elaborate with AI';
+  }
+}
+
+function notesInsertResult() {
+  if (!_notesAiResult) return;
+  const ta = document.getElementById('notes-textarea');
+  ta.value = ta.value.trim() + '\n\n--- AI ---\n' + _notesAiResult;
+  notesOnInput();
+  notesDismissResult();
+}
+
+function notesCopyResult() {
+  if (!_notesAiResult) return;
+  navigator.clipboard.writeText(_notesAiResult).then(() => {
+    const btn = event.currentTarget;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i> Copied';
+    setTimeout(() => btn.innerHTML = orig, 1500);
+  });
+}
+
+function notesDismissResult() {
+  document.getElementById('notes-ai-result').classList.remove('visible');
+  document.getElementById('notes-ai-result-actions').style.display = 'none';
+  _notesAiResult = '';
+}
+
+function initNotes() {
+  const ta = document.getElementById('notes-textarea');
+  if (!ta) return;
+  const saved = dbGet('zarif_notes') || '';
+  ta.value = saved;
+  const cc = document.getElementById('notes-char-count');
+  if (cc) cc.textContent = saved.length + ' chars';
+}
+
 (async () => {
   try {
     await dbLoad();
@@ -4415,6 +4533,7 @@ function elaboratePoint(id, btn) {
   renderTemplates();
   renderNumbers();
   renderMeetings();
+  initNotes();
 })();
 </script>
 </body>
