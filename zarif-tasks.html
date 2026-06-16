@@ -70,15 +70,18 @@
   body.compact-mode .task { padding: 7px 10px; }
   body.compact-mode .task-hero { padding: 14px; }
 
-  @media (max-width: 700px) {
-    .nav { width: 52px; padding: 14px 6px; }
-    .nav-logo span { display: none; }
-    .nav-btn span { display: none; }
-    .nav-btn { justify-content: center; padding: 8px; }
-    .theme-toggle-btn span { display: none; }
-    .theme-toggle-btn { justify-content: center; padding: 8px; }
-    .nav-section-label { display: none; }
-    .wrap { margin-left: 52px !important; }
+  @media (max-width: 760px) {
+    /* Mobile: nav becomes a bottom bar */
+    body { padding-left: 0; padding-bottom: 66px; }
+    .wrap { padding: 1.25rem 1rem 2rem; }
+    .nav { width: 100%; height: auto; top: auto; bottom: 0; left: 0; right: 0; flex-direction: row; align-items: stretch;
+           border-right: none; border-top: 0.5px solid var(--border); padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+           overflow-x: auto; overflow-y: hidden; gap: 2px; -webkit-overflow-scrolling: touch; }
+    .nav-logo, .nav-section-label { display: none; }
+    .nav-links, .nav-bottom { display: contents; }
+    .nav-btn, .theme-toggle-btn { flex: 0 0 auto; width: auto; min-width: 60px; flex-direction: column; justify-content: center;
+           gap: 3px; padding: 6px 8px; font-size: 10px; text-align: center; white-space: nowrap; }
+    .nav-btn i, .theme-toggle-btn i { font-size: 20px; }
   }
   .page { display: none; }
   .page.active { display: block; }
@@ -134,6 +137,10 @@
   .statcard.clickable.active { border-color: #185FA5; background: rgba(55,138,221,0.1); }
   .stat-strip { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
   .stat-strip .statcard { flex: 1; min-width: 130px; }
+  .dash-upcoming { margin-top: 14px; padding: 9px 13px; background: var(--blue-bg); border: 0.5px solid rgba(55,138,221,0.22); border-radius: var(--radius); font-size: 12px; color: var(--blue-text); display: flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color 0.15s; }
+  .dash-upcoming:hover { border-color: rgba(55,138,221,0.5); }
+  .dash-upcoming i { font-size: 14px; flex-shrink: 0; }
+  .dash-upcoming .du-next { color: var(--text-3); margin-left: auto; white-space: nowrap; }
   @media (max-width: 560px) {
     .dash-grid { flex-direction: column; align-items: stretch; }
     .dash-ring { flex-direction: row; justify-content: center; gap: 10px; }
@@ -429,6 +436,46 @@
   .ai-modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; flex-wrap: wrap; }
   .task-ai-btn { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: 5px; font-size: 14px; display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; transition: all 0.15s; }
   .task-ai-btn:hover { color: var(--teal); background: var(--teal-bg); }
+
+  /* MOBILE COMPONENT TWEAKS (after base rules so they win the cascade) */
+  @media (max-width: 760px) {
+    .header { margin-bottom: 1.2rem; }
+    .header h1 { font-size: 18px; }
+    .task-hero { padding: 16px; }
+    .task-hero-greeting { font-size: 16px; }
+    .dash-grid { flex-direction: column; align-items: stretch; gap: 12px; }
+    .dash-ring { flex-direction: row; justify-content: center; gap: 12px; }
+    .dash-stats { grid-template-columns: 1fr 1fr; }
+
+    /* Bigger, easier tap targets */
+    .task { padding: 13px 14px; gap: 13px; }
+    .cb { width: 24px; height: 24px; border-radius: 7px; }
+    .cb i { font-size: 14px; }
+    .tname { font-size: 14px; }
+    .task-ai-btn, .task-edit-btn, .task-del-btn, .task-move-btn { padding: 7px; font-size: 17px; }
+    .task-move-btn { font-size: 15px; }
+
+    /* Horizontal-scroll tab row */
+    .tabs { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; gap: 2px; }
+    .tab { flex: 0 0 auto; padding: 9px 13px; }
+
+    /* Stack label/input form rows */
+    .field-row { grid-template-columns: 1fr; gap: 5px; }
+    .field-label { padding-top: 0; }
+
+    /* Comfortable inputs (avoids iOS zoom on focus) */
+    .field-input, .ai-modal-prompt, .standup-item-text, .add-point-row input,
+    .api-key-row input, .settings-input, textarea, input[type="text"], input[type="date"] { font-size: 16px; }
+
+    /* Modals fill the small screen */
+    .ai-modal, .kpi-modal { max-width: 100%; padding: 18px; }
+    .ai-modal-actions, .kpi-modal-actions { justify-content: stretch; }
+    .ai-modal-actions > button { flex: 1; justify-content: center; }
+
+    /* Sidebar (KB) drops below the list */
+    .tasks-layout { grid-template-columns: 1fr; }
+    .tasks-sidebar { position: static; }
+  }
 </style>
 </head>
 <body>
@@ -493,6 +540,7 @@
           </div>
         </div>
       </div>
+      <div id="dash-upcoming" class="dash-upcoming" style="display:none" onclick="switchTab('date')"></div>
     </div>
 
     <div id="today-banner" style="display:none" class="today-banner">
@@ -1585,7 +1633,7 @@ function isToday(task) {
     return true;
   }
   if (task.freq === 'once') return task.date === todayInputDate();
-  if (task.freq === 'date') return task.date === todayInputDate();
+  if (task.freq === 'date') return task.date === todayInputDate() || (task.date < todayInputDate() && !isDone(task.id));
   return false;
 }
 function fmtShortDate(s) {
@@ -1692,6 +1740,23 @@ function renderTasks() {
 
   const allDone = todayTotal > 0 && todayDone === todayTotal;
   animateCount(document.getElementById('s-streak'), updateStreak(allDone));
+
+  const upEl = document.getElementById('dash-upcoming');
+  if (upEl) {
+    const today = todayInputDate();
+    const weekEnd = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate()+7));
+    const upcoming = getAllTasks()
+      .filter(t => t.freq === 'date' && t.date && t.date > today && t.date <= weekEnd && !isDone(t.id))
+      .sort((a,b) => a.date.localeCompare(b.date));
+    if (upcoming.length) {
+      const n = upcoming.length;
+      upEl.innerHTML = `<i class="ti ti-calendar-up"></i><span>${n} task${n!==1?'s':''} due in the next 7 days</span>` +
+        `<span class="du-next">next: ${esc(upcoming[0].name)} · ${fmtShortDate(upcoming[0].date)}</span>`;
+      upEl.style.display = 'flex';
+    } else {
+      upEl.style.display = 'none';
+    }
+  }
 
   const activeFilter = currentTab === 'today' ? statFilter : 'all';
   document.getElementById('stat-all').classList.toggle('active', activeFilter === 'all');
