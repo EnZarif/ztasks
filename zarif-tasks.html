@@ -908,14 +908,14 @@
     </div>
 
     <div class="card settings-section">
-      <div class="card-title"><i class="ti ti-sparkles"></i> AI — Google Gemini</div>
+      <div class="card-title"><i class="ti ti-sparkles"></i> AI — Groq</div>
       <div class="settings-key-row">
-        <input type="password" class="settings-input" id="settings-gemini-key" placeholder="AIza... (your Gemini API key)" style="width:100%;">
+        <input type="password" class="settings-input" id="settings-gemini-key" placeholder="gsk_... (your Groq API key)" style="width:100%;">
         <button class="settings-save-btn" onclick="saveGeminiKey()"><i class="ti ti-device-floppy"></i> Save</button>
         <button class="settings-save-btn" onclick="testGeminiKey()" style="background:transparent;color:var(--text-2);border:0.5px solid var(--border-md);"><i class="ti ti-plug-connected"></i> Test</button>
       </div>
       <div class="ai-hint" id="gemini-key-status"></div>
-      <div class="ai-hint">Your key is stored only in this browser (localStorage) and never sent anywhere except Google's API. Get a free key at <strong>aistudio.google.com</strong>. Once set, all AI buttons across the app will use it.</div>
+      <div class="ai-hint">Your key is stored only in this browser (localStorage) and never sent anywhere except Groq's API. Get a free key (no credit card needed) at <strong>console.groq.com</strong> → API Keys. Once set, all AI buttons across the app will use it.</div>
     </div>
 
     <div class="card settings-section">
@@ -3052,7 +3052,7 @@ document.getElementById('mtg-date').value = todayInputDate();
 // ===== SETTINGS =====
 function loadSettings() {
   const s = JSON.parse(localStorage.getItem('zarif_settings') || '{}');
-  const key = localStorage.getItem('zarif_gemini_key') || '';
+  const key = localStorage.getItem('zarif_groq_key') || '';
   const keyEl = document.getElementById('settings-gemini-key');
   if (keyEl && key) keyEl.value = key;
   renderKeyStatus();
@@ -3109,17 +3109,17 @@ function applySettings(s) {
 function renderKeyStatus() {
   const el = document.getElementById('gemini-key-status');
   if (!el) return;
-  const key = localStorage.getItem('zarif_gemini_key') || '';
+  const key = localStorage.getItem('zarif_groq_key') || '';
   if (!key) { el.textContent = 'No key saved yet.'; return; }
   const prefix = key.slice(0, 4);
-  const looksRight = prefix === 'AIza';
-  el.innerHTML = `Saved key: <strong>${prefix}…${key.slice(-4)}</strong> (${key.length} chars) · model <strong>${GEMINI_MODEL}</strong>` +
-    (looksRight ? '' : ' — <span style="color:var(--coral-text)">this doesn\'t look like an AI Studio key (those start with "AIza")</span>');
+  const looksRight = prefix === 'gsk_';
+  el.innerHTML = `Saved key: <strong>${prefix}…${key.slice(-4)}</strong> (${key.length} chars) · model <strong>${AI_MODEL}</strong>` +
+    (looksRight ? '' : ' — <span style="color:var(--coral-text)">this doesn\'t look like a Groq key (those start with "gsk_")</span>');
 }
 
 function saveGeminiKey() {
   const key = (document.getElementById('settings-gemini-key').value || '').trim();
-  try { localStorage.setItem('zarif_gemini_key', key); } catch(e) {}
+  try { localStorage.setItem('zarif_groq_key', key); } catch(e) {}
   const btn = event.currentTarget;
   const orig = btn.innerHTML;
   btn.innerHTML = '<i class="ti ti-check"></i> Saved';
@@ -3164,23 +3164,27 @@ function clearAllData() {
   if (!confirm('This will delete ALL your tasks, meetings, templates, standup points and settings. Are you sure?')) return;
   const keys = ['zarif_done','zarif_custom_tasks','zarif_task_order','zarif_task_overrides',
     'zarif_standup_points','zarif_templates','zarif_numbers','zarif_meetings',
-    'zarif_kb_facts','zarif_settings','zarif_gemini_key','zarif_theme'];
+    'zarif_kb_facts','zarif_settings','zarif_gemini_key','zarif_groq_key','zarif_theme'];
   keys.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
   location.reload();
 }
 
-// ===== GLOBAL AI =====
-const GEMINI_MODEL = localStorage.getItem('zarif_gemini_model') || 'gemini-2.0-flash';
+// ===== GLOBAL AI (Groq) =====
+const AI_MODEL = localStorage.getItem('zarif_ai_model') || 'llama-3.3-70b-versatile';
 
 async function geminiCall(prompt) {
-  const apiKey = localStorage.getItem('zarif_gemini_key') || '';
+  const apiKey = localStorage.getItem('zarif_groq_key') || localStorage.getItem('zarif_gemini_key') || '';
   if (!apiKey) throw new Error('NO_KEY');
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7 },
+      model: AI_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
     }),
   });
   if (!res.ok) {
@@ -3189,13 +3193,13 @@ async function geminiCall(prompt) {
       const errBody = await res.json();
       detail = errBody?.error?.message || '';
     } catch (e) {}
-    const err = new Error(detail || `Gemini error ${res.status}`);
+    const err = new Error(detail || `Groq error ${res.status}`);
     err.status = res.status;
     err.detail = detail;
     throw err;
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  return data.choices?.[0]?.message?.content?.trim() || '';
 }
 
 // ===== AI MODAL =====
@@ -3292,16 +3296,13 @@ async function runAiModal() {
   } catch(e) {
     const msg = e.message || '';
     if (msg === 'NO_KEY') {
-      resultEl.textContent = 'No Gemini API key set — go to Settings to add your key.';
-    } else if (e.status === 429 || /quota|RESOURCE_EXHAUSTED/i.test(msg)) {
-      resultEl.textContent = 'Quota / rate limit reached.\n\nGoogle says:\n' + (e.detail || msg) +
-        '\n\nIf this keeps happening even after waiting, your key likely has no free quota for this model. Try a different key, or check your quota at aistudio.google.com.';
-    } else if (e.status === 400 || /API_KEY_INVALID|API key not valid/i.test(msg)) {
-      resultEl.textContent = 'Your API key was rejected by Google:\n\n' + (e.detail || msg) +
-        '\n\nMake sure you pasted a valid Gemini key from aistudio.google.com (it should start with "AIza"). Re-check it in Settings.';
-    } else if (e.status === 403) {
-      resultEl.textContent = 'Access denied by Google:\n\n' + (e.detail || msg) +
-        '\n\nThe Generative Language API may not be enabled for this key\'s project.';
+      resultEl.textContent = 'No Groq API key set — go to Settings to add your key.';
+    } else if (e.status === 429 || /quota|rate.?limit/i.test(msg)) {
+      resultEl.textContent = 'Rate limit reached.\n\nGroq says:\n' + (e.detail || msg) +
+        '\n\nWait a moment and try again — Groq\'s free tier has generous but finite per-minute limits.';
+    } else if (e.status === 401 || e.status === 403 || /invalid.?api.?key|unauthorized/i.test(msg)) {
+      resultEl.textContent = 'Your API key was rejected by Groq:\n\n' + (e.detail || msg) +
+        '\n\nMake sure you pasted a valid Groq key from console.groq.com (it starts with "gsk_"). Re-check it in Settings.';
     } else {
       resultEl.textContent = 'Error: ' + msg;
     }
