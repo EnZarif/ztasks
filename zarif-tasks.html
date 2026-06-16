@@ -437,6 +437,22 @@
   .task-ai-btn { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: 5px; font-size: 14px; display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; transition: all 0.15s; }
   .task-ai-btn:hover { color: var(--teal); background: var(--teal-bg); }
 
+  /* CHANGELOG */
+  .ver-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); margin-left: auto; }
+  .cl-entry { padding: 14px 0; border-bottom: 0.5px solid var(--border); }
+  .cl-entry:first-child { padding-top: 2px; }
+  .cl-entry:last-child { border-bottom: none; padding-bottom: 2px; }
+  .cl-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 9px; }
+  .cl-ver { font-size: 14px; font-weight: 500; color: var(--text); }
+  .cl-title { font-size: 13px; color: var(--text-2); }
+  .cl-date { font-size: 11px; color: var(--text-3); margin-left: auto; white-space: nowrap; }
+  .cl-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
+  .cl-tag.major { background: var(--coral-bg); color: var(--coral-text); }
+  .cl-tag.minor { background: var(--green-bg); color: var(--green-text); }
+  .cl-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .cl-list li { font-size: 13px; color: var(--text-2); line-height: 1.5; display: flex; gap: 8px; }
+  .cl-list li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); flex-shrink: 0; margin-top: 7px; }
+
   /* MOBILE COMPONENT TWEAKS (after base rules so they win the cascade) */
   @media (max-width: 760px) {
     .header { margin-bottom: 1.2rem; }
@@ -1164,6 +1180,11 @@
           <button class="danger-btn" onclick="clearAllData()"><i class="ti ti-trash"></i> Clear all</button>
         </div>
       </div>
+    </div>
+
+    <div class="card settings-section">
+      <div class="card-title"><i class="ti ti-history"></i> Changelog <span id="app-version-badge" class="ver-badge"></span></div>
+      <div id="changelog-list"></div>
     </div>
   </div>
 
@@ -3356,8 +3377,76 @@ async function copyRichText(html, text) {
 
 document.getElementById('mtg-date').value = todayInputDate();
 
+// ===== CHANGELOG =====
+const CHANGELOG = [
+  { ver: '2.3.0', type: 'minor', date: '16 Jun 2026', title: 'Changelog', changes: [
+    'Added this version history to Settings.',
+  ]},
+  { ver: '2.2.0', type: 'minor', date: '16 Jun 2026', title: 'Mobile support', changes: [
+    'Mobile-friendly layout: the sidebar becomes a bottom nav bar, full-width content, bigger tap targets, and swipeable tabs.',
+    'Overdue dated tasks now appear in the Today list and count toward today\'s totals so they don\'t get missed.',
+    'New "due in the next 7 days" hint on the dashboard.',
+  ]},
+  { ver: '2.1.0', type: 'minor', date: '16 Jun 2026', title: 'Dated tasks', changes: [
+    'New "On a date" task type with a date picker, for tasks due on a specific day.',
+    'New "By date" tab grouping dated tasks into Overdue, Today, Upcoming and Completed.',
+  ]},
+  { ver: '2.0.0', type: 'major', date: '16 Jun 2026', title: 'Dashboard revamp', changes: [
+    'Tasks page rebuilt as a dashboard: circular completion ring and a row of stat cards.',
+    'Day-streak tracking with an all-time best record.',
+    'Stat cards are clickable to filter the list (Completed, High priority).',
+    'Stat strips added to the Meetings and Stand up pages.',
+  ]},
+  { ver: '1.5.0', type: 'minor', date: '16 Jun 2026', title: 'Animations & fixes', changes: [
+    'Lively task animations: staggered slide-in, count-up stats, and a checkbox pop when completing a task.',
+    'Fixed tasks not loading on the home page until a tab was clicked.',
+    'The checkbox now ticks off tasks that otherwise open a linked page.',
+  ]},
+  { ver: '1.4.0', type: 'minor', date: '16 Jun 2026', title: 'Groq AI', changes: [
+    'Switched the AI assistant to Groq (free, no credit card required).',
+    'Added a connection Test button and clearer error messages in Settings.',
+  ]},
+  { ver: '1.3.0', type: 'minor', date: '16 Jun 2026', title: 'Navigation & layout', changes: [
+    'Moved the top navigation into a fixed left sidebar.',
+    'Wider, centred page layouts; two-column Meetings and Stand up pages.',
+  ]},
+  { ver: '1.2.0', type: 'minor', date: '16 Jun 2026', title: 'Settings & AI', changes: [
+    'Added a Settings page (API key, display name, theme, layout options, data reset).',
+    'AI assist available across all pages — tasks, meetings, stand up and the knowledge base.',
+    'Added a Misc / Ad hoc meeting type with Requester, Agenda and Attendees fields.',
+  ]},
+  { ver: '1.1.0', type: 'minor', date: '16 Jun 2026', title: 'UI overhaul', changes: [
+    'Full visual refresh: dark theme with a blue accent, hero banner and colour-coded task cards.',
+  ]},
+  { ver: '1.0.0', type: 'major', date: '16 Jun 2026', title: 'Initial release', changes: [
+    'Task manager with daily, weekly, monthly and one-off tasks, plus reordering and per-task editing.',
+    'Daily message generator, reusable templates, meeting notes, and the KPI report generator.',
+    'A rotating knowledge-base sidebar.',
+  ]},
+];
+const APP_VERSION = CHANGELOG[0].ver;
+
+function renderChangelog() {
+  const el = document.getElementById('changelog-list');
+  if (!el) return;
+  const badge = document.getElementById('app-version-badge');
+  if (badge) badge.textContent = 'v' + APP_VERSION;
+  el.innerHTML = CHANGELOG.map(v => `
+    <div class="cl-entry">
+      <div class="cl-head">
+        <span class="cl-ver">v${v.ver}</span>
+        <span class="cl-tag ${v.type}">${v.type}</span>
+        <span class="cl-title">${esc(v.title)}</span>
+        <span class="cl-date">${esc(v.date)}</span>
+      </div>
+      <ul class="cl-list">${v.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+    </div>
+  `).join('');
+}
+
 // ===== SETTINGS =====
 function loadSettings() {
+  renderChangelog();
   const s = JSON.parse(localStorage.getItem('zarif_settings') || '{}');
   const key = localStorage.getItem('zarif_groq_key') || '';
   const keyEl = document.getElementById('settings-gemini-key');
