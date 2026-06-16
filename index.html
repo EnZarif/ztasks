@@ -3070,6 +3070,22 @@ function generateMessage() {
   document.getElementById('copy-btn').innerHTML = '<i class="ti ti-copy" style="font-size:15px;"></i> Copy to clipboard';
   document.getElementById('copy-btn').classList.remove('copied');
   document.getElementById('output-wrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  // Auto-create CVTS tasks if both Bella and Jack are off
+  const bellaOff = breaks.some(r => r.op.startsWith('Bella') && r.brk.trim().toUpperCase() === 'OFF');
+  const jackOff  = breaks.some(r => r.op.startsWith('Jack')  && r.brk.trim().toUpperCase() === 'OFF');
+  if (bellaOff && jackOff) {
+    const today = todayInputDate();
+    const cvtsNames = ['CVTS report sent — 9am', 'CVTS report sent — 4pm'];
+    cvtsNames.forEach(name => {
+      const alreadyExists = customTasks.some(t => t.name === name && t.freq === 'once' && t.date === today);
+      if (!alreadyExists) {
+        customTasks.push({ id: 'c' + Date.now() + Math.random(), freq: 'once', priority: 'HIGH', name, days: 'all', assignees: ['Me'], note: 'Auto-created: Bella & Jack both off', custom: true, date: today });
+      }
+    });
+    saveCustomTasks();
+    renderTasks();
+  }
 }
 
 function buildTeamsHtml() {
@@ -4439,7 +4455,7 @@ const DEFAULT_WISHLIST = [
   // ── Features ──────────────────────────────────────────────────────────
   { id:1,  title:'Add sub-cards to hubs via + button',            desc:'Each hub should have a + button to add new app cards directly from the hub page, without going into Settings → Organise hubs.',                                              tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
   { id:2,  title:'Deliverables / Delivered section',               desc:'A section (likely under Projects) that aggregates everything completed: shipped wishlist items, closed tasks, and a monthly summary of tasks done.',                           tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
-  { id:3,  title:'CVTS report auto-task (Bella + Jack both off)',  desc:'When generating the daily message, if both Bella and Jack are marked absent, automatically create two tasks: "CVTS report sent" at 9 am and "CVTS report sent" at 4 pm.', tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:3,  title:'CVTS report auto-task (Bella + Jack both off)',  desc:'When generating the daily message, if both Bella and Jack are marked absent, automatically create two tasks: "CVTS report sent" at 9 am and "CVTS report sent" at 4 pm.', tag:'feature', done:true,  createdAt:'2026-06-17T00:00:00.000Z' },
   { id:4,  title:'Calendar view',                                  desc:'A full calendar page showing tasks, meetings, and deadlines laid out by day/week/month.',                                                                                      tag:'feature', done:true,  createdAt:'2026-06-17T00:00:00.000Z' },
   { id:5,  title:'Global search across all content',               desc:'A Cmd+K / Ctrl+K search palette that searches tasks, meeting notes, templates, KB facts, and wishlist items in one place.',                                                   tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
   { id:6,  title:'Reminder / notification system',                 desc:'Allow tasks and meetings to have a reminder time. Use browser Notification API to pop an alert at the set time.',                                                             tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
@@ -4544,6 +4560,13 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.5.0', type: 'minor', date: '17 Jun 2026', title: 'CVTS auto-task', changes: [
+    'When generating the daily message, checks if both Bella and Jack have brk set to OFF',
+    'If both are off, auto-creates two HIGH priority once-tasks for today: "CVTS report sent — 9am" and "CVTS report sent — 4pm"',
+    'Deduplicates — regenerating the message does not create duplicate tasks',
+    'Tasks are once-only so they disappear after today automatically',
+    'Marked CVTS auto-task as shipped in the Feature Wishlist',
+  ]},
   { ver: '3.4.0', type: 'minor', date: '17 Jun 2026', title: 'Calendar view', changes: [
     'Added Calendar tab to the Task Manager page',
     'Month grid with Mon–Sun layout and prev/next navigation',
