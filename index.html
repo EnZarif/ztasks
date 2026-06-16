@@ -4189,6 +4189,24 @@ async function copyRichText(html, text) {
 document.getElementById('mtg-date').value = todayInputDate();
 
 // ===== WISHLIST =====
+const DEFAULT_WISHLIST = [
+  // ── Features ──────────────────────────────────────────────────────────
+  { id:1,  title:'Add sub-cards to hubs via + button',            desc:'Each hub should have a + button to add new app cards directly from the hub page, without going into Settings → Organise hubs.',                                              tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:2,  title:'Deliverables / Delivered section',               desc:'A section (likely under Projects) that aggregates everything completed: shipped wishlist items, closed tasks, and a monthly summary of tasks done.',                           tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:3,  title:'CVTS report auto-task (Bella + Jack both off)',  desc:'When generating the daily message, if both Bella and Jack are marked absent, automatically create two tasks: "CVTS report sent" at 9 am and "CVTS report sent" at 4 pm.', tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:4,  title:'Calendar view',                                  desc:'A full calendar page showing tasks, meetings, and deadlines laid out by day/week/month.',                                                                                      tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:5,  title:'Global search across all content',               desc:'A Cmd+K / Ctrl+K search palette that searches tasks, meeting notes, templates, KB facts, and wishlist items in one place.',                                                   tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:6,  title:'Reminder / notification system',                 desc:'Allow tasks and meetings to have a reminder time. Use browser Notification API to pop an alert at the set time.',                                                             tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:7,  title:'Export data (CSV / JSON)',                       desc:'A one-click export of tasks, meetings, or the full hub database to CSV or JSON for backup or reporting.',                                                                     tag:'feature', done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  // ── UX / Design ───────────────────────────────────────────────────────
+  { id:8,  title:'Bigger chevron & sub-card icons in sidebar',     desc:'The expand chevron on hub nav groups and the icons on sub-nav links are too small — increase their size and visual weight.',                                                   tag:'ux',      done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:9,  title:'Keyboard shortcuts for common actions',          desc:'Hotkeys for saving, navigating between pages, adding tasks, and triggering AI — with a help overlay (e.g. ? key).',                                                           tag:'ux',      done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:10, title:'Mobile-responsive layout improvements',          desc:'The sidebar and grid layouts break on small screens. A collapsible hamburger menu and single-column stacking would make it usable on phones.',                                tag:'ux',      done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  // ── Ideas ─────────────────────────────────────────────────────────────
+  { id:11, title:'Dashboard / insights page',                      desc:'A home-page-level analytics panel: tasks completed this week, streak graph, meetings held, AI calls made — at-a-glance productivity view.',                                   tag:'idea',    done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+  { id:12, title:'Supabase auth (per-user data)',                  desc:'Add login so data is scoped to the signed-in user. Currently uses an open RLS policy — add user_id column and per-user policies when auth is ready.',                        tag:'idea',    done:false, createdAt:'2026-06-17T00:00:00.000Z' },
+];
+
 let wishlist = [];
 let nextWishlistId = 1;
 let _wlPickedTag = 'feature';
@@ -4905,7 +4923,8 @@ function initNotes() {
   meetings       = dbGet('zarif_meetings')       || [];
   nextMeetingId  = meetings.reduce((m,x) => Math.max(m, x.id || 0), 0) + 1;
 
-  wishlist       = dbGet('zarif_wishlist')       || [];
+  wishlist       = dbGet('zarif_wishlist')       || DEFAULT_WISHLIST.map(w => ({...w}));
+  if (!dbGet('zarif_wishlist')) saveWishlist();
   nextWishlistId = wishlist.reduce((m,w) => Math.max(m, w.id || 0), 0) + 1;
 
   // Filter expired once-tasks
