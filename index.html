@@ -481,7 +481,7 @@
   .proj-banner-actions { display: flex; gap: 3px; flex-shrink: 0; }
   .proj-banner-btn { background: rgba(255,255,255,0.15); border: none; color: rgba(255,255,255,0.8); cursor: pointer; font-size: 14px; padding: 4px 7px; border-radius: 7px; transition: background 0.15s; }
   .proj-banner-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
-  .proj-card-chev { font-size: 13px; color: rgba(255,255,255,0.6); transition: transform 0.2s; flex-shrink: 0; margin-top: 4px; }
+  .proj-card-chev { transition: transform 0.2s; flex-shrink: 0; }
   .proj-card.open .proj-card-chev { transform: rotate(180deg); }
   /* status pills in body */
   .pstatus-active    { background: rgba(99,153,34,0.18); color: var(--green-text); }
@@ -528,6 +528,28 @@
   .proj-modal-cancel:hover { border-color: var(--text-3); color: var(--text); }
   .proj-modal-save { font-size: 13px; padding: 8px 18px; border-radius: 9px; border: none; background: var(--amber-text); color: #000; cursor: pointer; font-family: inherit; font-weight: 500; }
   .proj-modal-save:hover { opacity: 0.88; }
+  /* sub-project filter inside card */
+  .proj-sub-filter-row { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
+  .proj-sub-filter-btn { font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border); background: transparent; color: var(--text-3); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .proj-sub-filter-btn.active { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  /* sub-project open arrow */
+  .proj-sub-open-btn { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 2px 5px; border-radius: 5px; transition: color 0.15s; flex-shrink: 0; }
+  .proj-sub-open-btn:hover { color: var(--text); }
+  /* detail page overlay */
+  .proj-detail-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 300; display: flex; flex-direction: column; overflow: hidden; animation: fadeIn 0.15s ease; }
+  .proj-detail-header { padding: 20px 28px 0; flex-shrink: 0; }
+  .proj-detail-back { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-3); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; margin-bottom: 16px; transition: color 0.15s; }
+  .proj-detail-back:hover { color: var(--text); }
+  .proj-detail-banner { border-radius: 18px; padding: 22px 26px; display: flex; align-items: flex-start; gap: 16px; }
+  .proj-detail-icon { font-size: 34px; color: rgba(255,255,255,0.9); flex-shrink: 0; margin-top: 2px; }
+  .proj-detail-title { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+  .proj-detail-meta { font-size: 12px; color: rgba(255,255,255,0.65); }
+  .proj-detail-body { flex: 1; overflow-y: auto; padding: 24px 28px; max-width: 800px; }
+  .proj-detail-section { margin-bottom: 26px; }
+  .proj-detail-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 10px; }
+  .proj-detail-textarea { width: 100%; padding: 10px 12px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: 10px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; resize: vertical; min-height: 90px; transition: border-color 0.15s; box-sizing: border-box; line-height: 1.6; }
+  .proj-detail-textarea:focus { border-color: var(--text-3); }
+  .proj-detail-status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
   /* WISHLIST */
   .wl-form { display: flex; flex-direction: column; gap: 10px; }
@@ -4687,6 +4709,8 @@ document.getElementById('mtg-date').value = todayInputDate();
 let projects = [];
 let nextProjectId = 1;
 let _projFilter = 'all';
+let _subFilters = {};
+let _projInitialized = false;
 
 function saveProjects() { dbSet('zarif_projects', projects); }
 
@@ -4768,6 +4792,147 @@ function toggleProjOpen(id) {
   if (card) card.classList.toggle('open');
 }
 
+function openOrNavigateProject(id) {
+  const card = document.getElementById('proj-card-' + id);
+  if (!card) return;
+  if (card.classList.contains('open')) {
+    openProjectPage(id);
+  } else {
+    card.classList.add('open');
+  }
+}
+
+function setSubFilter(projId, f) {
+  _subFilters[projId] = f;
+  renderProjects();
+}
+
+function openProjectPage(projId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const style = PROJ_TYPE_STYLES[p.type] || PROJ_TYPE_STYLES.internal;
+  const typeLabel = PROJ_TYPE_LABELS[p.type] || p.type;
+  const statusLabel = PROJ_STATUS_LABELS[p.status] || p.status;
+  const statusCls = p.status === 'active' ? 'pstatus-active' : p.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
+  const dateNote = p.deliveredAt
+    ? `Delivered ${new Date(p.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`
+    : `Started ${new Date(p.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`;
+  const subs = p.subs || [];
+  const subRows = subs.map(s => {
+    const sCls = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
+    const sLbl = PROJ_STATUS_LABELS[s.status] || s.status;
+    return `<div class="proj-sub-row" style="cursor:pointer" onclick="closeDetailPage();openSubProjectPage(${projId},${s.id})">
+      <div class="proj-sub-dot ${sCls}"></div>
+      <span class="proj-sub-name${s.status==='delivered'?' delivered':''}">${esc(s.title)}</span>
+      <span class="proj-sub-status ${sCls}">${sLbl}</span>
+      ${s.deliveredAt ? `<span class="proj-sub-date">${new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>` : ''}
+      <i class="ti ti-chevron-right" style="font-size:13px;color:var(--text-3);margin-left:auto;flex-shrink:0"></i>
+    </div>`;
+  }).join('');
+  const html = `<div class="proj-detail-overlay" id="proj-detail">
+    <div class="proj-detail-header">
+      <button class="proj-detail-back" onclick="closeDetailPage()"><i class="ti ti-arrow-left"></i> Back to Projects</button>
+      <div class="proj-detail-banner" style="background:${style.bg}">
+        <i class="ti ${style.icon} proj-detail-icon"></i>
+        <div>
+          <div class="proj-detail-title">${esc(p.title)}</div>
+          <div class="proj-detail-meta">${typeLabel} · ${dateNote}</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-detail-body">
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Status</div>
+        <div class="proj-detail-status-row">
+          <span class="proj-status-lbl ${statusCls}" style="font-size:12px;padding:4px 12px">${statusLabel}</span>
+          <span style="font-size:12px;color:var(--text-3)">${subs.length} sub-project${subs.length!==1?'s':''} · ${subs.filter(s=>s.status==='active').length} active · ${subs.filter(s=>s.status==='delivered').length} delivered</span>
+        </div>
+      </div>
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Description</div>
+        <textarea class="proj-detail-textarea" placeholder="Add a description…" oninput="saveProjDesc(${projId},this.value)">${esc(p.description||'')}</textarea>
+      </div>
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Sub-projects (${subs.length})</div>
+        <div class="proj-sub-list">
+          ${subRows || '<div style="font-size:13px;color:var(--text-3)">No sub-projects yet.</div>'}
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function openSubProjectPage(projId, subId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const style = PROJ_TYPE_STYLES[p.type] || PROJ_TYPE_STYLES.internal;
+  const typeLabel = PROJ_TYPE_LABELS[p.type] || p.type;
+  const statusLabel = PROJ_STATUS_LABELS[s.status] || s.status;
+  const statusCls = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
+  const dateNote = s.deliveredAt
+    ? ` · Delivered ${new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}` : '';
+  const html = `<div class="proj-detail-overlay" id="proj-detail">
+    <div class="proj-detail-header">
+      <button class="proj-detail-back" onclick="closeDetailPage();openProjectPage(${projId})"><i class="ti ti-arrow-left"></i> Back to ${esc(p.title)}</button>
+      <div class="proj-detail-banner" style="background:${style.bg}">
+        <i class="ti ti-layout-kanban proj-detail-icon"></i>
+        <div>
+          <div class="proj-detail-title">${esc(s.title)}</div>
+          <div class="proj-detail-meta">${typeLabel} · ${esc(p.title)}${dateNote}</div>
+        </div>
+      </div>
+    </div>
+    <div class="proj-detail-body">
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Status</div>
+        <div class="proj-detail-status-row">
+          <button class="proj-status-lbl ${statusCls}" style="font-size:12px;padding:5px 14px;cursor:pointer;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:5px" onclick="cycleSubStatusDetail(${projId},${subId})">${statusLabel} <i class="ti ti-refresh" style="font-size:10px"></i></button>
+          <span style="font-size:12px;color:var(--text-3)">Click to cycle status</span>
+        </div>
+      </div>
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Notes</div>
+        <textarea class="proj-detail-textarea" placeholder="Add notes, context, or progress updates…" oninput="saveSubNote(${projId},${subId},this.value)">${esc(s.note||'')}</textarea>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeDetailPage() {
+  const el = document.getElementById('proj-detail');
+  if (el) el.remove();
+}
+
+function saveProjDesc(projId, val) {
+  const p = projects.find(x => x.id === projId);
+  if (p) { p.description = val; saveProjects(); }
+}
+
+function saveSubNote(projId, subId, val) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (s) { s.note = val; saveProjects(); }
+}
+
+function cycleSubStatusDetail(projId, subId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const cycle = ['active','onhold','delivered'];
+  s.status = cycle[(cycle.indexOf(s.status) + 1) % cycle.length];
+  if (s.status === 'delivered') s.deliveredAt = new Date().toISOString();
+  else s.deliveredAt = null;
+  saveProjects();
+  closeDetailPage();
+  openSubProjectPage(projId, subId);
+}
+
 function addSubProject(projId) {
   const inp = document.getElementById('sub-inp-' + projId);
   const title = (inp ? inp.value.trim() : '');
@@ -4838,24 +5003,37 @@ function renderProjects() {
     return;
   }
 
-  // preserve open state
-  const openIds = new Set([...document.querySelectorAll('.proj-card.open')].map(c => c.id.replace('proj-card-','')));
+  // preserve open state; on first render auto-open active projects
+  let openIds;
+  if (!_projInitialized) {
+    openIds = new Set(projects.filter(p => p.status === 'active').map(p => String(p.id)));
+    _projInitialized = true;
+  } else {
+    openIds = new Set([...document.querySelectorAll('.proj-card.open')].map(c => c.id.replace('proj-card-','')));
+  }
 
   list.innerHTML = filtered.map(p => {
     const subs = p.subs || [];
-    const activeSubs = subs.filter(s => s.status === 'active').length;
     const isOpen = openIds.has(String(p.id));
-    const subRows = subs.map(s => {
+    const subFilter = _subFilters[p.id] || 'all';
+    const visibleSubs = subFilter === 'all' ? subs : subs.filter(s => s.status === subFilter);
+    const subRows = visibleSubs.map(s => {
       const sLbl = PROJ_STATUS_LABELS[s.status] || s.status;
       const sColor = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
-      const delivDate = s.deliveredAt ? ' · ' + new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '';
+      const delivDate = s.deliveredAt ? new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'}) : '';
       return `<div class="proj-sub-row">
         <div class="proj-sub-dot ${sColor}"></div>
-        <span class="proj-sub-name${s.status==='delivered'?' delivered':''}">${esc(s.title)}</span>
+        <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" style="cursor:pointer" onclick="openSubProjectPage(${p.id},${s.id})">${esc(s.title)}</span>
         <button class="proj-sub-status ${sColor}" onclick="cycleSubStatus(${p.id},${s.id})" title="Click to change status">${sLbl}</button>
-        <span class="proj-sub-date">${delivDate}</span>
+        ${delivDate ? `<span class="proj-sub-date">${delivDate}</span>` : ''}
+        <button class="proj-sub-open-btn" onclick="openSubProjectPage(${p.id},${s.id})" title="Open"><i class="ti ti-arrow-up-right"></i></button>
         <button class="proj-sub-del" onclick="deleteSubProject(${p.id},${s.id})" title="Delete"><i class="ti ti-trash"></i></button>
       </div>`;
+    }).join('');
+    const filterBtns = ['all','active','onhold','delivered'].map(f => {
+      const lbl = f === 'all' ? 'All' : PROJ_STATUS_LABELS[f];
+      const cnt = f === 'all' ? subs.length : subs.filter(s => s.status === f).length;
+      return `<button class="proj-sub-filter-btn${subFilter===f?' active':''}" onclick="setSubFilter(${p.id},'${f}')">${lbl} ${cnt}</button>`;
     }).join('');
 
     const typeLabel   = PROJ_TYPE_LABELS[p.type] || p.type;
@@ -4867,7 +5045,7 @@ function renderProjects() {
       : `Started ${new Date(p.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`;
 
     return `<div class="proj-card${isOpen?' open':''}" id="proj-card-${p.id}" style="border:2.5px solid ${style.border};box-shadow:5px 5px 0 ${style.shadow};">
-      <div class="proj-card-banner" style="background:${style.bg}" onclick="toggleProjOpen(${p.id})">
+      <div class="proj-card-banner" style="background:${style.bg}" onclick="openOrNavigateProject(${p.id})">
         <i class="ti ${style.icon} proj-banner-icon"></i>
         <div class="proj-banner-text">
           <div class="proj-banner-title">${esc(p.title)}</div>
@@ -4877,15 +5055,16 @@ function renderProjects() {
           <button class="proj-banner-btn" onclick="openProjModal(${p.id})" title="Edit"><i class="ti ti-pencil"></i></button>
           <button class="proj-banner-btn" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
         </div>
-        <i class="ti ti-chevron-down proj-card-chev"></i>
+        <button class="proj-banner-btn proj-card-chev" onclick="event.stopPropagation();toggleProjOpen(${p.id})" title="Expand / collapse"><i class="ti ti-chevron-down"></i></button>
       </div>
       <div class="proj-body">
         <div class="proj-body-status">
-          <span class="proj-status-lbl ${statusCls}" onclick="event.stopPropagation()">${statusLabel}</span>
+          <span class="proj-status-lbl ${statusCls}">${statusLabel}</span>
           ${p.description ? `<span style="font-size:11px;color:var(--text-3)">${esc(p.description)}</span>` : ''}
         </div>
+        <div class="proj-sub-filter-row">${filterBtns}</div>
         <div class="proj-sub-list">
-          ${subRows || '<div style="font-size:12px;color:var(--text-3);padding:4px 0">No sub-projects yet — add one below.</div>'}
+          ${subRows || `<div style="font-size:12px;color:var(--text-3);padding:4px 0">${subFilter==='all'?'No sub-projects yet — add one below.':'No '+PROJ_STATUS_LABELS[subFilter].toLowerCase()+' sub-projects.'}</div>`}
         </div>
         <div class="proj-sub-add-row">
           <input class="proj-sub-add-input" id="sub-inp-${p.id}" placeholder="Add sub-project…" onkeydown="if(event.key==='Enter')addSubProject(${p.id})">
