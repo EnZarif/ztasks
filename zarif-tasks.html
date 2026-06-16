@@ -40,14 +40,9 @@
   }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-left: 196px; }
   .wrap { padding: 2rem 3rem 4rem; }
-  @media (max-width: 700px) { body { padding-left: 52px; } }
-
-  /* APP LAYOUT */
-  body { padding: 0; }
-  .app-layout { display: flex; min-height: 100vh; }
 
   /* SIDEBAR NAV */
-  .nav { width: 196px; flex-shrink: 0; background: var(--surface); border-right: 0.5px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; padding: 18px 10px 14px; z-index: 10; overflow-y: auto; }
+  .nav { width: 196px; background: var(--surface); border-right: 0.5px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; padding: 18px 10px 14px; z-index: 10; overflow-y: auto; }
   .nav-logo { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--text); padding: 0 4px; margin-bottom: 22px; flex-shrink: 0; }
   .nav-logo-icon { width: 28px; height: 28px; background: #185FA5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .nav-logo-icon i { font-size: 14px; color: #fff; }
