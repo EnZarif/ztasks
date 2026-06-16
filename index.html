@@ -53,6 +53,8 @@
   .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
   /* per-hub coloured icon tiles */
   .nav-btn[data-page="home"] i { background: var(--teal-bg); color: var(--teal-text); }
+  .nav-btn[data-page="widgets"] i { background: var(--purple-bg); color: var(--purple-text); }
+  .nav-btn[data-page="widgets"].active { background: var(--purple-bg); box-shadow: inset 3px 0 0 #7F77DD; }
   .nav-btn[data-page="helpdesk"] i { background: var(--blue-bg); color: var(--blue-text); }
   .nav-btn[data-page="projects"] i { background: var(--amber-bg); color: var(--amber-text); }
   .nav-btn[data-page="personal"] i { background: var(--pink-bg); color: var(--pink-text); }
@@ -538,6 +540,41 @@
   .cl-list li { font-size: 13px; color: var(--text-2); line-height: 1.5; display: flex; gap: 8px; }
   .cl-list li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); flex-shrink: 0; margin-top: 7px; }
 
+  /* WIDGETS — POMODORO */
+  .widgets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .pomo-card { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 26px 22px; }
+  .pomo-modes { display: flex; gap: 4px; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px; }
+  .pomo-mode-btn { font-size: 13px; font-family: inherit; padding: 6px 18px; border: none; background: transparent; color: var(--text-3); border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .pomo-mode-btn.active { background: var(--surface); color: var(--text); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+  .pomo-ring { width: 210px; height: 210px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--pomo-accent, #D85A30) 0%, var(--border-md) 0); transition: background 0.95s linear; }
+  .pomo-ring-hole { width: 178px; height: 178px; border-radius: 50%; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .pomo-time { font-size: 44px; font-weight: 500; color: var(--text); letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .pomo-state { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+  .pomo-controls { display: flex; gap: 10px; align-items: center; }
+  .pomo-btn { font-size: 14px; font-family: inherit; font-weight: 500; padding: 11px 16px; border-radius: 12px; border: 0.5px solid var(--border-md); background: var(--surface2); color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.15s; }
+  .pomo-btn:hover { border-color: var(--text-3); }
+  .pomo-btn i { font-size: 17px; }
+  .pomo-btn.primary { background: var(--pomo-accent, #D85A30); border-color: transparent; color: #fff; padding: 11px 26px; }
+  .pomo-btn.primary:hover { opacity: 0.9; }
+  .pomo-durations { display: flex; gap: 10px; }
+  .pomo-dur { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); background: var(--surface2); border: 0.5px solid var(--border); border-radius: 10px; padding: 6px 10px; }
+  .pomo-dur b { font-size: 14px; color: var(--text); font-weight: 500; min-width: 18px; text-align: center; }
+  .pomo-dur small { color: var(--text-3); margin-left: -3px; }
+  .pomo-dur button { width: 22px; height: 22px; border-radius: 6px; border: 0.5px solid var(--border-md); background: var(--surface); color: var(--text-2); cursor: pointer; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+  .pomo-dur button:hover { color: var(--text); border-color: var(--text-3); }
+  .pomo-meta { font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 5px; }
+  .pomo-meta i { color: var(--amber-text); font-size: 13px; }
+
+  /* FLOATING TIMER */
+  .pomo-float { position: fixed; bottom: 20px; right: 20px; z-index: 80; display: flex; align-items: center; gap: 9px; padding: 9px 10px 9px 14px; background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.28); cursor: pointer; transition: transform 0.15s; }
+  .pomo-float:hover { transform: translateY(-1px); }
+  .pomo-float-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pomo-accent, #D85A30); flex-shrink: 0; }
+  .pomo-float-time { font-size: 15px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+  .pomo-float-mode { font-size: 12px; color: var(--text-3); }
+  .pomo-float-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: var(--surface2); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.15s; }
+  .pomo-float-btn:hover { background: var(--border-md); }
+  @media (max-width: 760px) { .pomo-float { bottom: 76px; right: 12px; } }
+
   /* MOBILE COMPONENT TWEAKS (after base rules so they win the cascade) */
   @media (max-width: 760px) {
     .header { margin-bottom: 1.2rem; }
@@ -587,6 +624,7 @@
   <div class="nav-logo"><div class="nav-logo-icon"><i class="ti ti-checklist"></i></div><span>Zarif Central Hub</span></div>
   <div class="nav-links">
     <button class="nav-btn active" data-page="home" onclick="showPage('home')"><i class="ti ti-home"></i><span>Home</span></button>
+    <button class="nav-btn" data-page="widgets" onclick="showPage('widgets')"><i class="ti ti-apps"></i><span>Widgets</span></button>
     <div class="nav-section-label">Hubs</div>
     <div class="nav-group" id="nav-group-helpdesk">
       <div class="nav-group-head">
@@ -644,6 +682,47 @@
         <div class="app-card-title">Personal</div>
         <div class="app-card-desc">Your own personal space — to be filled in later.</div>
         <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open hub</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIDGETS -->
+  <div class="page" id="page-widgets">
+    <div class="hub-head">
+      <h1><i class="ti ti-apps" style="color:var(--purple-text);"></i> Widgets</h1>
+      <p>Handy tools to keep beside your work.</p>
+    </div>
+    <div class="widgets-grid">
+      <div class="card pomo-card">
+        <div class="pomo-modes">
+          <button class="pomo-mode-btn active" data-m="work" onclick="pomoSetMode('work')">Focus</button>
+          <button class="pomo-mode-btn" data-m="break" onclick="pomoSetMode('break')">Break</button>
+        </div>
+        <div class="pomo-ring" id="pomo-ring">
+          <div class="pomo-ring-hole">
+            <div class="pomo-time" id="pomo-time">25:00</div>
+            <div class="pomo-state" id="pomo-state">Focus session</div>
+          </div>
+        </div>
+        <div class="pomo-controls">
+          <button class="pomo-btn primary" id="pomo-start-btn" onclick="pomoToggle()"><i class="ti ti-player-play"></i> Start</button>
+          <button class="pomo-btn" onclick="pomoReset()" title="Reset"><i class="ti ti-refresh"></i></button>
+        </div>
+        <div class="pomo-durations">
+          <div class="pomo-dur">
+            <span>Focus</span>
+            <button onclick="pomoAdjust('work',-5)">&minus;</button>
+            <b id="pomo-work-min">25</b><small>m</small>
+            <button onclick="pomoAdjust('work',5)">+</button>
+          </div>
+          <div class="pomo-dur">
+            <span>Break</span>
+            <button onclick="pomoAdjust('break',-1)">&minus;</button>
+            <b id="pomo-break-min">5</b><small>m</small>
+            <button onclick="pomoAdjust('break',1)">+</button>
+          </div>
+        </div>
+        <div class="pomo-meta"><i class="ti ti-flame"></i> <span id="pomo-count">0</span> focus sessions today</div>
       </div>
     </div>
   </div>
@@ -1369,6 +1448,13 @@
 </div><!-- end wrap -->
 </div><!-- end app-layout -->
 
+<div id="pomo-float" class="pomo-float" style="display:none" onclick="showPage('widgets')" title="Open timer">
+  <span class="pomo-float-dot" id="pomo-float-dot"></span>
+  <span class="pomo-float-time" id="pomo-float-time">25:00</span>
+  <span class="pomo-float-mode" id="pomo-float-mode">Focus</span>
+  <button class="pomo-float-btn" onclick="event.stopPropagation(); pomoToggle()" title="Pause/resume"><i class="ti ti-player-pause" id="pomo-float-icon"></i></button>
+</div>
+
 <div class="kpi-modal-overlay" id="kpi-ops-modal-overlay">
   <div class="kpi-modal">
     <div class="kpi-modal-header">
@@ -1943,14 +2029,17 @@ function toggleNavGroup(h) {
   if (g) g.classList.toggle('open');
 }
 
+const TOP_LEVEL = ['home','widgets','settings','helpdesk','projects','personal'];
+
 function syncNavActive() {
-  const activeNav = (currentPage === 'settings') ? 'settings' : HUB_PAGES.includes(currentPage) ? currentPage : currentHub;
+  const activeNav = TOP_LEVEL.includes(currentPage) ? currentPage : currentHub;
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.page === activeNav));
   document.querySelectorAll('.nav-sublink').forEach(el => el.classList.toggle('active', el.dataset.sub === currentPage));
 }
 
 function goBack() {
-  if (HUB_PAGES.includes(currentPage) && currentPage !== 'home') { showPage('home'); return; }
+  if (currentPage === 'home') return;
+  if (TOP_LEVEL.includes(currentPage)) { showPage('home'); return; }
   showPage(currentHub || 'home');
 }
 
@@ -1965,9 +2054,10 @@ function showPage(p, hub) {
   const backLbl = document.getElementById('page-back-label');
   if (back) {
     if (p === 'home') { back.style.display = 'none'; }
-    else if (HUB_PAGES.includes(p)) { back.style.display = 'inline-flex'; backLbl.textContent = 'Home'; }
+    else if (TOP_LEVEL.includes(p)) { back.style.display = 'inline-flex'; backLbl.textContent = 'Home'; }
     else { back.style.display = 'inline-flex'; backLbl.textContent = currentHub && HUB_META[currentHub] ? 'Back to ' + HUB_META[currentHub].title : 'Back'; }
   }
+  if (typeof updatePomoFloat === 'function') updatePomoFloat();
   window.scrollTo(0, 0);
 }
 
@@ -2014,6 +2104,146 @@ function resetHubOrganiser() {
   renderHubs();
   initHubOrganiser();
 }
+
+// ===== POMODORO TIMER =====
+const POMO_ACCENT = { work: '#D85A30', break: '#1D9E75' };
+let pomo = loadPomo();
+function loadPomo() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem('zarif_pomo') || '{}') || {}; } catch(e) {}
+  const today = (typeof ymd === 'function') ? ymd(now) : new Date().toISOString().slice(0,10);
+  const p = {
+    work: s.work || 25,
+    break: s.break || 5,
+    mode: s.mode === 'break' ? 'break' : 'work',
+    running: !!s.running,
+    endTime: s.endTime || 0,
+    remaining: typeof s.remaining === 'number' ? s.remaining : (s.work || 25) * 60,
+    count: (s.countDate === today) ? (s.count || 0) : 0,
+    countDate: today,
+  };
+  if (p.running && p.endTime) {
+    p.remaining = Math.max(0, Math.round((p.endTime - Date.now()) / 1000));
+    if (p.remaining === 0) p.running = false;
+  }
+  return p;
+}
+function savePomo() {
+  try { localStorage.setItem('zarif_pomo', JSON.stringify(pomo)); } catch(e) {}
+}
+function pomoDuration(mode) { return (mode === 'break' ? pomo.break : pomo.work) * 60; }
+function fmtPomo(sec) {
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function pomoSetMode(mode) {
+  pomo.mode = mode;
+  pomo.running = false;
+  pomo.endTime = 0;
+  pomo.remaining = pomoDuration(mode);
+  savePomo();
+  pomoRender();
+}
+function pomoToggle() {
+  if (pomo.running) {
+    pomo.remaining = Math.max(0, Math.round((pomo.endTime - Date.now()) / 1000));
+    pomo.running = false;
+    pomo.endTime = 0;
+  } else {
+    if (pomo.remaining <= 0) pomo.remaining = pomoDuration(pomo.mode);
+    pomo.endTime = Date.now() + pomo.remaining * 1000;
+    pomo.running = true;
+  }
+  savePomo();
+  pomoRender();
+}
+function pomoReset() {
+  pomo.running = false;
+  pomo.endTime = 0;
+  pomo.remaining = pomoDuration(pomo.mode);
+  savePomo();
+  pomoRender();
+}
+function pomoAdjust(which, delta) {
+  const v = Math.min(90, Math.max(1, (which === 'break' ? pomo.break : pomo.work) + delta));
+  if (which === 'break') pomo.break = v; else pomo.work = v;
+  if (!pomo.running) pomo.remaining = pomoDuration(pomo.mode);
+  savePomo();
+  pomoRender();
+}
+function pomoBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.value = 660;
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+    o.start(); o.stop(ctx.currentTime + 0.95);
+  } catch(e) {}
+}
+function pomoComplete() {
+  pomoBeep();
+  if (pomo.mode === 'work') {
+    pomo.count = (pomo.count || 0) + 1;
+    pomo.mode = 'break';
+  } else {
+    pomo.mode = 'work';
+  }
+  pomo.remaining = pomoDuration(pomo.mode);
+  pomo.endTime = Date.now() + pomo.remaining * 1000;
+  pomo.running = true; // auto-start next session
+  savePomo();
+  pomoRender();
+}
+function pomoTick() {
+  if (!pomo.running) return;
+  const rem = Math.max(0, Math.round((pomo.endTime - Date.now()) / 1000));
+  if (rem <= 0) { pomoComplete(); return; }
+  pomo.remaining = rem;
+  pomoRenderTime();
+}
+function pomoRenderTime() {
+  const total = pomoDuration(pomo.mode);
+  const pct = total ? Math.round((total - pomo.remaining) / total * 100) : 0;
+  const accent = POMO_ACCENT[pomo.mode];
+  const timeStr = fmtPomo(pomo.remaining);
+  const ring = document.getElementById('pomo-ring');
+  if (ring) {
+    ring.style.setProperty('--pomo-accent', accent);
+    ring.style.background = `conic-gradient(${accent} ${pct}%, var(--border-md) 0)`;
+  }
+  const t = document.getElementById('pomo-time'); if (t) t.textContent = timeStr;
+  const ft = document.getElementById('pomo-float-time'); if (ft) ft.textContent = timeStr;
+}
+function pomoRender() {
+  const card = document.querySelector('.pomo-card');
+  if (card) card.style.setProperty('--pomo-accent', POMO_ACCENT[pomo.mode]);
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.m === pomo.mode));
+  const stateEl = document.getElementById('pomo-state');
+  if (stateEl) stateEl.textContent = pomo.mode === 'break' ? 'Break time' : 'Focus session';
+  const startBtn = document.getElementById('pomo-start-btn');
+  if (startBtn) startBtn.innerHTML = pomo.running ? '<i class="ti ti-player-pause"></i> Pause' : '<i class="ti ti-player-play"></i> Start';
+  const wm = document.getElementById('pomo-work-min'); if (wm) wm.textContent = pomo.work;
+  const bm = document.getElementById('pomo-break-min'); if (bm) bm.textContent = pomo.break;
+  const cnt = document.getElementById('pomo-count'); if (cnt) cnt.textContent = pomo.count || 0;
+  pomoRenderTime();
+  updatePomoFloat();
+}
+function updatePomoFloat() {
+  const f = document.getElementById('pomo-float');
+  if (!f) return;
+  const show = pomo.running && currentPage !== 'widgets';
+  f.style.display = show ? 'flex' : 'none';
+  if (show) {
+    f.style.setProperty('--pomo-accent', POMO_ACCENT[pomo.mode]);
+    const dot = document.getElementById('pomo-float-dot'); if (dot) dot.style.background = POMO_ACCENT[pomo.mode];
+    const fm = document.getElementById('pomo-float-mode'); if (fm) fm.textContent = pomo.mode === 'break' ? 'Break' : 'Focus';
+    const fi = document.getElementById('pomo-float-icon'); if (fi) fi.className = pomo.running ? 'ti ti-player-pause' : 'ti ti-player-play';
+  }
+}
+setInterval(pomoTick, 1000);
 
 function switchTab(t) {
   currentTab = t;
@@ -3699,6 +3929,11 @@ document.getElementById('mtg-date').value = todayInputDate();
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '2.8.0', type: 'minor', date: '16 Jun 2026', title: 'Widgets & Pomodoro', changes: [
+    'New Widgets section in the sidebar.',
+    'Pomodoro focus timer with a progress ring, adjustable focus/break lengths and a daily session count.',
+    'When running, a floating timer follows you on every page; when stopped it stays on the Widgets page.',
+  ]},
   { ver: '2.7.0', type: 'minor', date: '16 Jun 2026', title: 'Sidebar redesign', changes: [
     'Bigger sidebar labels and larger colour-coded icon tiles for each hub.',
     'Active item now shows a tinted pill plus a coloured left accent bar.',
@@ -3922,7 +4157,7 @@ function clearAllData() {
   if (!confirm('This will delete ALL your tasks, meetings, templates, standup points and settings. Are you sure?')) return;
   const keys = ['zarif_done','zarif_custom_tasks','zarif_task_order','zarif_task_overrides',
     'zarif_standup_points','zarif_templates','zarif_numbers','zarif_meetings',
-    'zarif_kb_facts','zarif_settings','zarif_gemini_key','zarif_groq_key','zarif_theme','zarif_streak','zarif_hub_layout'];
+    'zarif_kb_facts','zarif_settings','zarif_gemini_key','zarif_groq_key','zarif_theme','zarif_streak','zarif_hub_layout','zarif_pomo'];
   keys.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
   location.reload();
 }
@@ -4114,6 +4349,7 @@ function elaboratePoint(id, btn) {
 
 loadSettings();
 renderHubs();
+pomoRender();
 renderBreakTable();
 renderTasks();
 renderKbFact();
