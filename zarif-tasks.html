@@ -110,7 +110,7 @@
   .hero-chip.c-green { background: var(--green-bg); border-color: rgba(99,153,34,0.25); color: var(--green-text); }
   .hero-chip-val { font-size: 14px; font-weight: 500; color: var(--text); }
   .progress-track { height: 2px; background: var(--border); border-radius: 2px; margin-top: 16px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #185FA5; border-radius: 2px; transition: width 0.5s ease; }
+  .progress-fill { height: 100%; background: #185FA5; border-radius: 2px; transition: width 0.85s cubic-bezier(.2,.85,.25,1); }
 
   /* TABS */
   .today-banner { background: var(--teal-bg); border: 0.5px solid rgba(93,202,165,0.3); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--teal-text); font-weight: 500; }
@@ -131,8 +131,32 @@
   .fp-once { background: var(--coral-bg); color: var(--coral-text); border-color: rgba(210,85,40,0.2); }
 
   /* TASK CARDS */
-  .task { background: var(--surface); border: 0.5px solid var(--border); border-left-width: 3px; border-radius: var(--radius-lg); padding: 11px 14px; margin-bottom: 6px; display: flex; gap: 12px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s; align-items: center; }
-  .task:hover { border-color: var(--border-md); border-left-width: 3px; }
+  .task { background: var(--surface); border: 0.5px solid var(--border); border-left-width: 3px; border-radius: var(--radius-lg); padding: 11px 14px; margin-bottom: 6px; display: flex; gap: 12px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s, transform 0.15s ease; align-items: center; }
+  .task:hover { border-color: var(--border-md); border-left-width: 3px; transform: translateY(-1px); }
+
+  /* STYLE B ANIMATIONS */
+  @keyframes taskSlideIn { from { opacity: 0; transform: translateY(11px) scale(0.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes cbPop { 0% { transform: scale(0.5); } 55% { transform: scale(1.28); } 100% { transform: scale(1); } }
+  @keyframes iconPop { 0% { opacity: 0; transform: scale(0.2); } 65% { transform: scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
+  .tasks-animate > * { opacity: 0; animation: taskSlideIn 0.42s cubic-bezier(.2,.85,.25,1) forwards; }
+  .tasks-animate > *:nth-child(1){animation-delay:.02s}
+  .tasks-animate > *:nth-child(2){animation-delay:.06s}
+  .tasks-animate > *:nth-child(3){animation-delay:.10s}
+  .tasks-animate > *:nth-child(4){animation-delay:.14s}
+  .tasks-animate > *:nth-child(5){animation-delay:.18s}
+  .tasks-animate > *:nth-child(6){animation-delay:.22s}
+  .tasks-animate > *:nth-child(7){animation-delay:.26s}
+  .tasks-animate > *:nth-child(8){animation-delay:.30s}
+  .tasks-animate > *:nth-child(9){animation-delay:.34s}
+  .tasks-animate > *:nth-child(10){animation-delay:.38s}
+  .tasks-animate > *:nth-child(11){animation-delay:.42s}
+  .tasks-animate > *:nth-child(12){animation-delay:.46s}
+  .tasks-animate .badge i { animation: iconPop 0.45s ease 0.12s both; }
+  .cb-pop { animation: cbPop 0.42s cubic-bezier(.2,.85,.25,1); }
+  @media (prefers-reduced-motion: reduce) {
+    .tasks-animate > *, .tasks-animate .badge i, .cb-pop { animation: none !important; opacity: 1 !important; }
+    .task:hover { transform: none; }
+  }
   .task.p-high { border-left-color: #712B13; }
   .task.p-medium { border-left-color: #633806; }
   .task.p-low { border-left-color: #27500A; }
@@ -1185,7 +1209,42 @@ function getAllTasks() {
 }
 function taskKey(id) { return `${todayKey}_${id}`; }
 function isDone(id) { return !!done[taskKey(id)]; }
-function toggle(id) { const k = taskKey(id); done[k] = !done[k]; save(); renderTasks(); }
+let justToggledId = null;
+let skipListAnim = false;
+function toggle(id) {
+  const k = taskKey(id);
+  const wasDone = done[k];
+  done[k] = !done[k];
+  justToggledId = !wasDone ? id : null;
+  skipListAnim = true;
+  save();
+  renderTasks();
+}
+function animateCount(el, to) {
+  if (!el) return;
+  to = Number(to) || 0;
+  const from = Number(el.textContent) || 0;
+  if (from === to) { el.textContent = to; return; }
+  const start = performance.now(), dur = 450;
+  function step(now) {
+    const p = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (to - from) * eased);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function paintList(html) {
+  const el = document.getElementById('list');
+  el.innerHTML = html;
+  if (!skipListAnim) {
+    el.classList.remove('tasks-animate');
+    void el.offsetWidth;
+    el.classList.add('tasks-animate');
+  }
+  skipListAnim = false;
+  justToggledId = null;
+}
 function resetDay() { getAllTasks().forEach(t => { delete done[taskKey(t.id)]; }); save(); renderTasks(); }
 
 function renderCustomTaskDayField() {
@@ -1440,6 +1499,7 @@ function showPage(p) {
 
 function switchTab(t) {
   currentTab = t;
+  skipListAnim = false;
   document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === t));
   renderTasks();
 }
@@ -1466,7 +1526,7 @@ function taskHTML(t, showFreqPill) {
   const upBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', -1)"><i class="ti ti-chevron-up"></i></button>`;
   const downBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', 1)"><i class="ti ti-chevron-down"></i></button>`;
   return `<div class="task ${pCls}${d?' done':''}" onclick="${click}">
-    <div class="cb${d?' on':''}" title="Mark done" onclick="event.stopPropagation(); toggle('${t.id}')"><i class="ti ti-check"></i></div>
+    <div class="cb${d?' on':''}${(d && String(t.id)===String(justToggledId))?' cb-pop':''}" title="Mark done" onclick="event.stopPropagation(); toggle('${t.id}')"><i class="ti ti-check"></i></div>
     <div class="tbody">
       <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}"><i class="ti ${bIcon}"></i>${bLbl}</span></div>
       <div class="tmeta">${freqPill}<div class="pills">${pills}</div></div>
@@ -1485,9 +1545,9 @@ function renderTasks() {
   const todayDone = todayTasks.filter(t => isDone(t.id)).length;
   const todayHigh = todayTasks.filter(t => t.priority==='HIGH' && !isDone(t.id)).length;
 
-  document.getElementById('s-total').textContent = todayTotal;
-  document.getElementById('s-done').textContent = todayDone;
-  document.getElementById('s-high').textContent = todayHigh;
+  animateCount(document.getElementById('s-total'), todayTotal);
+  animateCount(document.getElementById('s-done'), todayDone);
+  animateCount(document.getElementById('s-high'), todayHigh);
   document.getElementById('s-bar').style.width = todayTotal ? Math.round(todayDone/todayTotal*100)+'%' : '0%';
   const remaining = todayTotal - todayDone;
   document.getElementById('s-sub').textContent = remaining > 0 ? `${remaining} task${remaining!==1?'s':''} remaining today` : todayTotal > 0 ? 'All done for today!' : 'Nothing scheduled for today';
@@ -1501,7 +1561,7 @@ function renderTasks() {
   let tasks, html = '';
   if (currentTab === 'today') {
     tasks = todayTasks;
-    if (!tasks.length) { document.getElementById('list').innerHTML = '<div class="empty">No tasks for today.</div>'; return; }
+    if (!tasks.length) { paintList('<div class="empty">No tasks for today.</div>'); return; }
     let lastP = null;
     tasks.forEach(t => {
       if (t.priority !== lastP) { html += `<div class="section-header sh-${t.priority.toLowerCase()}"><span class="sec-dot"></span>${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
@@ -1520,14 +1580,14 @@ function renderTasks() {
     });
   } else {
     tasks = getAllTasks().filter(t => t.freq===currentTab).sort((a,b) => PO[a.priority]-PO[b.priority] || getOrder(a.id)-getOrder(b.id));
-    if (!tasks.length) { document.getElementById('list').innerHTML = '<div class="empty">No tasks here.</div>'; return; }
+    if (!tasks.length) { paintList('<div class="empty">No tasks here.</div>'); return; }
     let lastP = null;
     tasks.forEach(t => {
       if (t.priority !== lastP) { html += `<div class="section-header sh-${t.priority.toLowerCase()}"><span class="sec-dot"></span>${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
       html += taskHTML(t, false);
     });
   }
-  document.getElementById('list').innerHTML = html;
+  paintList(html);
 }
 
 function renderBreakTable() {
