@@ -1959,10 +1959,14 @@ function showPage(p, hub) {
 
 // ---- Hub organiser (Settings) ----
 let orgDraft = null;
+function initHubOrganiser() {
+  orgDraft = {}; HUBS.forEach(h => orgDraft[h] = hubLayout[h].slice());
+  renderHubOrganiser();
+}
 function renderHubOrganiser() {
   const el = document.getElementById('hub-organiser');
   if (!el) return;
-  orgDraft = {}; HUBS.forEach(h => orgDraft[h] = hubLayout[h].slice());
+  if (!orgDraft) { orgDraft = {}; HUBS.forEach(h => orgDraft[h] = hubLayout[h].slice()); }
   el.innerHTML = Object.keys(PAGES).map(p => {
     const m = PAGES[p];
     const chips = HUBS.map(h => {
@@ -1994,7 +1998,7 @@ function resetHubOrganiser() {
   HUBS.forEach(h => hubLayout[h] = DEFAULT_HUB_LAYOUT[h].slice());
   saveHubLayout();
   renderHubs();
-  renderHubOrganiser();
+  initHubOrganiser();
 }
 
 function switchTab(t) {
@@ -3786,7 +3790,7 @@ function renderChangelog() {
 // ===== SETTINGS =====
 function loadSettings() {
   renderChangelog();
-  renderHubOrganiser();
+  initHubOrganiser();
   const s = JSON.parse(localStorage.getItem('zarif_settings') || '{}');
   const key = localStorage.getItem('zarif_groq_key') || '';
   const keyEl = document.getElementById('settings-gemini-key');
