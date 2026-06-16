@@ -550,6 +550,38 @@
   .proj-detail-textarea { width: 100%; padding: 10px 12px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: 10px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; resize: vertical; min-height: 90px; transition: border-color 0.15s; box-sizing: border-box; line-height: 1.6; }
   .proj-detail-textarea:focus { border-color: var(--text-3); }
   .proj-detail-status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* progress strip */
+  .proj-progress-strip { padding: 10px 18px 12px; }
+  .proj-progress-bar { height: 7px; border-radius: 4px; overflow: hidden; background: var(--surface2); display: flex; gap: 2px; }
+  .proj-pb-seg { border-radius: 4px; transition: width 0.3s; }
+  .proj-pb-active    { background: var(--green-text); }
+  .proj-pb-onhold    { background: var(--amber-text); }
+  .proj-pb-delivered { background: var(--text-3); }
+  .proj-progress-counts { display: flex; gap: 14px; margin-top: 7px; flex-wrap: wrap; }
+  .proj-pc-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-3); }
+  .proj-pc-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  /* sub-project detail — enhanced fields */
+  .spd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .spd-grid { grid-template-columns: 1fr; } }
+  .spd-field { display: flex; flex-direction: column; gap: 5px; }
+  .spd-field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); }
+  .spd-input { font-size: 13px; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: 9px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; }
+  .spd-input:focus { border-color: var(--text-3); }
+  .spd-select { font-size: 13px; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: 9px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; cursor: pointer; appearance: none; }
+  .spd-status-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 14px; cursor: pointer; border: none; font-family: inherit; border-radius: 20px; font-weight: 600; }
+  /* checklist */
+  .spd-todo-add { display: flex; gap: 8px; margin-bottom: 10px; }
+  .spd-todo-input { flex: 1; font-size: 13px; padding: 7px 11px; border: 0.5px solid var(--border-md); border-radius: 9px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; }
+  .spd-todo-add-btn { font-size: 12px; padding: 7px 13px; border-radius: 9px; border: 0.5px solid var(--border-md); background: var(--surface2); color: var(--text-2); cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .spd-todo-add-btn:hover { color: var(--text); border-color: var(--text-3); }
+  .spd-todo-list { display: flex; flex-direction: column; gap: 5px; }
+  .spd-todo-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; background: var(--bg); border: 0.5px solid var(--border); }
+  .spd-todo-cb { width: 15px; height: 15px; accent-color: var(--teal); cursor: pointer; flex-shrink: 0; }
+  .spd-todo-text { flex: 1; font-size: 13px; color: var(--text); }
+  .spd-todo-text.done { text-decoration: line-through; color: var(--text-3); }
+  .spd-todo-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 5px; }
+  .spd-todo-del:hover { color: #ef4444; }
+  .spd-todo-progress { font-size: 11px; color: var(--text-3); margin-bottom: 8px; }
 
   /* WISHLIST */
   .wl-form { display: flex; flex-direction: column; gap: 10px; }
@@ -4874,29 +4906,76 @@ function openSubProjectPage(projId, subId) {
   const statusCls = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
   const dateNote = s.deliveredAt
     ? ` · Delivered ${new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}` : '';
+  const todos = s.todos || [];
+  const doneCnt = todos.filter(t => t.done).length;
+  const todoRows = todos.map(t => `
+    <div class="spd-todo-row">
+      <input type="checkbox" class="spd-todo-cb" ${t.done?'checked':''} onchange="toggleSubTodo(${projId},${subId},${t.id})">
+      <span class="spd-todo-text${t.done?' done':''}">${esc(t.text)}</span>
+      <button class="spd-todo-del" onclick="deleteSubTodo(${projId},${subId},${t.id})"><i class="ti ti-x"></i></button>
+    </div>`).join('');
   const html = `<div class="proj-detail-overlay" id="proj-detail">
     <div class="proj-detail-header">
       <button class="proj-detail-back" onclick="closeDetailPage();openProjectPage(${projId})"><i class="ti ti-arrow-left"></i> Back to ${esc(p.title)}</button>
       <div class="proj-detail-banner" style="background:${style.bg}">
         <i class="ti ti-layout-kanban proj-detail-icon"></i>
-        <div>
+        <div style="flex:1;min-width:0">
           <div class="proj-detail-title">${esc(s.title)}</div>
           <div class="proj-detail-meta">${typeLabel} · ${esc(p.title)}${dateNote}</div>
         </div>
       </div>
     </div>
     <div class="proj-detail-body">
+
       <div class="proj-detail-section">
-        <div class="proj-detail-section-title">Status</div>
-        <div class="proj-detail-status-row">
-          <button class="proj-status-lbl ${statusCls}" style="font-size:12px;padding:5px 14px;cursor:pointer;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:5px" onclick="cycleSubStatusDetail(${projId},${subId})">${statusLabel} <i class="ti ti-refresh" style="font-size:10px"></i></button>
-          <span style="font-size:12px;color:var(--text-3)">Click to cycle status</span>
+        <div class="proj-detail-section-title">Status &amp; Priority</div>
+        <div class="spd-grid">
+          <div class="spd-field">
+            <label>Status</label>
+            <button class="spd-status-btn ${statusCls}" onclick="cycleSubStatusDetail(${projId},${subId})">${statusLabel} <i class="ti ti-refresh" style="font-size:10px"></i></button>
+          </div>
+          <div class="spd-field">
+            <label>Priority</label>
+            <select class="spd-select" onchange="saveSubField(${projId},${subId},'priority',this.value)">
+              <option value=""${!s.priority?' selected':''}>— None —</option>
+              <option value="high"${s.priority==='high'?' selected':''}>🔴 High</option>
+              <option value="medium"${s.priority==='medium'?' selected':''}>🟡 Medium</option>
+              <option value="low"${s.priority==='low'?' selected':''}>🟢 Low</option>
+            </select>
+          </div>
+          <div class="spd-field">
+            <label>Due Date</label>
+            <input type="date" class="spd-input" value="${s.dueDate||''}" onchange="saveSubField(${projId},${subId},'dueDate',this.value)">
+          </div>
+          <div class="spd-field">
+            <label>Assignee</label>
+            <input type="text" class="spd-input" placeholder="Who owns this?" value="${esc(s.assignee||'')}" oninput="saveSubField(${projId},${subId},'assignee',this.value)">
+          </div>
         </div>
       </div>
+
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Deliverables</div>
+        <textarea class="proj-detail-textarea" placeholder="What needs to be delivered? Describe the expected output or outcome…" oninput="saveSubField(${projId},${subId},'deliverables',this.value)">${esc(s.deliverables||'')}</textarea>
+      </div>
+
+      <div class="proj-detail-section">
+        <div class="proj-detail-section-title">Checklist</div>
+        ${todos.length ? `<div class="spd-todo-progress">${doneCnt} of ${todos.length} done</div>` : ''}
+        <div class="spd-todo-add">
+          <input class="spd-todo-input" id="todo-inp-${subId}" placeholder="Add action item or to-do…" onkeydown="if(event.key==='Enter')addSubTodo(${projId},${subId})">
+          <button class="spd-todo-add-btn" onclick="addSubTodo(${projId},${subId})"><i class="ti ti-plus" style="font-size:13px"></i> Add</button>
+        </div>
+        <div class="spd-todo-list">
+          ${todoRows || '<div style="font-size:12px;color:var(--text-3)">No items yet — add your first action item above.</div>'}
+        </div>
+      </div>
+
       <div class="proj-detail-section">
         <div class="proj-detail-section-title">Notes</div>
-        <textarea class="proj-detail-textarea" placeholder="Add notes, context, or progress updates…" oninput="saveSubNote(${projId},${subId},this.value)">${esc(s.note||'')}</textarea>
+        <textarea class="proj-detail-textarea" placeholder="Context, blockers, decisions, progress updates…" oninput="saveSubField(${projId},${subId},'note',this.value)">${esc(s.note||'')}</textarea>
       </div>
+
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
@@ -4913,10 +4992,50 @@ function saveProjDesc(projId, val) {
 }
 
 function saveSubNote(projId, subId, val) {
+  saveSubField(projId, subId, 'note', val);
+}
+
+function saveSubField(projId, subId, field, val) {
   const p = projects.find(x => x.id === projId);
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
-  if (s) { s.note = val; saveProjects(); }
+  if (s) { s[field] = val; saveProjects(); }
+}
+
+function addSubTodo(projId, subId) {
+  const inp = document.getElementById('todo-inp-' + subId);
+  if (!inp || !inp.value.trim()) return;
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  if (!s.todos) s.todos = [];
+  s.todos.push({ id: Date.now(), text: inp.value.trim(), done: false });
+  saveProjects();
+  closeDetailPage();
+  openSubProjectPage(projId, subId);
+}
+
+function toggleSubTodo(projId, subId, todoId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const t = (s.todos || []).find(x => x.id === todoId);
+  if (t) { t.done = !t.done; saveProjects(); }
+  closeDetailPage();
+  openSubProjectPage(projId, subId);
+}
+
+function deleteSubTodo(projId, subId, todoId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  s.todos = (s.todos || []).filter(x => x.id !== todoId);
+  saveProjects();
+  closeDetailPage();
+  openSubProjectPage(projId, subId);
 }
 
 function cycleSubStatusDetail(projId, subId) {
@@ -5044,6 +5163,17 @@ function renderProjects() {
       ? `Delivered ${new Date(p.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`
       : `Started ${new Date(p.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`;
 
+    const nActive    = subs.filter(s => s.status === 'active').length;
+    const nOnhold    = subs.filter(s => s.status === 'onhold').length;
+    const nDelivered = subs.filter(s => s.status === 'delivered').length;
+    const pctA = subs.length ? (nActive    / subs.length * 100).toFixed(1) : 0;
+    const pctO = subs.length ? (nOnhold    / subs.length * 100).toFixed(1) : 0;
+    const pctD = subs.length ? (nDelivered / subs.length * 100).toFixed(1) : 0;
+    const progressBar = subs.length ? `
+      <div class="proj-pb-seg proj-pb-delivered" style="width:${pctD}%"></div>
+      <div class="proj-pb-seg proj-pb-onhold"    style="width:${pctO}%"></div>
+      <div class="proj-pb-seg proj-pb-active"    style="width:${pctA}%"></div>` : '';
+
     return `<div class="proj-card${isOpen?' open':''}" id="proj-card-${p.id}" style="border:2.5px solid ${style.border};box-shadow:5px 5px 0 ${style.shadow};">
       <div class="proj-card-banner" style="background:${style.bg}" onclick="openOrNavigateProject(${p.id})">
         <i class="ti ${style.icon} proj-banner-icon"></i>
@@ -5056,6 +5186,14 @@ function renderProjects() {
           <button class="proj-banner-btn" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
         </div>
         <button class="proj-banner-btn proj-card-chev" onclick="event.stopPropagation();toggleProjOpen(${p.id})" title="Expand / collapse"><i class="ti ti-chevron-down"></i></button>
+      </div>
+      <div class="proj-progress-strip">
+        <div class="proj-progress-bar">${progressBar || '<div style="width:100%;background:var(--surface2);border-radius:4px"></div>'}</div>
+        <div class="proj-progress-counts">
+          <span class="proj-pc-item"><span class="proj-pc-dot proj-pb-active"></span>${nActive} active</span>
+          <span class="proj-pc-item"><span class="proj-pc-dot proj-pb-onhold"></span>${nOnhold} on hold</span>
+          <span class="proj-pc-item"><span class="proj-pc-dot proj-pb-delivered"></span>${nDelivered} delivered</span>
+        </div>
       </div>
       <div class="proj-body">
         <div class="proj-body-status">
