@@ -12,124 +12,135 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f9f9f8; --surface: #ffffff; --surface2: #eef3fa;
-    --border: rgba(0,0,0,0.08); --border-md: rgba(0,0,0,0.13);
-    --text: #1a1a18; --text-2: #6b6b67; --text-3: #9e9e99;
-    --teal: #2E7DD6; --teal-bg: #E6F1FB; --teal-text: #15528F;
-    --amber-bg: #FAEEDA; --amber-text: #854F0B;
-    --coral-bg: #FAECE7; --coral-text: #993C1D;
-    --blue-bg: #E6F1FB; --blue-text: #185FA5;
-    --green-bg: #E1ECFA; --green-text: #2A4F8C;
-    --purple-bg: #EEEDFE; --purple-text: #3C3489;
-    --pink-bg: #FCE7F3; --pink-text: #A6266F;
+    --bg: #16141a; --surface: #1c1924; --surface2: #221f2a;
+    --border: rgba(255,255,255,0.06); --border-md: rgba(255,255,255,0.11);
+    --text: #f0eeff; --text-2: rgba(240,238,255,0.52); --text-3: rgba(240,238,255,0.26);
+    --teal: #5DCAA5; --teal-bg: rgba(93,202,165,0.13); --teal-text: #9FE1CB;
+    --amber-bg: rgba(239,159,39,0.13); --amber-text: #FAC775;
+    --coral-bg: rgba(210,85,40,0.13); --coral-text: #F0997B;
+    --blue-bg: rgba(55,138,221,0.13); --blue-text: #85B7EB;
+    --green-bg: rgba(99,153,34,0.13); --green-text: #97C459;
+    --purple-bg: rgba(127,119,221,0.13); --purple-text: #AFA9EC;
+    --pink-bg: rgba(212,83,126,0.13); --pink-text: #ED93B1;
+    --hero-bg: #0d1a14;
     --radius: 10px; --radius-lg: 14px;
   }
-  :root[data-theme="dark"] {
-    --bg: #1a1a18; --surface: #242422; --surface2: #1c2733;
-    --border: rgba(255,255,255,0.08); --border-md: rgba(255,255,255,0.14);
-    --text: #f0f0ec; --text-2: #a0a09b; --text-3: #6a6a65;
-    --teal-bg: #042C53; --teal-text: #B5D4F4;
-    --amber-bg: #412402; --amber-text: #FAC775;
-    --coral-bg: #4A1B0C; --coral-text: #F5C4B3;
-    --blue-bg: #042C53; --blue-text: #B5D4F4;
-    --green-bg: #0E2A4D; --green-text: #AFC9EE;
-    --purple-bg: #26215C; --purple-text: #CECBF6;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #1a1a18; --surface: #242422; --surface2: #1c2733;
-      --border: rgba(255,255,255,0.08); --border-md: rgba(255,255,255,0.14);
-      --text: #f0f0ec; --text-2: #a0a09b; --text-3: #6a6a65;
-      --teal-bg: #042C53; --teal-text: #B5D4F4;
-      --amber-bg: #412402; --amber-text: #FAC775;
-      --coral-bg: #4A1B0C; --coral-text: #F5C4B3;
-      --blue-bg: #042C53; --blue-text: #B5D4F4;
-      --green-bg: #0E2A4D; --green-text: #AFC9EE;
-      --purple-bg: #26215C; --purple-text: #CECBF6;
-      --pink-bg: #4A1238; --pink-text: #F5B8DA;
-    }
+  :root[data-theme="light"] {
+    --bg: #f4f2ff; --surface: #ffffff; --surface2: #ede9ff;
+    --border: rgba(0,0,0,0.07); --border-md: rgba(0,0,0,0.13);
+    --text: #1a1828; --text-2: #5a5570; --text-3: #9590a8;
+    --teal: #0F6E56; --teal-bg: #d8f5eb; --teal-text: #084d3c;
+    --amber-bg: #fef3db; --amber-text: #7a4800;
+    --coral-bg: #fdeee8; --coral-text: #8c2e10;
+    --blue-bg: #e4effe; --blue-text: #1a4f9c;
+    --green-bg: #e6f5d8; --green-text: #2d5e0e;
+    --purple-bg: #eeeeff; --purple-text: #3b33a8;
+    --pink-bg: #fce8f4; --pink-text: #8c1f60;
+    --hero-bg: #e8faf2;
   }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 4rem; }
   .wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
   .wrap:has(#page-templates.active) { max-width: 1100px; }
 
   /* NAV */
-  .nav { display: flex; gap: 2px; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 10px 1rem; position: sticky; top: 0; z-index: 10; }
-  .nav-btn { padding: 7px 16px; font-size: 13px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-  .nav-btn i { font-size: 15px; }
-  .nav-btn.active { background: var(--bg); color: var(--text); font-weight: 500; border: 0.5px solid var(--border-md); }
-  .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
-  .theme-toggle-btn { margin-left: auto; padding: 7px 10px; font-size: 15px; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); display: flex; align-items: center; transition: all 0.15s; }
-  .theme-toggle-btn:hover { color: var(--text); background: var(--surface2); }
-  .nav-btn:nth-of-type(1) i { color: var(--teal); }
-  .nav-btn:nth-of-type(2) i { color: var(--purple-text); }
-  .nav-btn:nth-of-type(3) i { color: var(--coral-text); }
-  .nav-btn:nth-of-type(4) i { color: var(--green-text); }
-  .nav-btn:nth-of-type(5) i { color: var(--pink-text); }
-  .nav-btn:not(.active) i { opacity: 0.6; }
+  .nav { display: flex; align-items: center; gap: 2px; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 8px 1rem; position: sticky; top: 0; z-index: 10; }
+  .nav-logo { display: flex; align-items: center; gap: 9px; margin-right: 20px; font-size: 14px; font-weight: 500; color: var(--text); flex-shrink: 0; }
+  .nav-logo-icon { width: 26px; height: 26px; background: linear-gradient(135deg, #7F77DD, #5DCAA5); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-logo-icon i { font-size: 13px; color: #fff; }
+  .nav-btn { padding: 6px 13px; font-size: 12px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 20px; color: var(--text-3); font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .nav-btn i { font-size: 14px; }
+  .nav-btn.active { background: var(--surface2); color: var(--text); font-weight: 500; border: 0.5px solid var(--border-md); }
+  .nav-btn:hover:not(.active) { color: var(--text-2); background: var(--surface2); }
+  .nav-btn[data-page="tasks"] i { color: var(--teal); }
+  .nav-btn[data-page="message"] i { color: var(--purple-text); }
+  .nav-btn[data-page="templates"] i { color: var(--coral-text); }
+  .nav-btn[data-page="meetings"] i { color: var(--green-text); }
+  .nav-btn[data-page="kpi"] i { color: var(--amber-text); }
+  .theme-toggle-btn { margin-left: auto; padding: 6px 10px; font-size: 15px; border: none; background: transparent; cursor: pointer; border-radius: 20px; color: var(--text-3); display: flex; align-items: center; transition: all 0.15s; }
+  .theme-toggle-btn:hover { color: var(--text-2); background: var(--surface2); }
   .page { display: none; }
   .page.active { display: block; }
 
   /* SHARED */
   .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; gap: 12px; }
-  .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
-  .header h1 i { font-size: 20px; color: var(--teal); }
+  .header h1 { font-size: 20px; font-weight: 500; letter-spacing: -0.2px; display: flex; align-items: center; gap: 8px; }
+  .header h1 i { font-size: 18px; color: var(--teal); }
   .header p { font-size: 13px; color: var(--text-2); margin-top: 3px; }
-  .date-pill { font-size: 15px; color: var(--text-2); background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 20px; padding: 6px 15px; white-space: nowrap; flex-shrink: 0; }
-  .section-header { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 1.25rem 0 8px; display: flex; align-items: center; gap: 6px; }
+  .date-pill { font-size: 12px; color: var(--text-2); background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 20px; padding: 5px 12px; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+  .date-pill i { font-size: 13px; color: var(--text-3); }
+  .section-header { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 1.2rem 0 8px; display: flex; align-items: center; gap: 8px; }
+  .section-header .sec-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .section-header.sh-high .sec-dot { background: #712B13; }
+  .section-header.sh-medium .sec-dot { background: #633806; }
+  .section-header.sh-low .sec-dot { background: #27500A; }
   .section-header::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
 
-  /* TASKS */
-  .today-banner { background: var(--teal-bg); border: 0.5px solid var(--teal); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--teal-text); font-weight: 500; }
+  /* TASKS HERO */
+  .task-hero { background: var(--hero-bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
+  .task-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .task-hero-greeting { font-size: 18px; font-weight: 500; color: var(--text); }
+  .task-hero-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  .task-hero-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hero-chip { display: flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 20px; font-size: 12px; border: 0.5px solid; }
+  .hero-chip i { font-size: 13px; }
+  .hero-chip.c-teal { background: var(--teal-bg); border-color: rgba(93,202,165,0.25); color: var(--teal-text); }
+  .hero-chip.c-coral { background: var(--coral-bg); border-color: rgba(210,85,40,0.25); color: var(--coral-text); }
+  .hero-chip.c-green { background: var(--green-bg); border-color: rgba(99,153,34,0.25); color: var(--green-text); }
+  .hero-chip-val { font-size: 14px; font-weight: 500; }
+  .progress-track { height: 2px; background: var(--border); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #7F77DD, #5DCAA5); border-radius: 2px; transition: width 0.5s ease; }
+
+  /* TABS */
+  .today-banner { background: var(--teal-bg); border: 0.5px solid rgba(93,202,165,0.3); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--teal-text); font-weight: 500; }
   .today-banner i { font-size: 15px; }
-  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-  .stat { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
-  .stat .lbl { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-  .stat .val { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
-  .stat .sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
-  .progress-track { height: 3px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--teal); border-radius: 3px; transition: width 0.4s ease; }
-  .tabs { display: flex; gap: 2px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 3px; margin-bottom: 1.5rem; }
-  .tab { flex: 1; padding: 7px 6px; font-size: 12px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); transition: all 0.15s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); margin-bottom: 1.2rem; }
+  .tab { flex: 1; padding: 9px 6px; font-size: 12px; font-weight: 400; border: none; border-bottom: 2px solid transparent; background: transparent; cursor: pointer; color: var(--text-3); transition: all 0.15s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 4px; }
   .tab i { font-size: 13px; }
-  .tab.active { background: var(--bg); color: var(--text); font-weight: 500; border: 0.5px solid var(--border-md); }
-  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 500; }
+  .tab:hover:not(.active) { color: var(--text-2); }
   .freq-group-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); margin: 1.5rem 0 8px; }
   .freq-group-label i { font-size: 14px; }
   .freq-group-label:has(.ti-sun) i { color: var(--amber-text); }
   .freq-group-label:has(.ti-calendar-week) i { color: var(--blue-text); }
   .freq-group-label:has(.ti-calendar-month) i { color: var(--purple-text); }
-  .freq-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .freq-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; display: flex; align-items: center; gap: 3px; }
+  .freq-pill i { font-size: 11px; }
   .fp-daily { background: var(--purple-bg); color: var(--purple-text); }
   .fp-weekly { background: var(--blue-bg); color: var(--blue-text); }
   .fp-fortnightly { background: var(--blue-bg); color: var(--blue-text); }
   .fp-monthly { background: var(--amber-bg); color: var(--amber-text); }
   .fp-once { background: var(--coral-bg); color: var(--coral-text); }
-  .task { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 7px; display: flex; gap: 12px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s; }
-  .task:hover { border-color: var(--border-md); }
-  .task.done { opacity: 0.45; }
-  .task.done .tname { text-decoration: line-through; color: var(--text-2); }
-  .cb { width: 19px; height: 19px; border: 1.5px solid var(--border-md); border-radius: 6px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: var(--surface); }
+
+  /* TASK CARDS */
+  .task { background: var(--surface); border: 0.5px solid var(--border); border-left-width: 3px; border-radius: var(--radius-lg); padding: 11px 14px; margin-bottom: 6px; display: flex; gap: 12px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s; align-items: center; }
+  .task:hover { border-color: var(--border-md); border-left-width: 3px; }
+  .task.p-high { border-left-color: #712B13; }
+  .task.p-medium { border-left-color: #633806; }
+  .task.p-low { border-left-color: #27500A; }
+  .task.done { opacity: 0.38; }
+  .task.done .tname { text-decoration: line-through; }
+  .cb { width: 18px; height: 18px; border: 1.5px solid var(--border-md); border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: transparent; }
   .cb.on { background: var(--teal); border-color: var(--teal); }
   .cb.on i { display: block; }
-  .cb i { display: none; font-size: 12px; color: white; }
+  .cb i { display: none; font-size: 11px; color: white; }
   .tbody { flex: 1; min-width: 0; }
   .trow1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .tname { font-size: 14px; font-weight: 500; color: var(--text); }
-  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
+  .tname { font-size: 13px; font-weight: 500; color: var(--text); }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; flex-shrink: 0; display: flex; align-items: center; gap: 3px; }
+  .badge i { font-size: 10px; }
   .b-high { background: var(--coral-bg); color: var(--coral-text); }
   .b-medium { background: var(--amber-bg); color: var(--amber-text); }
   .b-low { background: var(--green-bg); color: var(--green-text); }
-  .tmeta { font-size: 12px; color: var(--text-3); margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .tmeta i { font-size: 12px; vertical-align: -1px; margin-right: 3px; }
+  .tmeta { font-size: 11px; color: var(--text-3); margin-top: 5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tmeta i { font-size: 11px; vertical-align: -1px; margin-right: 2px; }
   .pills { display: flex; gap: 4px; flex-wrap: wrap; }
   .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; border: 0.5px solid var(--border); color: var(--text-2); background: var(--surface2); }
   .pill.me { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
   .tnote { font-size: 12px; color: var(--text-2); margin-top: 8px; padding: 7px 10px; background: var(--surface2); border-radius: 0 7px 7px 0; border-left: 2px solid var(--border-md); }
   .tnote i { font-size: 12px; margin-right: 4px; vertical-align: -1px; color: var(--text-3); }
   .footer { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
-  .reset { font-size: 12px; color: var(--text-3); background: none; border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
-  .reset:hover { color: var(--text); border-color: var(--border-md); background: var(--surface); }
+  .reset { font-size: 12px; color: var(--text-3); background: none; border: 0.5px solid var(--border); border-radius: 20px; padding: 6px 14px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .reset:hover { color: var(--text-2); border-color: var(--border-md); }
   .reset i { font-size: 13px; }
   .empty { text-align: center; padding: 3rem 1rem; color: var(--text-3); font-size: 14px; }
 
@@ -300,50 +311,42 @@
 <body>
 
 <div class="nav">
+  <div class="nav-logo"><div class="nav-logo-icon"><i class="ti ti-checklist"></i></div> ZTasks</div>
   <button class="nav-btn active" data-page="tasks" onclick="showPage('tasks')"><i class="ti ti-checklist"></i> Tasks</button>
   <button class="nav-btn" data-page="message" onclick="showPage('message')"><i class="ti ti-message-2"></i> Daily message</button>
   <button class="nav-btn" data-page="templates" onclick="showPage('templates')"><i class="ti ti-template"></i> Templates</button>
   <button class="nav-btn" data-page="meetings" onclick="showPage('meetings')"><i class="ti ti-notes"></i> Meetings</button>
   <button class="nav-btn" data-page="kpi" onclick="showPage('kpi')"><i class="ti ti-report-analytics"></i> KPI Report</button>
-  <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"><i class="ti ti-moon"></i></button>
+  <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"><i class="ti ti-sun"></i></button>
 </div>
 
 <div class="wrap">
 
   <!-- TASKS PAGE -->
   <div class="page active" id="page-tasks">
-    <div class="header">
-      <div>
-        <h1><i class="ti ti-checklist"></i> My tasks</h1>
-        <p>Sorted by priority — tap a task to mark it done</p>
-      </div>
-      <span class="date-pill" id="datebadge"></span>
-    </div>
 
     <div class="tasks-layout">
     <div class="tasks-main">
 
+    <div class="task-hero">
+      <div class="task-hero-top">
+        <div>
+          <div class="task-hero-greeting">Hey, Zarif</div>
+          <div class="task-hero-sub" id="s-sub">Loading tasks...</div>
+        </div>
+        <span class="date-pill"><i class="ti ti-calendar"></i><span id="datebadge"></span></span>
+      </div>
+      <div class="task-hero-chips">
+        <div class="hero-chip c-teal"><i class="ti ti-list-check"></i><span class="hero-chip-val" id="s-total">0</span> total</div>
+        <div class="hero-chip c-green"><i class="ti ti-check"></i><span class="hero-chip-val" id="s-done">0</span> done</div>
+        <div class="hero-chip c-coral"><i class="ti ti-flame"></i><span class="hero-chip-val" id="s-high">0</span> high priority</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="s-bar" style="width:0%"></div></div>
+    </div>
+
     <div id="today-banner" style="display:none" class="today-banner">
       <i class="ti ti-calendar-event"></i>
       <span id="banner-text"></span>
-    </div>
-
-    <div class="summary">
-      <div class="stat">
-        <div class="lbl">Today's tasks</div>
-        <div class="val" id="s-total">0</div>
-        <div class="sub">for <span id="s-day">today</span></div>
-      </div>
-      <div class="stat">
-        <div class="lbl">Completed</div>
-        <div class="val" id="s-done">0</div>
-        <div class="progress-track"><div class="progress-fill" id="s-bar" style="width:0%"></div></div>
-      </div>
-      <div class="stat">
-        <div class="lbl">High priority</div>
-        <div class="val" id="s-high">0</div>
-        <div class="sub">remaining</div>
-      </div>
     </div>
 
     <div class="tabs">
@@ -888,27 +891,23 @@ const DEFAULT_BREAKS = [
 
 // ===== THEME TOGGLE =====
 function applyTheme(theme) {
-  if (theme === 'light' || theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', theme);
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
   } else {
     document.documentElement.removeAttribute('data-theme');
   }
   const icon = document.querySelector('#theme-toggle-btn i');
-  if (icon) {
-    const resolved = (theme === 'light' || theme === 'dark') ? theme : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    icon.className = resolved === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
-  }
+  if (icon) icon.className = theme === 'light' ? 'ti ti-moon' : 'ti ti-sun';
 }
 
 function toggleTheme() {
-  const current = localStorage.getItem('zarif_theme') || 'auto';
-  const resolved = current === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : current;
-  const next = resolved === 'dark' ? 'light' : 'dark';
+  const current = localStorage.getItem('zarif_theme') || 'dark';
+  const next = current === 'light' ? 'dark' : 'light';
   localStorage.setItem('zarif_theme', next);
   applyTheme(next);
 }
 
-applyTheme(localStorage.getItem('zarif_theme') || 'auto');
+applyTheme(localStorage.getItem('zarif_theme') || 'dark');
 
 const PO = {HIGH:0, MEDIUM:1, LOW:2};
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1217,23 +1216,25 @@ const FREQ_LABELS = {daily:'Daily', weekly:'Weekly', fortnightly:'Fortnightly', 
 
 function taskHTML(t, showFreqPill) {
   const d = isDone(t.id);
+  const pCls = t.priority==='HIGH'?'p-high':t.priority==='MEDIUM'?'p-medium':'p-low';
   const bCls = t.priority==='HIGH'?'b-high':t.priority==='MEDIUM'?'b-medium':'b-low';
+  const bIcon = t.priority==='HIGH'?'ti-flame':t.priority==='MEDIUM'?'ti-point':'ti-leaf';
   const bLbl = t.priority[0]+t.priority.slice(1).toLowerCase();
   const pills = t.assignees.map(a=>`<span class="pill${a==='Zarif'?' me':''}">${a}</span>`).join('');
   const note = t.note ? `<div class="tnote"><i class="ti ti-info-circle"></i>${t.note}</div>` : '';
   const freq = (t.id === 8 && todayDow === 1) ? 'daily' : t.freq;
   const freqPill = showFreqPill
-    ? `<span class="freq-pill fp-${freq}">${FREQ_LABELS[freq]}</span>`
+    ? `<span class="freq-pill fp-${freq}"><i class="ti ${FREQ_ICONS[freq]}"></i>${FREQ_LABELS[freq]}</span>`
     : `<span><i class="ti ${FREQ_ICONS[freq]}"></i>${FREQ_LABELS[freq]}</span>`;
   const click = t.id === 1 ? `showPage('message')` : t.id === 8 ? `showPage('calldata')` : t.id === 3 ? `showPage('awjobs')` : t.id === 7 ? `showPage('standup')` : `toggle('${t.id}')`;
   const delBtn = t.custom ? `<button class="task-del-btn" onclick="event.stopPropagation(); deleteCustomTask('${t.id}')"><i class="ti ti-trash"></i></button>` : '';
   const editBtn = `<button class="task-edit-btn" onclick="event.stopPropagation(); openTaskEdit('${t.id}')"><i class="ti ti-pencil"></i></button>`;
   const upBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', -1)"><i class="ti ti-chevron-up"></i></button>`;
   const downBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', 1)"><i class="ti ti-chevron-down"></i></button>`;
-  return `<div class="task${d?' done':''}" onclick="${click}">
+  return `<div class="task ${pCls}${d?' done':''}" onclick="${click}">
     <div class="cb${d?' on':''}"><i class="ti ti-check"></i></div>
     <div class="tbody">
-      <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}">${bLbl}</span></div>
+      <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}"><i class="ti ${bIcon}"></i>${bLbl}</span></div>
       <div class="tmeta">${freqPill}<div class="pills">${pills}</div></div>
       ${note}
     </div>
@@ -1250,11 +1251,12 @@ function renderTasks() {
   const todayDone = todayTasks.filter(t => isDone(t.id)).length;
   const todayHigh = todayTasks.filter(t => t.priority==='HIGH' && !isDone(t.id)).length;
 
-  document.getElementById('s-day').textContent = DAY_NAMES[todayDow];
   document.getElementById('s-total').textContent = todayTotal;
   document.getElementById('s-done').textContent = todayDone;
   document.getElementById('s-high').textContent = todayHigh;
   document.getElementById('s-bar').style.width = todayTotal ? Math.round(todayDone/todayTotal*100)+'%' : '0%';
+  const remaining = todayTotal - todayDone;
+  document.getElementById('s-sub').textContent = remaining > 0 ? `${remaining} task${remaining!==1?'s':''} remaining today` : todayTotal > 0 ? 'All done for today!' : 'Nothing scheduled for today';
 
   const banner = document.getElementById('today-banner');
   if (currentTab === 'today' && todayDow === 1) {
@@ -1268,7 +1270,7 @@ function renderTasks() {
     if (!tasks.length) { document.getElementById('list').innerHTML = '<div class="empty">No tasks for today.</div>'; return; }
     let lastP = null;
     tasks.forEach(t => {
-      if (t.priority !== lastP) { html += `<div class="section-header">${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
+      if (t.priority !== lastP) { html += `<div class="section-header sh-${t.priority.toLowerCase()}"><span class="sec-dot"></span>${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
       html += taskHTML(t, true);
     });
   } else if (currentTab === 'all') {
@@ -1278,7 +1280,7 @@ function renderTasks() {
       html += `<div class="freq-group-label"><i class="ti ${FREQ_ICONS[freq]}"></i>${FREQ_LABELS[freq]} tasks</div>`;
       let lastP = null;
       group.forEach(t => {
-        if (t.priority !== lastP) { html += `<div class="section-header">${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
+        if (t.priority !== lastP) { html += `<div class="section-header sh-${t.priority.toLowerCase()}"><span class="sec-dot"></span>${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
         html += taskHTML(t, false);
       });
     });
@@ -1287,7 +1289,7 @@ function renderTasks() {
     if (!tasks.length) { document.getElementById('list').innerHTML = '<div class="empty">No tasks here.</div>'; return; }
     let lastP = null;
     tasks.forEach(t => {
-      if (t.priority !== lastP) { html += `<div class="section-header">${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
+      if (t.priority !== lastP) { html += `<div class="section-header sh-${t.priority.toLowerCase()}"><span class="sec-dot"></span>${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
       html += taskHTML(t, false);
     });
   }
@@ -1609,7 +1611,7 @@ document.getElementById('datebadge5').textContent = dateStr;
 document.getElementById('datebadge6').textContent = dateStr;
 document.getElementById('datebadge7').textContent = dateStr;
 document.getElementById('datebadge8').textContent = dateStr;
-document.getElementById('s-day').textContent = DAY_NAMES[todayDow];
+document.getElementById('datebadge').textContent = `${DAY_NAMES[todayDow]}, ${now.getDate()} ${MON_NAMES[now.getMonth()]}  ${now.getFullYear()}`;
 
 const weekRange = prevWeekRange();
 document.getElementById('wpay-body').value = `Hi team,\n\nPlease see the Wpay call data from ${weekRange} below:\n\nKind regards,`;
