@@ -39,8 +39,7 @@
     --hero-bg: #e8faf2;
   }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-left: 196px; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 2rem 2rem 4rem; }
-  .wrap:has(#page-templates.active) { max-width: 1200px; }
+  .wrap { padding: 2rem 3rem 4rem; }
   @media (max-width: 700px) { body { padding-left: 52px; } }
 
   /* APP LAYOUT */
@@ -170,7 +169,6 @@
   .empty { text-align: center; padding: 3rem 1rem; color: var(--text-3); font-size: 14px; }
 
   /* KNOWLEDGE BASE SIDEBAR */
-  .wrap:has(#page-tasks.active) { max-width: 1040px; }
   .tasks-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; align-items: start; }
   @media (max-width: 900px) { .tasks-layout { grid-template-columns: 1fr; } }
   .tasks-sidebar { position: sticky; top: 20px; }
