@@ -2796,7 +2796,6 @@ async function kpiGenerateReport() {
 }
 
 renderKpiPage();
-loadSettings();
 
 // ===== OPERATOR KPI EMAILS =====
 const KPI_OPS_COLUMNS = [
@@ -3355,6 +3354,7 @@ function elaboratePoint(id, btn) {
   openAiModal('standup', id);
 }
 
+loadSettings();
 renderBreakTable();
 renderTasks();
 renderKbFact();
