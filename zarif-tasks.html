@@ -72,7 +72,8 @@
            border-right: none; border-top: 0.5px solid var(--border); padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
            overflow-x: auto; overflow-y: hidden; gap: 2px; -webkit-overflow-scrolling: touch; }
     .nav-logo, .nav-section-label { display: none; }
-    .nav-links, .nav-bottom { display: contents; }
+    .nav-links, .nav-bottom, .nav-group, .nav-group-head { display: contents; }
+    .nav-expand, .nav-sub { display: none !important; }
     .nav-btn, .theme-toggle-btn { flex: 0 0 auto; width: auto; min-width: 60px; flex-direction: column; justify-content: center;
            gap: 3px; padding: 6px 8px; font-size: 10px; text-align: center; white-space: nowrap; }
     .nav-btn i, .theme-toggle-btn i { font-size: 20px; }
@@ -106,6 +107,27 @@
   .hero-chip.c-coral { background: var(--coral-bg); border-color: rgba(210,85,40,0.25); color: var(--coral-text); }
   .hero-chip.c-green { background: var(--green-bg); border-color: rgba(99,153,34,0.25); color: var(--green-text); }
   .hero-chip-val { font-size: 14px; font-weight: 500; color: var(--text); }
+
+  /* GLOBAL BACK BUTTON */
+  .page-back { font-size: 12px; color: var(--text-2); background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 20px; padding: 6px 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 1.2rem; transition: all 0.15s; }
+  .page-back:hover { border-color: var(--text-3); color: var(--text); }
+  .page-back i { font-size: 14px; }
+
+  /* SIDEBAR CASCADE */
+  .nav-group { display: flex; flex-direction: column; }
+  .nav-group-head { display: flex; align-items: center; }
+  .nav-group-head .nav-btn { flex: 1; }
+  .nav-expand { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 6px; border-radius: 6px; display: flex; align-items: center; transition: all 0.15s; flex-shrink: 0; }
+  .nav-expand:hover { color: var(--text); background: var(--surface2); }
+  .nav-expand i { font-size: 14px; transition: transform 0.2s ease; }
+  .nav-group.open .nav-expand i { transform: rotate(180deg); }
+  .nav-sub { display: none; flex-direction: column; gap: 1px; margin: 1px 0 4px 14px; padding-left: 8px; border-left: 0.5px solid var(--border); }
+  .nav-group.open .nav-sub { display: flex; }
+  .nav-sublink { background: none; border: none; cursor: pointer; color: var(--text-3); font-family: inherit; font-size: 12px; text-align: left; padding: 6px 8px; border-radius: 6px; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+  .nav-sublink:hover { color: var(--text); background: var(--surface2); }
+  .nav-sublink.active { color: var(--text); background: rgba(55,138,221,0.1); font-weight: 500; }
+  .nav-sublink i { font-size: 14px; flex-shrink: 0; }
+  .nav-sub-empty { font-size: 11px; color: var(--text-3); padding: 4px 8px; font-style: italic; }
 
   /* HUB / LANDING */
   .hub-head { margin-bottom: 1.6rem; }
@@ -463,6 +485,18 @@
   .task-ai-btn { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 4px; border-radius: 5px; font-size: 14px; display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; transition: all 0.15s; }
   .task-ai-btn:hover { color: var(--teal); background: var(--teal-bg); }
 
+  /* HUB ORGANISER */
+  .org-page { padding: 11px 0; border-bottom: 0.5px solid var(--border); }
+  .org-page:last-child { border-bottom: none; }
+  .org-page-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+  .org-page-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .org-page-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .org-hubs { display: flex; gap: 8px; flex-wrap: wrap; padding-left: 37px; }
+  .org-chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-3); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .org-chip:hover { border-color: var(--text-3); color: var(--text-2); }
+  .org-chip.on { background: rgba(55,138,221,0.1); border-color: #185FA5; color: var(--text); font-weight: 500; }
+  .org-chip i { font-size: 13px; }
+
   /* CHANGELOG */
   .ver-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); margin-left: auto; }
   .cl-toggle { cursor: pointer; margin-bottom: 0; user-select: none; }
@@ -538,9 +572,27 @@
   <div class="nav-links">
     <button class="nav-btn active" data-page="home" onclick="showPage('home')"><i class="ti ti-home"></i><span>Home</span></button>
     <div class="nav-section-label">Hubs</div>
-    <button class="nav-btn" data-page="helpdesk" onclick="showPage('helpdesk')"><i class="ti ti-headset"></i><span>Helpdesk</span></button>
-    <button class="nav-btn" data-page="projects" onclick="showPage('projects')"><i class="ti ti-folders"></i><span>Projects</span></button>
-    <button class="nav-btn" data-page="personal" onclick="showPage('personal')"><i class="ti ti-user-heart"></i><span>Personal</span></button>
+    <div class="nav-group open" id="nav-group-helpdesk">
+      <div class="nav-group-head">
+        <button class="nav-btn" data-page="helpdesk" onclick="showPage('helpdesk')"><i class="ti ti-headset"></i><span>Helpdesk</span></button>
+        <button class="nav-expand" onclick="toggleNavGroup('helpdesk')" title="Expand"><i class="ti ti-chevron-down"></i></button>
+      </div>
+      <div class="nav-sub" id="nav-sub-helpdesk"></div>
+    </div>
+    <div class="nav-group open" id="nav-group-projects">
+      <div class="nav-group-head">
+        <button class="nav-btn" data-page="projects" onclick="showPage('projects')"><i class="ti ti-folders"></i><span>Projects</span></button>
+        <button class="nav-expand" onclick="toggleNavGroup('projects')" title="Expand"><i class="ti ti-chevron-down"></i></button>
+      </div>
+      <div class="nav-sub" id="nav-sub-projects"></div>
+    </div>
+    <div class="nav-group" id="nav-group-personal">
+      <div class="nav-group-head">
+        <button class="nav-btn" data-page="personal" onclick="showPage('personal')"><i class="ti ti-user-heart"></i><span>Personal</span></button>
+        <button class="nav-expand" onclick="toggleNavGroup('personal')" title="Expand"><i class="ti ti-chevron-down"></i></button>
+      </div>
+      <div class="nav-sub" id="nav-sub-personal"></div>
+    </div>
   </div>
   <div class="nav-bottom">
     <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><i class="ti ti-settings"></i><span>Settings</span></button>
@@ -549,6 +601,8 @@
 </nav>
 
 <div class="wrap">
+
+  <button id="page-back" class="page-back" style="display:none" onclick="goBack()"><i class="ti ti-arrow-left"></i> <span id="page-back-label">Back</span></button>
 
   <!-- HOME LANDING -->
   <div class="page active" id="page-home">
@@ -581,88 +635,28 @@
   <!-- HELPDESK HUB -->
   <div class="page" id="page-helpdesk">
     <div class="hub-head">
-      <button class="hub-back" onclick="showPage('home')"><i class="ti ti-arrow-left"></i> Home</button>
       <h1><i class="ti ti-headset" style="color:var(--blue-text);"></i> Helpdesk Management</h1>
       <p>Everything for running the helpdesk day to day.</p>
     </div>
-    <div class="hub-grid">
-      <div class="app-card" onclick="showPage('tasks','helpdesk')">
-        <div class="app-card-icon c-teal"><i class="ti ti-checklist"></i></div>
-        <div class="app-card-title">Tasks</div>
-        <div class="app-card-desc">Your daily task dashboard with streaks and progress.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-      <div class="app-card" onclick="showPage('kpi','helpdesk')">
-        <div class="app-card-icon c-amber"><i class="ti ti-report-analytics"></i></div>
-        <div class="app-card-title">KPI Report</div>
-        <div class="app-card-desc">Generate the daily Helpdesk Metrics report from your exports.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-      <div class="app-card" onclick="showPage('meetings','helpdesk')">
-        <div class="app-card-icon c-green"><i class="ti ti-notes"></i></div>
-        <div class="app-card-title">Meetings</div>
-        <div class="app-card-desc">Meeting minutes for ANZWL, Wpay, DMG and ad hoc.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-      <div class="app-card" onclick="showPage('message','helpdesk')">
-        <div class="app-card-icon c-purple"><i class="ti ti-message-2"></i></div>
-        <div class="app-card-title">Daily Message</div>
-        <div class="app-card-desc">Generate your morning Teams message and break schedule.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-      <div class="app-card" onclick="showPage('templates','helpdesk')">
-        <div class="app-card-icon c-coral"><i class="ti ti-template"></i></div>
-        <div class="app-card-title">Templates</div>
-        <div class="app-card-desc">Reusable message templates and common numbers.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-      <div class="app-card" onclick="showPage('standup','helpdesk')">
-        <div class="app-card-icon c-pink"><i class="ti ti-presentation"></i></div>
-        <div class="app-card-title">Stand up</div>
-        <div class="app-card-desc">Draft and elaborate your daily stand up talking points.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-    </div>
+    <div class="hub-grid" id="hub-grid-helpdesk"></div>
   </div>
 
   <!-- PROJECTS HUB -->
   <div class="page" id="page-projects">
     <div class="hub-head">
-      <button class="hub-back" onclick="showPage('home')"><i class="ti ti-arrow-left"></i> Home</button>
       <h1><i class="ti ti-folders" style="color:var(--amber-text);"></i> Projects</h1>
       <p>Project work and notes.</p>
     </div>
-    <div class="hub-grid">
-      <div class="app-card" onclick="showPage('meetings','projects')">
-        <div class="app-card-icon c-green"><i class="ti ti-notes"></i></div>
-        <div class="app-card-title">Meetings</div>
-        <div class="app-card-desc">Project meeting notes, agendas and attendees.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
-      </div>
-      <div class="app-card soon">
-        <div class="app-card-icon c-blue"><i class="ti ti-plus"></i></div>
-        <div class="app-card-title">More coming</div>
-        <div class="app-card-desc">Project tracking and tools will live here.</div>
-        <div class="app-card-meta"><i class="ti ti-clock"></i>Coming soon</div>
-      </div>
-    </div>
+    <div class="hub-grid" id="hub-grid-projects"></div>
   </div>
 
   <!-- PERSONAL HUB -->
   <div class="page" id="page-personal">
     <div class="hub-head">
-      <button class="hub-back" onclick="showPage('home')"><i class="ti ti-arrow-left"></i> Home</button>
       <h1><i class="ti ti-user-heart" style="color:var(--pink-text);"></i> Personal</h1>
       <p>Your own personal space.</p>
     </div>
-    <div class="hub-grid">
-      <div class="app-card soon">
-        <div class="app-card-icon c-pink"><i class="ti ti-sparkles"></i></div>
-        <div class="app-card-title">Coming soon</div>
-        <div class="app-card-desc">This space is yours to fill — tell me what you'd like here.</div>
-        <div class="app-card-meta"><i class="ti ti-clock"></i>To be added</div>
-      </div>
-    </div>
+    <div class="hub-grid" id="hub-grid-personal"></div>
   </div>
 
   <!-- TASKS PAGE -->
@@ -1330,6 +1324,16 @@
     </div>
 
     <div class="card settings-section">
+      <div class="card-title"><i class="ti ti-layout-grid-add"></i> Organise hubs</div>
+      <div class="ai-hint" style="margin-bottom:14px;">Choose which apps appear in each hub. An app can live in more than one hub.</div>
+      <div id="hub-organiser"></div>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="settings-save-btn" onclick="saveHubOrganiser()"><i class="ti ti-device-floppy"></i> Save layout</button>
+        <button class="settings-save-btn" onclick="resetHubOrganiser()" style="background:transparent;color:var(--text-2);border:0.5px solid var(--border-md);"><i class="ti ti-refresh"></i> Reset to default</button>
+      </div>
+    </div>
+
+    <div class="card settings-section">
       <div class="card-title cl-toggle" onclick="toggleChangelog()">
         <i class="ti ti-history"></i> Changelog
         <span id="app-version-badge" class="ver-badge"></span>
@@ -1849,14 +1853,148 @@ function moveTask(id, dir) {
 }
 
 let currentHub = null;
+let currentPage = 'home';
 const HUB_PAGES = ['home','helpdesk','projects','personal'];
+
+// ---- Hub / page registry ----
+const PAGES = {
+  tasks:     { title:'Tasks',         icon:'ti-checklist',        color:'c-teal',   desc:'Your daily task dashboard with streaks and progress.' },
+  kpi:       { title:'KPI Report',    icon:'ti-report-analytics', color:'c-amber',  desc:'Generate the daily Helpdesk Metrics report from your exports.' },
+  meetings:  { title:'Meetings',      icon:'ti-notes',            color:'c-green',  desc:'Meeting minutes, agendas and attendees.' },
+  message:   { title:'Daily Message', icon:'ti-message-2',        color:'c-purple', desc:'Generate your morning Teams message and break schedule.' },
+  templates: { title:'Templates',     icon:'ti-template',         color:'c-coral',  desc:'Reusable message templates and common numbers.' },
+  standup:   { title:'Stand up',      icon:'ti-presentation',     color:'c-pink',   desc:'Draft and elaborate your daily stand up talking points.' },
+};
+const HUBS = ['helpdesk','projects','personal'];
+const HUB_META = {
+  helpdesk: { title:'Helpdesk Management', icon:'ti-headset' },
+  projects: { title:'Projects',            icon:'ti-folders' },
+  personal: { title:'Personal',            icon:'ti-user-heart' },
+};
+const DEFAULT_HUB_LAYOUT = {
+  helpdesk: ['tasks','kpi','meetings','message','templates','standup'],
+  projects: ['meetings'],
+  personal: [],
+};
+let hubLayout = loadHubLayout();
+function loadHubLayout() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('zarif_hub_layout') || '{}') || {}; } catch(e) {}
+  const layout = {};
+  HUBS.forEach(h => {
+    const list = Array.isArray(saved[h]) ? saved[h].filter(p => PAGES[p]) : DEFAULT_HUB_LAYOUT[h].slice();
+    layout[h] = list;
+  });
+  return layout;
+}
+function saveHubLayout() { try { localStorage.setItem('zarif_hub_layout', JSON.stringify(hubLayout)); } catch(e) {} }
+
+function renderHubs() {
+  HUBS.forEach(h => {
+    const grid = document.getElementById('hub-grid-' + h);
+    if (grid) {
+      const pages = hubLayout[h];
+      if (!pages.length) {
+        grid.innerHTML = `<div class="app-card soon"><div class="app-card-icon c-pink"><i class="ti ti-sparkles"></i></div><div class="app-card-title">Coming soon</div><div class="app-card-desc">Nothing here yet. Add apps to this hub from Settings → Organise hubs.</div><div class="app-card-meta"><i class="ti ti-clock"></i>Empty</div></div>`;
+      } else {
+        grid.innerHTML = pages.map(p => {
+          const m = PAGES[p];
+          return `<div class="app-card" onclick="showPage('${p}','${h}')">
+            <div class="app-card-icon ${m.color}"><i class="ti ${m.icon}"></i></div>
+            <div class="app-card-title">${m.title}</div>
+            <div class="app-card-desc">${m.desc}</div>
+            <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
+          </div>`;
+        }).join('');
+      }
+    }
+    const sub = document.getElementById('nav-sub-' + h);
+    if (sub) {
+      const pages = hubLayout[h];
+      sub.innerHTML = pages.length
+        ? pages.map(p => {
+            const m = PAGES[p];
+            return `<button class="nav-sublink" data-sub="${p}" onclick="showPage('${p}','${h}')"><i class="ti ${m.icon}"></i>${m.title}</button>`;
+          }).join('')
+        : '<div class="nav-sub-empty">No apps yet</div>';
+    }
+  });
+  syncNavActive();
+}
+
+function toggleNavGroup(h) {
+  const g = document.getElementById('nav-group-' + h);
+  if (g) g.classList.toggle('open');
+}
+
+function syncNavActive() {
+  const activeNav = (currentPage === 'settings') ? 'settings' : HUB_PAGES.includes(currentPage) ? currentPage : currentHub;
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.page === activeNav));
+  document.querySelectorAll('.nav-sublink').forEach(el => el.classList.toggle('active', el.dataset.sub === currentPage));
+}
+
+function goBack() {
+  if (HUB_PAGES.includes(currentPage) && currentPage !== 'home') { showPage('home'); return; }
+  showPage(currentHub || 'home');
+}
+
 function showPage(p, hub) {
+  currentPage = p;
   document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === 'page-'+p));
   if (HUB_PAGES.includes(p)) currentHub = (p === 'home') ? null : p;
   else if (hub) currentHub = hub;
-  const activeNav = (p === 'settings') ? 'settings' : HUB_PAGES.includes(p) ? p : currentHub;
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.page === activeNav));
+  syncNavActive();
+  // auto-expand the active hub's cascade
+  if (currentHub) { const g = document.getElementById('nav-group-' + currentHub); if (g) g.classList.add('open'); }
+  // global back button
+  const back = document.getElementById('page-back');
+  const backLbl = document.getElementById('page-back-label');
+  if (back) {
+    if (p === 'home') { back.style.display = 'none'; }
+    else if (HUB_PAGES.includes(p)) { back.style.display = 'inline-flex'; backLbl.textContent = 'Home'; }
+    else { back.style.display = 'inline-flex'; backLbl.textContent = currentHub && HUB_META[currentHub] ? 'Back to ' + HUB_META[currentHub].title : 'Back'; }
+  }
   window.scrollTo(0, 0);
+}
+
+// ---- Hub organiser (Settings) ----
+let orgDraft = null;
+function renderHubOrganiser() {
+  const el = document.getElementById('hub-organiser');
+  if (!el) return;
+  orgDraft = {}; HUBS.forEach(h => orgDraft[h] = hubLayout[h].slice());
+  el.innerHTML = Object.keys(PAGES).map(p => {
+    const m = PAGES[p];
+    const chips = HUBS.map(h => {
+      const on = orgDraft[h].includes(p);
+      return `<button class="org-chip${on?' on':''}" data-p="${p}" data-h="${h}" onclick="toggleOrgChip('${p}','${h}')"><i class="ti ${on?'ti-check':'ti-plus'}"></i>${HUB_META[h].title}</button>`;
+    }).join('');
+    return `<div class="org-page">
+      <div class="org-page-head"><div class="org-page-ico ${m.color}"><i class="ti ${m.icon}"></i></div><div class="org-page-name">${m.title}</div></div>
+      <div class="org-hubs">${chips}</div>
+    </div>`;
+  }).join('');
+}
+function toggleOrgChip(p, h) {
+  const arr = orgDraft[h];
+  const i = arr.indexOf(p);
+  if (i === -1) arr.push(p); else arr.splice(i, 1);
+  renderHubOrganiser();
+}
+function saveHubOrganiser() {
+  HUBS.forEach(h => hubLayout[h] = orgDraft[h].slice());
+  saveHubLayout();
+  renderHubs();
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i class="ti ti-check"></i> Saved';
+  setTimeout(() => { btn.innerHTML = orig; }, 1500);
+}
+function resetHubOrganiser() {
+  HUBS.forEach(h => hubLayout[h] = DEFAULT_HUB_LAYOUT[h].slice());
+  saveHubLayout();
+  renderHubs();
+  renderHubOrganiser();
 }
 
 function switchTab(t) {
@@ -3543,6 +3681,12 @@ document.getElementById('mtg-date').value = todayInputDate();
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '2.6.0', type: 'minor', date: '16 Jun 2026', title: 'Navigation upgrades', changes: [
+    'Back button on every page to return to the previous hub or Home.',
+    'Desktop sidebar hubs now expand to show all their apps for quick access from anywhere.',
+    'New "Organise hubs" setting to move apps between hubs (an app can sit in more than one).',
+    'Hub pages and sidebar links are now generated from your saved layout.',
+  ]},
   { ver: '2.5.0', type: 'major', date: '16 Jun 2026', title: 'Hub landing page', changes: [
     'New Home landing page with clickable app icons for each area.',
     'Helpdesk Management hub: Tasks, KPI Report, Meetings, Daily Message, Templates and Stand up.',
@@ -3642,6 +3786,7 @@ function renderChangelog() {
 // ===== SETTINGS =====
 function loadSettings() {
   renderChangelog();
+  renderHubOrganiser();
   const s = JSON.parse(localStorage.getItem('zarif_settings') || '{}');
   const key = localStorage.getItem('zarif_groq_key') || '';
   const keyEl = document.getElementById('settings-gemini-key');
@@ -3755,7 +3900,7 @@ function clearAllData() {
   if (!confirm('This will delete ALL your tasks, meetings, templates, standup points and settings. Are you sure?')) return;
   const keys = ['zarif_done','zarif_custom_tasks','zarif_task_order','zarif_task_overrides',
     'zarif_standup_points','zarif_templates','zarif_numbers','zarif_meetings',
-    'zarif_kb_facts','zarif_settings','zarif_gemini_key','zarif_groq_key','zarif_theme','zarif_streak'];
+    'zarif_kb_facts','zarif_settings','zarif_gemini_key','zarif_groq_key','zarif_theme','zarif_streak','zarif_hub_layout'];
   keys.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
   location.reload();
 }
@@ -3946,6 +4091,7 @@ function elaboratePoint(id, btn) {
 }
 
 loadSettings();
+renderHubs();
 renderBreakTable();
 renderTasks();
 renderKbFact();
