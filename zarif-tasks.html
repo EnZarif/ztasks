@@ -283,6 +283,13 @@
   .mtg-ANZWL { background: var(--purple-bg); color: var(--purple-text); }
   .mtg-Wpay { background: var(--blue-bg); color: var(--blue-text); }
   .mtg-DMG { background: var(--amber-bg); color: var(--amber-text); }
+  .mtg-Misc { background: var(--green-bg); color: var(--green-text); }
+  .mtg-extra { font-size: 12px; color: var(--text-3); margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .mtg-extra-item { display: flex; align-items: center; gap: 4px; }
+  .mtg-extra-item i { font-size: 12px; }
+  .mtg-agenda { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .mtg-misc-fields { display: none; }
+  .mtg-misc-fields.visible { display: block; }
   .meeting-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 16px 0 8px; }
   .meeting-group-label:first-child { margin-top: 0; }
 
@@ -758,11 +765,26 @@
       <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add meeting notes</div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Meeting</div>
-        <select class="field-input" id="mtg-type">
+        <select class="field-input" id="mtg-type" onchange="toggleMiscFields()">
           <option value="ANZWL">ANZWL</option>
           <option value="Wpay">Wpay</option>
           <option value="DMG">DMG</option>
+          <option value="Misc">Misc / Ad hoc</option>
         </select>
+      </div>
+      <div class="mtg-misc-fields" id="mtg-misc-fields">
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Requester</div>
+          <input class="field-input" id="mtg-requester" placeholder="Who called the meeting?">
+        </div>
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Agenda</div>
+          <input class="field-input" id="mtg-agenda" placeholder="What is it about?">
+        </div>
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Attendees <span style="font-weight:400;">(optional)</span></div>
+          <input class="field-input" id="mtg-attendees" placeholder="e.g. Zarif, Jake, Emily">
+        </div>
       </div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Date</div>
@@ -783,6 +805,7 @@
           <option value="ANZWL">ANZWL</option>
           <option value="Wpay">Wpay</option>
           <option value="DMG">DMG</option>
+          <option value="Misc">Misc / Ad hoc</option>
         </select>
         <input type="text" id="mtg-search" placeholder="Search notes..." oninput="renderMeetings()">
       </div>
@@ -2203,12 +2226,26 @@ function fmtMeetingDate(dateStr) {
   return `${DAY_NAMES[date.getDay()]}, ${d} ${MON_NAMES[m-1]} ${y}`;
 }
 
+function toggleMiscFields() {
+  const isMisc = document.getElementById('mtg-type').value === 'Misc';
+  document.getElementById('mtg-misc-fields').classList.toggle('visible', isMisc);
+}
+
 function addMeeting() {
   const type = document.getElementById('mtg-type').value;
   const date = document.getElementById('mtg-date').value;
   const notes = document.getElementById('mtg-notes').value.trim();
   if (!date || !notes) { alert('Please pick a date and enter some notes.'); return; }
-  meetings.push({id: nextMeetingId++, type, date, notes});
+  const entry = {id: nextMeetingId++, type, date, notes};
+  if (type === 'Misc') {
+    entry.requester = document.getElementById('mtg-requester').value.trim();
+    entry.agenda = document.getElementById('mtg-agenda').value.trim();
+    entry.attendees = document.getElementById('mtg-attendees').value.trim();
+    document.getElementById('mtg-requester').value = '';
+    document.getElementById('mtg-agenda').value = '';
+    document.getElementById('mtg-attendees').value = '';
+  }
+  meetings.push(entry);
   saveMeetings();
   document.getElementById('mtg-notes').value = '';
   renderMeetings();
@@ -2240,6 +2277,13 @@ function saveMeetingEdit(id) {
   m.type = document.getElementById(`mtg-edit-type-${id}`).value;
   m.date = date;
   m.notes = notes;
+  if (m.type === 'Misc') {
+    m.requester = document.getElementById(`mtg-edit-requester-${id}`)?.value.trim() || '';
+    m.agenda = document.getElementById(`mtg-edit-agenda-${id}`)?.value.trim() || '';
+    m.attendees = document.getElementById(`mtg-edit-attendees-${id}`)?.value.trim() || '';
+  } else {
+    delete m.requester; delete m.agenda; delete m.attendees;
+  }
   saveMeetings();
   editingMeetingId = null;
   renderMeetings();
@@ -2251,13 +2295,38 @@ function renderMeetings() {
   const query = document.getElementById('mtg-search').value.trim().toLowerCase();
   const filtered = meetings
     .filter(m => !typeFilter || m.type === typeFilter)
-    .filter(m => m.notes.toLowerCase().includes(query))
+    .filter(m => {
+      const q = query;
+      if (!q) return true;
+      return [m.notes, m.requester, m.agenda, m.attendees].some(f => f && f.toLowerCase().includes(q));
+    })
     .sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
 
   if (!filtered.length) {
     list.innerHTML = `<div class="standup-empty">${meetings.length ? 'No meeting notes match your search.' : 'No meeting notes saved yet.'}</div>`;
     return;
   }
+
+  const miscEditFields = (m) => m.type === 'Misc' ? `
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Requester</div>
+        <input class="field-input" id="mtg-edit-requester-${m.id}" value="${escAttr(m.requester||'')}" placeholder="Who called the meeting?">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Agenda</div>
+        <input class="field-input" id="mtg-edit-agenda-${m.id}" value="${escAttr(m.agenda||'')}" placeholder="What is it about?">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Attendees</div>
+        <input class="field-input" id="mtg-edit-attendees-${m.id}" value="${escAttr(m.attendees||'')}" placeholder="e.g. Zarif, Jake, Emily">
+      </div>` : '';
+
+  const miscDisplay = (m) => m.type === 'Misc' ? `
+      ${m.agenda ? `<div class="mtg-agenda">${esc(m.agenda)}</div>` : ''}
+      ${(m.requester || m.attendees) ? `<div class="mtg-extra">
+        ${m.requester ? `<span class="mtg-extra-item"><i class="ti ti-user"></i>${esc(m.requester)}</span>` : ''}
+        ${m.attendees ? `<span class="mtg-extra-item"><i class="ti ti-users"></i>${esc(m.attendees)}</span>` : ''}
+      </div>` : ''}` : '';
 
   let lastDate = null;
   list.innerHTML = filtered.map(m => {
@@ -2266,6 +2335,7 @@ function renderMeetings() {
       groupLabel = `<div class="meeting-group-label">${fmtMeetingDate(m.date)}</div>`;
       lastDate = m.date;
     }
+    const typeLabel = m.type === 'Misc' ? 'Ad hoc' : m.type;
     if (editingMeetingId === m.id) {
       return groupLabel + `
     <div class="meeting-item">
@@ -2275,8 +2345,10 @@ function renderMeetings() {
           <option value="ANZWL"${m.type==='ANZWL'?' selected':''}>ANZWL</option>
           <option value="Wpay"${m.type==='Wpay'?' selected':''}>Wpay</option>
           <option value="DMG"${m.type==='DMG'?' selected':''}>DMG</option>
+          <option value="Misc"${m.type==='Misc'?' selected':''}>Misc / Ad hoc</option>
         </select>
       </div>
+      ${miscEditFields(m)}
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Date</div>
         <input class="field-input" type="date" id="mtg-edit-date-${m.id}" value="${m.date}">
@@ -2295,7 +2367,7 @@ function renderMeetings() {
     <div class="meeting-item">
       <div class="meeting-item-header">
         <div class="meeting-item-meta">
-          <span class="mtg-pill mtg-${m.type}">${m.type}</span>
+          <span class="mtg-pill mtg-${m.type}">${typeLabel}</span>
         </div>
         <div class="meeting-item-actions">
           <button class="copy-mini-btn" title="Copy notes" onclick="copyTemplateField(${jsAttr(m.notes)}, this)"><i class="ti ti-copy"></i></button>
@@ -2304,6 +2376,7 @@ function renderMeetings() {
           <button class="icon-btn danger" title="Delete" onclick="deleteMeeting(${m.id})"><i class="ti ti-trash"></i></button>
         </div>
       </div>
+      ${miscDisplay(m)}
       <div class="meeting-item-notes">${esc(m.notes)}</div>
     </div>`;
   }).join('');
