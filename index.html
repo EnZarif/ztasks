@@ -38,29 +38,37 @@
     --pink-bg: #fce8f4; --pink-text: #8c1f60;
     --hero-bg: #e8faf2;
   }
-  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-left: 196px; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-left: 220px; }
   .wrap { padding: 2rem 3rem 4rem; }
 
   /* SIDEBAR NAV */
-  .nav { width: 196px; background: var(--surface); border-right: 0.5px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; padding: 18px 10px 14px; z-index: 10; overflow-y: auto; }
-  .nav-logo { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--text); padding: 0 4px; margin-bottom: 22px; flex-shrink: 0; }
-  .nav-logo-icon { width: 28px; height: 28px; background: #185FA5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .nav-logo-icon i { font-size: 14px; color: #fff; }
-  .nav-links { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-  .nav-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); padding: 10px 8px 4px; margin-top: 6px; }
-  .nav-btn { width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 9px; transition: all 0.15s; text-align: left; }
-  .nav-btn i { font-size: 15px; flex-shrink: 0; }
-  .nav-btn.active { background: rgba(55,138,221,0.1); color: var(--text); font-weight: 500; }
+  .nav { width: 220px; background: var(--surface); border-right: 0.5px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; padding: 18px 10px 14px; z-index: 10; overflow-y: auto; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text); padding: 0 4px; margin-bottom: 22px; flex-shrink: 0; }
+  .nav-logo-icon { width: 30px; height: 30px; background: #185FA5; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-logo-icon i { font-size: 15px; color: #fff; }
+  .nav-links { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .nav-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); padding: 12px 8px 5px; margin-top: 4px; }
+  .nav-btn { width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; text-align: left; }
+  .nav-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
   .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
-  .nav-btn[data-page="home"] i { color: var(--teal); }
-  .nav-btn[data-page="helpdesk"] i { color: var(--blue-text); }
-  .nav-btn[data-page="projects"] i { color: var(--amber-text); }
-  .nav-btn[data-page="personal"] i { color: var(--pink-text); }
-  .nav-btn[data-page="settings"] i { color: var(--text-3); }
-  .nav-bottom { margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 2px; }
-  .theme-toggle-btn { width: 100%; padding: 8px 10px; font-size: 13px; border: none; background: transparent; cursor: pointer; border-radius: 8px; color: var(--text-3); font-family: inherit; display: flex; align-items: center; gap: 9px; transition: all 0.15s; }
-  .theme-toggle-btn i { font-size: 15px; }
-  .theme-toggle-btn:hover { color: var(--text-2); background: var(--surface2); }
+  /* per-hub coloured icon tiles */
+  .nav-btn[data-page="home"] i { background: var(--teal-bg); color: var(--teal-text); }
+  .nav-btn[data-page="helpdesk"] i { background: var(--blue-bg); color: var(--blue-text); }
+  .nav-btn[data-page="projects"] i { background: var(--amber-bg); color: var(--amber-text); }
+  .nav-btn[data-page="personal"] i { background: var(--pink-bg); color: var(--pink-text); }
+  .nav-btn[data-page="settings"] i { background: var(--surface2); color: var(--text-2); }
+  /* active: tinted pill + left accent bar (per hub) */
+  .nav-btn.active { color: var(--text); font-weight: 500; }
+  .nav-btn[data-page="home"].active { background: var(--teal-bg); box-shadow: inset 3px 0 0 #1D9E75; }
+  .nav-btn[data-page="helpdesk"].active { background: var(--blue-bg); box-shadow: inset 3px 0 0 #378ADD; }
+  .nav-btn[data-page="projects"].active { background: var(--amber-bg); box-shadow: inset 3px 0 0 #EF9F27; }
+  .nav-btn[data-page="personal"].active { background: var(--pink-bg); box-shadow: inset 3px 0 0 #D4537E; }
+  .nav-btn[data-page="settings"].active { background: var(--surface2); box-shadow: inset 3px 0 0 var(--text-3); }
+  .nav-bottom { margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 3px; }
+  .theme-toggle-btn { width: 100%; padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; }
+  .theme-toggle-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--surface2); color: var(--text-2); }
+  .theme-toggle-btn:hover { color: var(--text); }
+  .theme-toggle-btn:hover i { background: var(--border-md); }
   body.compact-mode .task { padding: 7px 10px; }
   body.compact-mode .task-hero { padding: 14px; }
 
@@ -75,8 +83,9 @@
     .nav-links, .nav-bottom, .nav-group, .nav-group-head { display: contents; }
     .nav-expand, .nav-sub { display: none !important; }
     .nav-btn, .theme-toggle-btn { flex: 0 0 auto; width: auto; min-width: 60px; flex-direction: column; justify-content: center;
-           gap: 3px; padding: 6px 8px; font-size: 10px; text-align: center; white-space: nowrap; }
-    .nav-btn i, .theme-toggle-btn i { font-size: 20px; }
+           gap: 4px; padding: 6px 8px; font-size: 10px; text-align: center; white-space: nowrap; }
+    .nav-btn i, .theme-toggle-btn i { font-size: 17px; width: 30px; height: 30px; }
+    .nav-btn.active { box-shadow: none !important; background: transparent; }
   }
   .page { display: none; }
   .page.active { display: block; }
@@ -3683,6 +3692,10 @@ document.getElementById('mtg-date').value = todayInputDate();
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '2.7.0', type: 'minor', date: '16 Jun 2026', title: 'Sidebar redesign', changes: [
+    'Bigger sidebar labels and larger colour-coded icon tiles for each hub.',
+    'Active item now shows a tinted pill plus a coloured left accent bar.',
+  ]},
   { ver: '2.6.0', type: 'minor', date: '16 Jun 2026', title: 'Navigation upgrades', changes: [
     'Back button on every page to return to the previous hub or Home.',
     'Desktop sidebar hubs now expand to show all their apps for quick access from anywhere.',
