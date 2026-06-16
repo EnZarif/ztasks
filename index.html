@@ -1539,12 +1539,14 @@ const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let _db = {};
 async function dbLoad() {
   const { data, error } = await _sb.from('hub_data').select('key,value');
+  if (error) { console.error('[DB] load error:', error); throw error; }
   if (data) data.forEach(r => { _db[r.key] = r.value; });
 }
 function dbGet(key) { return _db[key]; }
 function dbSet(key, value) {
   _db[key] = value;
-  _sb.from('hub_data').upsert({ key, value, updated_at: new Date().toISOString() }).then(() => {});
+  _sb.from('hub_data').upsert({ key, value, updated_at: new Date().toISOString() })
+    .then(({ error }) => { if (error) console.error('[DB] write error for', key, error); });
 }
 function dbDel(key) {
   delete _db[key];
