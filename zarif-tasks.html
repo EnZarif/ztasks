@@ -912,7 +912,9 @@
       <div class="settings-key-row">
         <input type="password" class="settings-input" id="settings-gemini-key" placeholder="AIza... (your Gemini API key)" style="width:100%;">
         <button class="settings-save-btn" onclick="saveGeminiKey()"><i class="ti ti-device-floppy"></i> Save</button>
+        <button class="settings-save-btn" onclick="testGeminiKey()" style="background:transparent;color:var(--text-2);border:0.5px solid var(--border-md);"><i class="ti ti-plug-connected"></i> Test</button>
       </div>
+      <div class="ai-hint" id="gemini-key-status"></div>
       <div class="ai-hint">Your key is stored only in this browser (localStorage) and never sent anywhere except Google's API. Get a free key at <strong>aistudio.google.com</strong>. Once set, all AI buttons across the app will use it.</div>
     </div>
 
@@ -3053,6 +3055,7 @@ function loadSettings() {
   const key = localStorage.getItem('zarif_gemini_key') || '';
   const keyEl = document.getElementById('settings-gemini-key');
   if (keyEl && key) keyEl.value = key;
+  renderKeyStatus();
 
   const nameEl = document.getElementById('settings-display-name');
   if (nameEl) nameEl.value = s.displayName || 'Zarif';
@@ -3103,6 +3106,17 @@ function applySettings(s) {
   document.body.classList.toggle('compact-mode', !!s.compact);
 }
 
+function renderKeyStatus() {
+  const el = document.getElementById('gemini-key-status');
+  if (!el) return;
+  const key = localStorage.getItem('zarif_gemini_key') || '';
+  if (!key) { el.textContent = 'No key saved yet.'; return; }
+  const prefix = key.slice(0, 4);
+  const looksRight = prefix === 'AIza';
+  el.innerHTML = `Saved key: <strong>${prefix}…${key.slice(-4)}</strong> (${key.length} chars) · model <strong>${GEMINI_MODEL}</strong>` +
+    (looksRight ? '' : ' — <span style="color:var(--coral-text)">this doesn\'t look like an AI Studio key (those start with "AIza")</span>');
+}
+
 function saveGeminiKey() {
   const key = (document.getElementById('settings-gemini-key').value || '').trim();
   try { localStorage.setItem('zarif_gemini_key', key); } catch(e) {}
@@ -3110,6 +3124,20 @@ function saveGeminiKey() {
   const orig = btn.innerHTML;
   btn.innerHTML = '<i class="ti ti-check"></i> Saved';
   setTimeout(() => { btn.innerHTML = orig; }, 1500);
+  renderKeyStatus();
+}
+
+async function testGeminiKey() {
+  const el = document.getElementById('gemini-key-status');
+  if (!el) return;
+  el.textContent = 'Testing…';
+  try {
+    const out = await geminiCall('Reply with the single word: ok');
+    el.innerHTML = '<span style="color:var(--green-text)"><strong>Connection OK</strong> — model replied. AI features will work.</span>';
+  } catch (e) {
+    if (e.message === 'NO_KEY') { el.textContent = 'No key saved — paste one and Save first.'; return; }
+    el.innerHTML = '<span style="color:var(--coral-text)"><strong>Failed:</strong> ' + esc(e.detail || e.message) + '</span>';
+  }
 }
 
 function saveAppSettings() {
