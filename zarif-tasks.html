@@ -1879,42 +1879,6 @@ function updateStandupText(id, text) {
   if (p) { p.text = text; saveStandup(); }
 }
 
-async function elaboratePoint(id, btn) {
-  const point = standupPoints.find(p => p.id === id);
-  if (!point || !point.text.trim()) return;
-  const apiKey = localStorage.getItem('zarif_gemini_key') || '';
-  if (!apiKey) {
-    alert('Add your Gemini API key above first.');
-    return;
-  }
-  const original = btn.innerHTML;
-  btn.innerHTML = '<i class="ti ti-loader-2"></i>';
-  btn.disabled = true;
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `You help a team lead prepare for a daily stand up. Given a short bullet point, write a brief elaboration (3-5 sentences) the person can use as a mini script when speaking about it. Keep it natural, concise and conversational.\n\nBullet point: ${point.text}`,
-          }],
-        }],
-        generationConfig: { temperature: 0.7 },
-      }),
-    });
-    if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
-    const data = await res.json();
-    point.elaboration = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-    saveStandup();
-    renderStandup();
-  } catch (e) {
-    alert(`Failed to elaborate: ${e.message}`);
-    btn.innerHTML = original;
-    btn.disabled = false;
-  }
-}
-
 function copyElaboration(id, btn) {
   const point = standupPoints.find(p => p.id === id);
   if (!point) return;
@@ -3178,10 +3142,12 @@ function clearAllData() {
 }
 
 // ===== GLOBAL AI =====
+const GEMINI_MODEL = localStorage.getItem('zarif_gemini_model') || 'gemini-2.0-flash';
+
 async function geminiCall(prompt) {
   const apiKey = localStorage.getItem('zarif_gemini_key') || '';
   if (!apiKey) throw new Error('NO_KEY');
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`, {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -3189,7 +3155,17 @@ async function geminiCall(prompt) {
       generationConfig: { temperature: 0.7 },
     }),
   });
-  if (!res.ok) throw new Error(`Gemini error ${res.status}`);
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const errBody = await res.json();
+      detail = errBody?.error?.message || '';
+    } catch (e) {}
+    const err = new Error(detail || `Gemini error ${res.status}`);
+    err.status = res.status;
+    err.detail = detail;
+    throw err;
+  }
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 }
@@ -3286,12 +3262,20 @@ async function runAiModal() {
     applyBtn.style.display = '';
     copyBtn.style.display = '';
   } catch(e) {
-    if (e.message === 'NO_KEY') {
+    const msg = e.message || '';
+    if (msg === 'NO_KEY') {
       resultEl.textContent = 'No Gemini API key set — go to Settings to add your key.';
-    } else if (e.message.includes('429')) {
-      resultEl.textContent = 'Rate limit hit (too many requests). Wait about a minute and try again — the free tier allows 15 requests per minute.';
+    } else if (e.status === 429 || /quota|RESOURCE_EXHAUSTED/i.test(msg)) {
+      resultEl.textContent = 'Quota / rate limit reached.\n\nGoogle says:\n' + (e.detail || msg) +
+        '\n\nIf this keeps happening even after waiting, your key likely has no free quota for this model. Try a different key, or check your quota at aistudio.google.com.';
+    } else if (e.status === 400 || /API_KEY_INVALID|API key not valid/i.test(msg)) {
+      resultEl.textContent = 'Your API key was rejected by Google:\n\n' + (e.detail || msg) +
+        '\n\nMake sure you pasted a valid Gemini key from aistudio.google.com (it should start with "AIza"). Re-check it in Settings.';
+    } else if (e.status === 403) {
+      resultEl.textContent = 'Access denied by Google:\n\n' + (e.detail || msg) +
+        '\n\nThe Generative Language API may not be enabled for this key\'s project.';
     } else {
-      resultEl.textContent = `Error: ${e.message}`;
+      resultEl.textContent = 'Error: ' + msg;
     }
     resultEl.classList.add('visible');
   } finally {
