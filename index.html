@@ -622,6 +622,37 @@
   .sd-dot.pstatus-onhold    { background: var(--amber-text); }
   .sd-dot.pstatus-delivered { background: var(--text-3); }
 
+  /* ===== SUB-PROJECT STATUSES (richer set) ===== */
+  .sst-planning  { background: var(--blue-bg);   color: var(--blue-text); }
+  .sst-active    { background: var(--green-bg);  color: var(--green-text); }
+  .sst-onhold    { background: var(--amber-bg);  color: var(--amber-text); }
+  .sst-awaiting  { background: var(--purple-bg); color: var(--purple-text); }
+  .sst-pending   { background: var(--coral-bg);  color: var(--coral-text); }
+  .sst-due       { background: var(--pink-bg);   color: var(--pink-text); }
+  .sst-delivered { background: var(--surface2);  color: var(--text-3); }
+  /* unified dot / bar colours for each sub-status */
+  .sd-dot.sst-planning,  .proj-pc-dot.sst-planning,  .proj-sub-dot.sst-planning,  .proj-pb-seg.sst-planning  { background: var(--blue-text); }
+  .sd-dot.sst-active,    .proj-pc-dot.sst-active,    .proj-sub-dot.sst-active,    .proj-pb-seg.sst-active    { background: var(--green-text); }
+  .sd-dot.sst-onhold,    .proj-pc-dot.sst-onhold,    .proj-sub-dot.sst-onhold,    .proj-pb-seg.sst-onhold    { background: var(--amber-text); }
+  .sd-dot.sst-awaiting,  .proj-pc-dot.sst-awaiting,  .proj-sub-dot.sst-awaiting,  .proj-pb-seg.sst-awaiting  { background: var(--purple-text); }
+  .sd-dot.sst-pending,   .proj-pc-dot.sst-pending,   .proj-sub-dot.sst-pending,   .proj-pb-seg.sst-pending   { background: var(--coral-text); }
+  .sd-dot.sst-due,       .proj-pc-dot.sst-due,       .proj-sub-dot.sst-due,       .proj-pb-seg.sst-due       { background: var(--pink-text); }
+  .sd-dot.sst-delivered, .proj-pc-dot.sst-delivered, .proj-sub-dot.sst-delivered, .proj-pb-seg.sst-delivered { background: var(--text-3); }
+
+  /* ===== AI CHECKLIST BADGES ===== */
+  .spd-todo-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+  .spd-todo-badge i { font-size: 11px; }
+  .spd-due-badge  { background: var(--blue-bg); color: var(--blue-text); }
+  .spd-task-badge { background: var(--green-bg); color: var(--green-text); }
+  .spd-todo-badge.prio-high   { background: var(--coral-bg); color: var(--coral-text); }
+  .spd-todo-badge.prio-medium { background: var(--amber-bg); color: var(--amber-text); }
+  .spd-todo-badge.prio-low    { background: var(--green-bg); color: var(--green-text); }
+  .spd-ai-hint { font-size: 11px; color: var(--text-3); margin-top: 7px; display: flex; align-items: center; gap: 5px; }
+  .spd-ai-hint i { font-size: 12px; color: var(--purple-text); }
+  .spd-todo-row.spd-parsing { opacity: 0.6; }
+  @keyframes spdSpin { to { transform: rotate(360deg); } }
+  .spd-spin { display: inline-block; animation: spdSpin 0.8s linear infinite; }
+
   /* WISHLIST */
   .wl-form { display: flex; flex-direction: column; gap: 10px; }
   .wl-tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
@@ -4903,10 +4934,26 @@ const STATUS_OPTIONS = [
   { val:'onhold',    label:'On hold',   cls:'pstatus-onhold' },
   { val:'delivered', label:'Delivered', cls:'pstatus-delivered' },
 ];
-// onChange: function(newStatus){}; size: 'lg' for larger trigger
-function makeStatusDropdown(id, current, onChange, size) {
-  _statusDropdowns[id] = { onChange: onChange || null };
-  const opt = STATUS_OPTIONS.find(o => o.val === current) || STATUS_OPTIONS[0];
+// richer status set for sub-projects
+const SUB_STATUS_OPTIONS = [
+  { val:'planning',  label:'Planning',             cls:'sst-planning' },
+  { val:'active',    label:'In progress',          cls:'sst-active' },
+  { val:'onhold',    label:'On hold',              cls:'sst-onhold' },
+  { val:'awaiting',  label:'Awaiting third-party', cls:'sst-awaiting' },
+  { val:'pending',   label:'Pending action',       cls:'sst-pending' },
+  { val:'due',       label:'Due',                  cls:'sst-due' },
+  { val:'delivered', label:'Delivered',            cls:'sst-delivered' },
+];
+const SUB_STATUS_LABELS = {};
+const SUB_STATUS_CLS = {};
+SUB_STATUS_OPTIONS.forEach(o => { SUB_STATUS_LABELS[o.val] = o.label; SUB_STATUS_CLS[o.val] = o.cls; });
+function subStatusCls(val) { return SUB_STATUS_CLS[val] || 'sst-active'; }
+function subStatusLabel(val) { return SUB_STATUS_LABELS[val] || val; }
+// onChange: function(newStatus){}; size: 'lg' for larger trigger; options: option array (defaults to STATUS_OPTIONS)
+function makeStatusDropdown(id, current, onChange, size, options) {
+  const opts = options || STATUS_OPTIONS;
+  _statusDropdowns[id] = { onChange: onChange || null, opts };
+  const opt = opts.find(o => o.val === current) || opts[0];
   return `<span class="sd-wrap">
     <button type="button" class="sd-trigger ${opt.cls}${size==='lg'?' sd-lg':''}" id="sd-trig-${id}" onclick="sdToggle('${id}',event)">
       <span id="sd-lbl-${id}">${opt.label}</span>
@@ -4922,10 +4969,11 @@ function sdToggle(id, ev) {
 function sdOpen(id) {
   sdClose();
   _sdOpenId = id;
+  const opts = (_statusDropdowns[id] && _statusDropdowns[id].opts) || STATUS_OPTIONS;
   const pop = document.createElement('div');
   pop.className = 'sd-pop'; pop.id = 'sd-floating';
   pop.onclick = e => e.stopPropagation();
-  pop.innerHTML = STATUS_OPTIONS.map(o =>
+  pop.innerHTML = opts.map(o =>
     `<div class="sd-item" onclick="sdPick('${id}','${o.val}')"><span class="sd-dot ${o.cls}"></span>${o.label}</div>`
   ).join('');
   document.body.appendChild(pop);
@@ -5131,12 +5179,17 @@ function openSubProjectPage(projId, subId) {
     ? ` · Delivered ${new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}` : '';
   const todos = s.todos || [];
   const doneCnt = todos.filter(t => t.done).length;
-  const todoRows = todos.map(t => `
-    <div class="spd-todo-row">
+  const todoRows = todos.map(t => {
+    const prio = t.priority ? `<span class="spd-todo-badge prio-${String(t.priority).toLowerCase()}">${esc(String(t.priority))}</span>` : '';
+    const due = t.dueDate ? `<span class="spd-todo-badge spd-due-badge"><i class="ti ti-calendar-event"></i> ${dpFormat(t.dueDate)}</span>` : '';
+    const linked = t.taskId ? `<span class="spd-todo-badge spd-task-badge" title="Added to your Task Manager"><i class="ti ti-checklist"></i> Task</span>` : '';
+    return `<div class="spd-todo-row">
       <input type="checkbox" class="spd-todo-cb" ${t.done?'checked':''} onchange="toggleSubTodo(${projId},${subId},${t.id})">
       <span class="spd-todo-text${t.done?' done':''}">${esc(t.text)}</span>
+      ${prio}${due}${linked}
       <button class="spd-todo-del" onclick="deleteSubTodo(${projId},${subId},${t.id})"><i class="ti ti-x"></i></button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   const html = `<div class="proj-detail-overlay" id="proj-detail">
     <div class="proj-detail-header">
       <button class="proj-detail-back" onclick="closeDetailPage();openProjectPage(${projId})"><i class="ti ti-arrow-left"></i> Back to ${esc(p.title)}</button>
@@ -5155,7 +5208,7 @@ function openSubProjectPage(projId, subId) {
         <div class="spd-grid">
           <div class="spd-field">
             <label>Status</label>
-            <div>${makeStatusDropdown('sub-st-' + subId, s.status, v => setSubStatusVal(projId, subId, v, 'subdetail'), 'lg')}</div>
+            <div>${makeStatusDropdown('sub-st-' + subId, s.status, v => setSubStatusVal(projId, subId, v, 'subdetail'), 'lg', SUB_STATUS_OPTIONS)}</div>
           </div>
           <div class="spd-field">
             <label>Priority</label>
@@ -5186,10 +5239,11 @@ function openSubProjectPage(projId, subId) {
         <div class="proj-detail-section-title">Checklist</div>
         ${todos.length ? `<div class="spd-todo-progress">${doneCnt} of ${todos.length} done</div>` : ''}
         <div class="spd-todo-add">
-          <input class="spd-todo-input" id="todo-inp-${subId}" placeholder="Add action item or to-do…" onkeydown="if(event.key==='Enter')addSubTodo(${projId},${subId})">
-          <button class="spd-todo-add-btn" onclick="addSubTodo(${projId},${subId})"><i class="ti ti-plus" style="font-size:13px"></i> Add</button>
+          <input class="spd-todo-input" id="todo-inp-${subId}" placeholder="e.g. Send report to ANZ by 19th June, urgent" onkeydown="if(event.key==='Enter')addSubTodo(${projId},${subId})">
+          <button class="spd-todo-add-btn" id="todo-add-btn-${subId}" onclick="addSubTodo(${projId},${subId})"><i class="ti ti-sparkles" style="font-size:13px"></i> Add</button>
         </div>
-        <div class="spd-todo-list">
+        <div class="spd-ai-hint"><i class="ti ti-sparkles"></i>${hasAiKey() ? 'AI reads each item — it sets a due date &amp; priority and adds a dated task to your Task Manager automatically.' : 'Add a Groq API key in Settings → AI to auto-detect due dates and create tasks.'}</div>
+        <div class="spd-todo-list" style="margin-top:10px">
           ${todoRows || '<div style="font-size:12px;color:var(--text-3)">No items yet — add your first action item above.</div>'}
         </div>
       </div>
@@ -5225,15 +5279,89 @@ function saveSubField(projId, subId, field, val) {
   if (s) { s[field] = val; saveProjects(); }
 }
 
-function addSubTodo(projId, subId) {
+function hasAiKey() {
+  return !!(localStorage.getItem('zarif_groq_key') || localStorage.getItem('zarif_gemini_key'));
+}
+
+// Ask the AI to turn a free-text checklist note into { task, dueDate, priority }
+async function aiParseChecklist(raw, p, s) {
+  const today = todayInputDate();
+  const prompt = `Today's date is ${today} (YYYY-MM-DD).
+You are parsing one checklist note for a work project-management app.
+Project: "${p.title}". Sub-project: "${s.title}".
+The user typed this note: "${raw}".
+
+Extract a structured action item and respond with ONLY a raw JSON object — no markdown, no code fences, no commentary. Use exactly these keys:
+- "task": a short, clear imperative action (clean up the wording; remove the date and urgency words).
+- "dueDate": the due date as "YYYY-MM-DD" if the note states or implies one, otherwise null. Resolve relative dates ("by Friday", "next week", "tomorrow", "19th June", "EOM") against today's date ${today}. Assume the nearest sensible future date.
+- "priority": one of "HIGH", "MEDIUM", "LOW" based on urgency words ("urgent"/"asap"=HIGH, "whenever"/"low"=LOW), otherwise null.
+
+Example note: "send the final report to ANZ by 19th june, urgent"
+Example output: {"task":"Send the final report to ANZ","dueDate":"${today.slice(0,4)}-06-19","priority":"HIGH"}`;
+  const out = await geminiCall(prompt);
+  let jsonStr = (out || '').trim();
+  const m = jsonStr.match(/\{[\s\S]*\}/);
+  if (m) jsonStr = m[0];
+  const obj = JSON.parse(jsonStr);
+  const prio = obj.priority ? String(obj.priority).toUpperCase() : '';
+  return {
+    task: (obj.task && String(obj.task).trim()) || raw,
+    dueDate: (obj.dueDate && /^\d{4}-\d{2}-\d{2}$/.test(obj.dueDate)) ? obj.dueDate : '',
+    priority: ['HIGH','MEDIUM','LOW'].includes(prio) ? prio : '',
+  };
+}
+
+async function addSubTodo(projId, subId) {
   const inp = document.getElementById('todo-inp-' + subId);
   if (!inp || !inp.value.trim()) return;
+  const raw = inp.value.trim();
   const p = projects.find(x => x.id === projId);
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
   if (!s) return;
   if (!s.todos) s.todos = [];
-  s.todos.push({ id: Date.now(), text: inp.value.trim(), done: false });
+
+  // loading state on the Add button while the AI parses
+  const btn = document.getElementById('todo-add-btn-' + subId);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2 spd-spin"></i> Reading…'; }
+  if (inp) inp.disabled = true;
+
+  let parsed = null;
+  if (hasAiKey()) {
+    try { parsed = await aiParseChecklist(raw, p, s); } catch (e) { parsed = null; }
+  }
+
+  const item = {
+    id: Date.now(),
+    text: parsed && parsed.task ? parsed.task : raw,
+    done: false,
+    raw: raw,
+    dueDate: parsed ? parsed.dueDate : '',
+    priority: parsed && parsed.priority ? parsed.priority : (s.priority ? s.priority.toUpperCase() : ''),
+  };
+  s.todos.push(item);
+
+  // if a due date was found, also create a linked task in the Task Manager
+  if (item.dueDate) {
+    const prio = ['HIGH','MEDIUM','LOW'].includes((item.priority || '').toUpperCase()) ? item.priority.toUpperCase() : 'MEDIUM';
+    const task = {
+      id: 'c' + Date.now() + Math.floor(Math.random() * 1000),
+      freq: 'date',
+      priority: prio,
+      name: `${p.title} › ${s.title}: ${item.text}`,
+      days: 'all',
+      assignees: [s.assignee ? s.assignee : 'Me'],
+      note: `Auto-created from project checklist — ${p.title} › ${s.title}`,
+      custom: true,
+      date: item.dueDate,
+      projId: projId, subId: subId, todoId: item.id,
+    };
+    customTasks.push(task);
+    item.taskId = task.id;
+    saveCustomTasks();
+    if (typeof renderTasks === 'function') renderTasks();
+  }
+
   saveProjects();
   closeDetailPage();
   openSubProjectPage(projId, subId);
@@ -5255,6 +5383,13 @@ function deleteSubTodo(projId, subId, todoId) {
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
   if (!s) return;
+  const t = (s.todos || []).find(x => x.id === todoId);
+  // remove the linked Task Manager task, if any
+  if (t && t.taskId) {
+    customTasks = customTasks.filter(ct => ct.id !== t.taskId);
+    saveCustomTasks();
+    if (typeof renderTasks === 'function') renderTasks();
+  }
   s.todos = (s.todos || []).filter(x => x.id !== todoId);
   saveProjects();
   closeDetailPage();
@@ -5392,22 +5527,22 @@ function renderProjects() {
     const subFilter = _subFilters[p.id] || 'all';
     const visibleSubs = subFilter === 'all' ? subs : subs.filter(s => s.status === subFilter);
     const subRows = visibleSubs.map(s => {
-      const sLbl = PROJ_STATUS_LABELS[s.status] || s.status;
-      const sColor = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
+      const sColor = subStatusCls(s.status);
       const delivDate = s.deliveredAt ? new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'}) : '';
       return `<div class="proj-sub-row">
         <div class="proj-sub-dot ${sColor}"></div>
         <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" style="cursor:pointer" onclick="openSubProjectPage(${p.id},${s.id})">${esc(s.title)}</span>
-        ${makeStatusDropdown('subrow-st-' + s.id, s.status, v => setSubStatusVal(p.id, s.id, v))}
+        ${makeStatusDropdown('subrow-st-' + s.id, s.status, v => setSubStatusVal(p.id, s.id, v), null, SUB_STATUS_OPTIONS)}
         ${delivDate ? `<span class="proj-sub-date">${delivDate}</span>` : ''}
         <button class="proj-sub-open-btn" onclick="openSubProjectPage(${p.id},${s.id})" title="Open"><i class="ti ti-arrow-up-right"></i></button>
         <button class="proj-sub-del" onclick="deleteSubProject(${p.id},${s.id})" title="Delete"><i class="ti ti-trash"></i></button>
       </div>`;
     }).join('');
-    const filterBtns = ['all','active','onhold','delivered'].map(f => {
-      const lbl = f === 'all' ? 'All' : PROJ_STATUS_LABELS[f];
-      const cnt = f === 'all' ? subs.length : subs.filter(s => s.status === f).length;
-      return `<button class="proj-sub-filter-btn${subFilter===f?' active':''}" onclick="setSubFilter(${p.id},'${f}')">${lbl} ${cnt}</button>`;
+    // filter row: All + only statuses present among this project's subs
+    const presentStatuses = SUB_STATUS_OPTIONS.filter(o => subs.some(s => s.status === o.val));
+    const filterBtns = [{val:'all',label:'All'}, ...presentStatuses].map(o => {
+      const cnt = o.val === 'all' ? subs.length : subs.filter(s => s.status === o.val).length;
+      return `<button class="proj-sub-filter-btn${subFilter===o.val?' active':''}" onclick="setSubFilter(${p.id},'${o.val}')">${o.label} ${cnt}</button>`;
     }).join('');
 
     const typeLabel   = PROJ_TYPE_LABELS[p.type] || p.type;
@@ -5418,16 +5553,16 @@ function renderProjects() {
       ? `Delivered ${new Date(p.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`
       : `Started ${new Date(p.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`;
 
-    const nActive    = subs.filter(s => s.status === 'active').length;
-    const nOnhold    = subs.filter(s => s.status === 'onhold').length;
-    const nDelivered = subs.filter(s => s.status === 'delivered').length;
-    const pctA = subs.length ? (nActive    / subs.length * 100).toFixed(1) : 0;
-    const pctO = subs.length ? (nOnhold    / subs.length * 100).toFixed(1) : 0;
-    const pctD = subs.length ? (nDelivered / subs.length * 100).toFixed(1) : 0;
-    const progressBar = subs.length ? `
-      <div class="proj-pb-seg proj-pb-delivered" style="width:${pctD}%"></div>
-      <div class="proj-pb-seg proj-pb-onhold"    style="width:${pctO}%"></div>
-      <div class="proj-pb-seg proj-pb-active"    style="width:${pctA}%"></div>` : '';
+    // progress: stacked bar + count chips across every present sub-status
+    const statusCounts = {};
+    SUB_STATUS_OPTIONS.forEach(o => { statusCounts[o.val] = subs.filter(s => s.status === o.val).length; });
+    const presentForBar = SUB_STATUS_OPTIONS.filter(o => statusCounts[o.val] > 0);
+    const progressBar = subs.length ? presentForBar.map(o =>
+      `<div class="proj-pb-seg ${o.cls}" style="width:${(statusCounts[o.val] / subs.length * 100).toFixed(1)}%"></div>`
+    ).join('') : '';
+    const progressCounts = presentForBar.map(o =>
+      `<span class="proj-pc-item"><span class="proj-pc-dot ${o.cls}"></span>${statusCounts[o.val]} ${o.label.toLowerCase()}</span>`
+    ).join('') || '<span class="proj-pc-item" style="color:var(--text-3)">No sub-projects yet</span>';
 
     return `<div class="proj-card${isOpen?' open':''}" id="proj-card-${p.id}" style="border:2.5px solid ${style.border};box-shadow:5px 5px 0 ${style.shadow};">
       <div class="proj-card-banner" style="background:${style.bg}" onclick="openOrNavigateProject(${p.id})">
@@ -5444,11 +5579,7 @@ function renderProjects() {
       </div>
       <div class="proj-progress-strip">
         <div class="proj-progress-bar">${progressBar || '<div style="width:100%;background:var(--surface2);border-radius:4px"></div>'}</div>
-        <div class="proj-progress-counts">
-          <span class="proj-pc-item"><span class="proj-pc-dot proj-pb-active"></span>${nActive} active</span>
-          <span class="proj-pc-item"><span class="proj-pc-dot proj-pb-onhold"></span>${nOnhold} on hold</span>
-          <span class="proj-pc-item"><span class="proj-pc-dot proj-pb-delivered"></span>${nDelivered} delivered</span>
-        </div>
+        <div class="proj-progress-counts">${progressCounts}</div>
       </div>
       <div class="proj-body">
         <div class="proj-body-status">
@@ -5457,7 +5588,7 @@ function renderProjects() {
         </div>
         <div class="proj-sub-filter-row">${filterBtns}</div>
         <div class="proj-sub-list">
-          ${subRows || `<div style="font-size:12px;color:var(--text-3);padding:4px 0">${subFilter==='all'?'No sub-projects yet — add one below.':'No '+PROJ_STATUS_LABELS[subFilter].toLowerCase()+' sub-projects.'}</div>`}
+          ${subRows || `<div style="font-size:12px;color:var(--text-3);padding:4px 0">${subFilter==='all'?'No sub-projects yet — add one below.':'No '+(SUB_STATUS_LABELS[subFilter]||subFilter).toLowerCase()+' sub-projects.'}</div>`}
         </div>
         <div class="proj-sub-add-row">
           <input class="proj-sub-add-input" id="sub-inp-${p.id}" placeholder="Add sub-project…" onkeydown="if(event.key==='Enter')addSubProject(${p.id})">
@@ -5578,6 +5709,16 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.11.0', type: 'minor', date: '17 Jun 2026', title: 'Sub-statuses & AI checklist', changes: [
+    'Sub-projects now have a richer status set: Planning, In progress, On hold, Awaiting third-party, Pending action, Due, Delivered',
+    'Change a sub-project status from its card row or its detail page; the progress bar and filters adapt automatically',
+    'Progress strip and sub-filters now reflect every status present, each with its own colour',
+    'AI-powered checklist: type a natural note like "Send report to ANZ by 19th June, urgent"',
+    'The AI cleans up the wording, detects the due date and priority, and adds the item to the checklist',
+    'If a due date is found it auto-creates a dated task in your Task Manager, named by project › sub-project',
+    'Deleting a checklist item also removes its linked task',
+    'Needs a Groq API key (Settings → AI); without one, items are still added as plain text',
+  ]},
   { ver: '3.10.0', type: 'minor', date: '17 Jun 2026', title: 'Date pickers & status dropdowns', changes: [
     'Every date field across the app now opens a mini calendar — pick a day instead of typing',
     'Calendar has month navigation, today highlighting, and Today / Clear shortcuts',
