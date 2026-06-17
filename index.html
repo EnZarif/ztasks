@@ -533,6 +533,62 @@
   #page-meetings .header h1 i, #page-meetings .card-title i { color: var(--green-text); }
   #page-kpi .header h1 i, #page-kpi .card-title i { color: var(--pink-text); }
   #page-wishlist .header h1 i, #page-wishlist .card-title i { color: var(--purple-text); }
+  #page-weekly-review .header h1 i, #page-weekly-review .card-title i { color: var(--green-text); }
+  #page-end-of-day .header h1 i, #page-end-of-day .card-title i { color: var(--teal-text); }
+
+  /* WEEKLY REVIEW */
+  .wr-section { display: flex; flex-direction: column; gap: 6px; }
+  .wr-label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; }
+  .wr-label i { font-size: 14px; }
+  .wr-label.wrl-green { color: var(--green-text); }
+  .wr-label.wrl-coral  { color: var(--coral-text); }
+  .wr-label.wrl-blue   { color: var(--teal-text); }
+  .wr-label.wrl-purple { color: var(--purple-text); }
+  .wr-textarea { width: 100%; min-height: 90px; resize: vertical; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius); padding: 11px 13px; font-size: 14px; line-height: 1.65; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
+  .wr-textarea:focus { border-color: var(--green-text); }
+  .wr-textarea::placeholder { color: var(--text-3); }
+  .wr-save-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+  .wr-save-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; border-radius: 10px; background: var(--green-bg); color: var(--green-text); border: 1.5px solid var(--green-text); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .wr-save-btn:hover { opacity: 0.82; }
+  .wr-saved-msg { font-size: 12px; color: var(--green-text); display: none; }
+  .wr-history-list { display: flex; flex-direction: column; gap: 10px; }
+  .wr-entry { background: var(--surface); border: 1px solid var(--border-md); border-radius: 12px; overflow: hidden; }
+  .wr-entry-head { display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer; user-select: none; }
+  .wr-entry-head:hover { background: var(--surface2); }
+  .wr-entry-date { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .wr-entry-saved { font-size: 11px; color: var(--text-3); }
+  .wr-entry-body { padding: 12px 14px; border-top: 1px solid var(--border); display: none; flex-direction: column; gap: 12px; }
+  .wr-entry-body.open { display: flex; }
+  .wr-entry-section { font-size: 13px; line-height: 1.6; }
+  .wr-entry-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 3px; }
+  .wr-entry-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; }
+  .wr-entry-del:hover { color: var(--coral-text); background: var(--coral-bg); }
+
+  /* END OF DAY */
+  .eod-scratchpad { width: 100%; min-height: 180px; resize: vertical; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius); padding: 12px 14px; font-size: 13.5px; line-height: 1.65; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
+  .eod-scratchpad:focus { border-color: var(--teal); }
+  .eod-task-list { display: flex; flex-direction: column; gap: 6px; }
+  .eod-task-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface2); border-radius: 9px; border: 1px solid var(--border); }
+  .eod-task-cb { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border-md); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: transparent; transition: all 0.15s; }
+  .eod-task-cb.done { background: var(--green-text); border-color: var(--green-text); color: #fff; }
+  .eod-task-name { font-size: 13px; flex: 1; }
+  .eod-task-pri { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
+  .eod-task-pri.p-high   { background: var(--coral-bg);  color: var(--coral-text); }
+  .eod-task-pri.p-medium { background: var(--amber-bg);  color: var(--amber-text); }
+  .eod-task-pri.p-low    { background: var(--green-bg);  color: var(--green-text); }
+  .eod-summary-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius); padding: 11px 13px; font-size: 14px; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
+  .eod-summary-input:focus { border-color: var(--teal); }
+  .eod-summary-input::placeholder { color: var(--text-3); }
+  .eod-wrap-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; border-radius: 10px; background: var(--teal-bg); color: var(--teal-text); border: 1.5px solid var(--teal); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .eod-wrap-btn:hover { opacity: 0.82; }
+  .eod-log-list { display: flex; flex-direction: column; gap: 8px; }
+  .eod-log-entry { background: var(--surface); border: 1px solid var(--border-md); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+  .eod-log-date { font-size: 12px; font-weight: 600; color: var(--teal-text); flex-shrink: 0; min-width: 80px; }
+  .eod-log-summary { font-size: 13px; color: var(--text); flex: 1; }
+  .eod-log-stats { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
+  .eod-log-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 3px; border-radius: 5px; }
+  .eod-log-del:hover { color: var(--coral-text); }
+  .eod-empty { font-size: 13px; color: var(--text-3); padding: 16px 0; text-align: center; }
 
   /* PROJECTS */
   #page-projects .header h1 i { color: var(--amber-text); }
@@ -1595,6 +1651,93 @@
       <div class="wl-list" id="wl-list"></div>
     </div>
     </div>
+    </div>
+  </div>
+
+  <!-- WEEKLY REVIEW PAGE -->
+  <div class="page" id="page-weekly-review">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-calendar-stats"></i> Weekly Review</h1>
+        <p>Reflect on the week — what worked, what didn't, and what's next</p>
+      </div>
+    </div>
+    <div class="split-grid" style="align-items:start;">
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> This week's review</div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="wr-section">
+              <div class="wr-label wrl-green"><i class="ti ti-thumb-up"></i> What went well?</div>
+              <textarea class="wr-textarea" id="wr-well" placeholder="Wins, positive moments, things you're proud of…"></textarea>
+            </div>
+            <div class="wr-section">
+              <div class="wr-label wrl-coral"><i class="ti ti-refresh-alert"></i> What could be better?</div>
+              <textarea class="wr-textarea" id="wr-better" placeholder="Challenges, frustrations, things to improve…"></textarea>
+            </div>
+            <div class="wr-section">
+              <div class="wr-label wrl-blue"><i class="ti ti-target"></i> Next week's main focus</div>
+              <textarea class="wr-textarea" id="wr-focus" placeholder="The one or two things that matter most next week…" style="min-height:70px;"></textarea>
+            </div>
+            <div class="wr-section">
+              <div class="wr-label wrl-purple"><i class="ti ti-rocket"></i> One career-goal action</div>
+              <textarea class="wr-textarea" id="wr-career" placeholder="A concrete step toward your next role or goal…" style="min-height:70px;"></textarea>
+            </div>
+            <div class="wr-save-row">
+              <button class="wr-save-btn" onclick="saveWeeklyReview()"><i class="ti ti-device-floppy"></i> Save review</button>
+              <span class="wr-saved-msg" id="wr-saved-msg"><i class="ti ti-check"></i> Saved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-history" style="font-size:13px"></i> Past reviews</div>
+          <div class="wr-history-list" id="wr-history-list"><div class="eod-empty">No reviews saved yet.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END OF DAY PAGE -->
+  <div class="page" id="page-end-of-day">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-moon"></i> End of Day</h1>
+        <p>Close the loop — clear your scratchpad, check open tasks, wrap up</p>
+      </div>
+    </div>
+    <div class="split-grid" style="align-items:start;">
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> Scratchpad</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:10px;">Review what you captured today. Convert anything important to a task, then clear it.</div>
+          <textarea class="eod-scratchpad" id="eod-scratchpad" placeholder="Your scratchpad is empty." oninput="eodSyncNotes()"></textarea>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button class="wr-save-btn" style="background:var(--surface2);color:var(--text-2);border-color:var(--border-md);" onclick="showPage('widgets')"><i class="ti ti-external-link"></i> Open widgets</button>
+            <button class="wr-save-btn" style="background:var(--coral-bg);color:var(--coral-text);border-color:var(--coral-text);" onclick="eodClearScratchpad()"><i class="ti ti-trash"></i> Clear scratchpad</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-list-check" style="font-size:13px"></i> Open tasks today</div>
+          <div class="eod-task-list" id="eod-task-list"><div class="eod-empty">All done — nothing open.</div></div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <div class="card-title"><i class="ti ti-moon" style="font-size:13px"></i> Wrap up</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:10px;">One sentence summarising today.</div>
+          <input class="eod-summary-input" id="eod-summary" placeholder="Today I…" />
+          <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+            <button class="eod-wrap-btn" onclick="eodCloseDay()"><i class="ti ti-check"></i> Close the day</button>
+            <span class="wr-saved-msg" id="eod-saved-msg"><i class="ti ti-check"></i> Logged</span>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <div class="card-title"><i class="ti ti-history" style="font-size:13px"></i> Daily log</div>
+          <div class="eod-log-list" id="eod-log-list"><div class="eod-empty">No entries yet.</div></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3366,8 +3509,10 @@ const PAGES = {
   message:   { title:'Daily Message', icon:'ti-message-2',        color:'c-purple', desc:'Generate your morning Teams message and break schedule.' },
   templates: { title:'Templates',     icon:'ti-template',         color:'c-coral',  desc:'Reusable message templates and common numbers.' },
   standup:   { title:'Stand up',      icon:'ti-presentation',     color:'c-pink',   desc:'Draft and elaborate your daily stand up talking points.' },
-  wishlist:  { title:'Wishlist',       icon:'ti-sparkles',          color:'c-purple', desc:'Ideas and future features for this project.' },
-  insights:  { title:'Insights',       icon:'ti-chart-pie',         color:'c-green',  desc:'At-a-glance productivity dashboard: completions, streak, meetings & AI usage.' },
+  wishlist:       { title:'Wishlist',        icon:'ti-sparkles',        color:'c-purple', desc:'Ideas and future features for this project.' },
+  insights:       { title:'Insights',        icon:'ti-chart-pie',       color:'c-green',  desc:'At-a-glance productivity dashboard: completions, streak, meetings & AI usage.' },
+  'weekly-review':{ title:'Weekly Review',   icon:'ti-calendar-stats',  color:'c-green',  desc:'Reflect on the week — wins, lessons, next focus, and one career action.' },
+  'end-of-day':   { title:'End of Day',      icon:'ti-moon',            color:'c-teal',   desc:'Close the loop — process your scratchpad, review open tasks, log your day.' },
 };
 const HUBS = ['helpdesk','projects','personal'];
 const HUB_META = {
@@ -3378,7 +3523,7 @@ const HUB_META = {
 const DEFAULT_HUB_LAYOUT = {
   helpdesk: ['kpi','meetings','message','templates','standup'],
   projects: ['meetings'],
-  personal: ['wishlist','insights'],
+  personal: ['wishlist','insights','weekly-review','end-of-day'],
 };
 let hubLayout = loadHubLayout(); // will be reloaded after dbLoad
 function loadHubLayout() {
@@ -3477,6 +3622,8 @@ function showPage(p, hub) {
   if (typeof updatePomoFloat === 'function') updatePomoFloat();
   if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
   if (p === 'insights' && typeof renderInsights === 'function') renderInsights();
+  if (p === 'end-of-day' && typeof initEndOfDay === 'function') initEndOfDay();
+  if (p === 'weekly-review' && typeof renderWeeklyReview === 'function') renderWeeklyReview();
   window.scrollTo(0, 0);
 }
 
@@ -7580,6 +7727,162 @@ function notesDismissResult() {
   _notesAiResult = '';
 }
 
+// ===== WEEKLY REVIEW =====
+let _wrReviews = [];
+function loadWrReviews() { _wrReviews = dbGet('zarif_weekly_reviews') || []; }
+function saveWrReviews() { dbSet('zarif_weekly_reviews', _wrReviews); }
+
+function getWeekLabel() {
+  const d = new Date();
+  const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const fmt = x => `${x.getDate()} ${MON_NAMES[x.getMonth()]}`;
+  return `Week of ${fmt(mon)} – ${fmt(sun)}`;
+}
+
+function saveWeeklyReview() {
+  const well   = (document.getElementById('wr-well')   || {}).value || '';
+  const better = (document.getElementById('wr-better') || {}).value || '';
+  const focus  = (document.getElementById('wr-focus')  || {}).value || '';
+  const career = (document.getElementById('wr-career') || {}).value || '';
+  if (!well && !better && !focus && !career) return;
+  _wrReviews.unshift({ id: Date.now(), weekLabel: getWeekLabel(), savedAt: new Date().toISOString(), well, better, focus, career });
+  saveWrReviews();
+  ['wr-well','wr-better','wr-focus','wr-career'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const msg = document.getElementById('wr-saved-msg');
+  if (msg) { msg.style.display = 'inline-flex'; setTimeout(() => { msg.style.display = 'none'; }, 2500); }
+  renderWeeklyReview();
+}
+
+function deleteWeeklyReview(id) {
+  _wrReviews = _wrReviews.filter(r => r.id !== id);
+  saveWrReviews();
+  renderWeeklyReview();
+}
+
+function toggleWrEntry(id) {
+  const body = document.getElementById('wre-body-' + id);
+  if (body) body.classList.toggle('open');
+}
+
+function renderWeeklyReview() {
+  const el = document.getElementById('wr-history-list');
+  if (!el) return;
+  if (!_wrReviews.length) { el.innerHTML = '<div class="eod-empty">No reviews saved yet.</div>'; return; }
+  el.innerHTML = _wrReviews.map(r => {
+    const saved = new Date(r.savedAt).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+    const sections = [
+      { label:'What went well', val: r.well,   cls:'wrl-green' },
+      { label:'Could be better', val: r.better, cls:'wrl-coral' },
+      { label:'Next week focus',  val: r.focus,  cls:'wrl-blue' },
+      { label:'Career action',    val: r.career, cls:'wrl-purple' },
+    ].filter(s => s.val);
+    return `<div class="wr-entry">
+      <div class="wr-entry-head" onclick="toggleWrEntry(${r.id})">
+        <div class="wr-entry-date">${esc(r.weekLabel)}</div>
+        <div class="wr-entry-saved">${saved}</div>
+        <button class="wr-entry-del" onclick="event.stopPropagation();deleteWeeklyReview(${r.id})"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="wr-entry-body" id="wre-body-${r.id}">
+        ${sections.map(s => `<div class="wr-entry-section"><div class="wr-entry-section-label ${s.cls}">${s.label}</div>${esc(s.val)}</div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== END OF DAY =====
+let _eodLog = [];
+function loadEodLog() { _eodLog = dbGet('zarif_eod_log') || []; }
+function saveEodLog() { dbSet('zarif_eod_log', _eodLog); }
+
+function initEndOfDay() {
+  loadEodLog();
+  const ta = document.getElementById('eod-scratchpad');
+  if (ta) ta.value = dbGet('zarif_notes') || '';
+  renderEodTasks();
+  renderEodLog();
+}
+
+function eodSyncNotes() {
+  const ta = document.getElementById('eod-scratchpad');
+  if (!ta) return;
+  dbSet('zarif_notes', ta.value);
+  const mainTa = document.getElementById('notes-textarea');
+  if (mainTa) { mainTa.value = ta.value; notesOnInput(); }
+}
+
+function eodClearScratchpad() {
+  if (!confirm('Clear the scratchpad?')) return;
+  const ta = document.getElementById('eod-scratchpad');
+  if (ta) ta.value = '';
+  dbSet('zarif_notes', '');
+  const mainTa = document.getElementById('notes-textarea');
+  if (mainTa) { mainTa.value = ''; notesOnInput(); }
+}
+
+function renderEodTasks() {
+  const el = document.getElementById('eod-task-list');
+  if (!el) return;
+  const open = getTodayTasks().filter(t => !isDone(t.id));
+  if (!open.length) { el.innerHTML = '<div class="eod-empty">All done — nothing open. ✓</div>'; return; }
+  el.innerHTML = open.map(t => {
+    const priCls = t.priority === 'HIGH' ? 'p-high' : t.priority === 'MEDIUM' ? 'p-medium' : 'p-low';
+    const priLbl = t.priority[0] + t.priority.slice(1).toLowerCase();
+    return `<div class="eod-task-item" id="eod-ti-${t.id}">
+      <div class="eod-task-cb" onclick="eodToggleTask('${t.id}')"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <span class="eod-task-name">${esc(t.name)}</span>
+      <span class="eod-task-pri ${priCls}">${priLbl}</span>
+    </div>`;
+  }).join('');
+}
+
+function eodToggleTask(id) {
+  toggle(id);
+  const item = document.getElementById('eod-ti-' + id);
+  if (item) {
+    const cb = item.querySelector('.eod-task-cb');
+    if (isDone(id)) { item.style.opacity = '0.4'; if (cb) cb.classList.add('done'); }
+    else { item.style.opacity = '1'; if (cb) cb.classList.remove('done'); }
+  }
+  renderTasks();
+}
+
+function eodCloseDay() {
+  const summary = (document.getElementById('eod-summary') || {}).value || '';
+  const todayTasks = getTodayTasks();
+  const done = todayTasks.filter(t => isDone(t.id)).length;
+  const total = todayTasks.length;
+  _eodLog.unshift({ id: Date.now(), date: todayInputDate(), summary, done, total });
+  saveEodLog();
+  const inp = document.getElementById('eod-summary');
+  if (inp) inp.value = '';
+  const msg = document.getElementById('eod-saved-msg');
+  if (msg) { msg.style.display = 'inline-flex'; setTimeout(() => { msg.style.display = 'none'; }, 2500); }
+  renderEodLog();
+}
+
+function deleteEodEntry(id) {
+  _eodLog = _eodLog.filter(e => e.id !== id);
+  saveEodLog();
+  renderEodLog();
+}
+
+function renderEodLog() {
+  const el = document.getElementById('eod-log-list');
+  if (!el) return;
+  if (!_eodLog.length) { el.innerHTML = '<div class="eod-empty">No entries yet.</div>'; return; }
+  el.innerHTML = _eodLog.slice(0, 14).map(e => {
+    const [y,m,d] = e.date.split('-').map(Number);
+    const label = `${d} ${MON_NAMES[m-1]}`;
+    return `<div class="eod-log-entry">
+      <div class="eod-log-date">${label}</div>
+      <div class="eod-log-summary">${e.summary ? esc(e.summary) : '<span style="color:var(--text-3);font-style:italic">No summary</span>'}</div>
+      <div class="eod-log-stats">${e.done}/${e.total} tasks</div>
+      <button class="eod-log-del" onclick="deleteEodEntry(${e.id})"><i class="ti ti-x"></i></button>
+    </div>`;
+  }).join('');
+}
+
 function initNotes() {
   const ta = document.getElementById('notes-textarea');
   if (!ta) return;
@@ -7652,6 +7955,8 @@ function initNotes() {
   renderMeetings();
   initNotes();
   renderWishlist();
+  loadWrReviews(); renderWeeklyReview();
+  loadEodLog(); renderEodLog();
   renderProjects();
   const mdh = document.getElementById('mtg-date-holder');
   if (mdh) mdh.innerHTML = makeDatePicker('mtg-date', todayInputDate(), null, 'Pick a date');
