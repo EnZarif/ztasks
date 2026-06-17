@@ -56,6 +56,7 @@
   .nav-btn[data-page="helpdesk"] i { background: var(--blue-bg); color: var(--blue-text); }
   .nav-btn[data-page="projects"] i { background: var(--amber-bg); color: var(--amber-text); }
   .nav-btn[data-page="personal"] i { background: var(--pink-bg); color: var(--pink-text); }
+  .nav-btn[data-page="widgets"] i { background: var(--coral-bg); color: var(--coral-text); }
   .nav-btn[data-page="settings"] i { background: var(--surface2); color: var(--text-2); }
   /* active: tinted pill + left accent bar (per hub) */
   .nav-btn.active { color: var(--text); font-weight: 500; }
@@ -63,6 +64,7 @@
   .nav-btn[data-page="helpdesk"].active { background: var(--blue-bg); box-shadow: inset 3px 0 0 #378ADD; }
   .nav-btn[data-page="projects"].active { background: var(--amber-bg); box-shadow: inset 3px 0 0 #EF9F27; }
   .nav-btn[data-page="personal"].active { background: var(--pink-bg); box-shadow: inset 3px 0 0 #D4537E; }
+  .nav-btn[data-page="widgets"].active { background: var(--coral-bg); box-shadow: inset 3px 0 0 #D25528; }
   .nav-btn[data-page="settings"].active { background: var(--surface2); box-shadow: inset 3px 0 0 var(--text-3); }
   .nav-bottom { margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 3px; }
   .theme-toggle-btn { width: 100%; padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; }
@@ -169,6 +171,27 @@
   .hub-grid .app-card:nth-child(5){animation-delay:.23s}
   .hub-grid .app-card:nth-child(6){animation-delay:.28s}
   @media (prefers-reduced-motion: reduce) { .app-card { animation: none; } }
+
+  /* WIDGETS PAGE */
+  .widget-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .widget-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 22px; }
+  .widget-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .widget-card-head i { font-size: 19px; color: var(--coral-text); background: var(--coral-bg); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .widget-card-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .pomo-modes { display: flex; gap: 6px; margin-bottom: 18px; }
+  .pomo-mode-btn { flex: 1; padding: 7px 0; font-size: 12px; font-weight: 500; font-family: inherit; border-radius: var(--radius); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-2); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .pomo-mode-btn.active { background: var(--coral-bg); color: var(--coral-text); border-color: transparent; }
+  .pomo-display { font-size: 52px; font-weight: 600; text-align: center; letter-spacing: 0.02em; margin: 4px 0 14px; font-variant-numeric: tabular-nums; color: var(--text); }
+  .pomo-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); margin-bottom: 16px; }
+  .pomo-controls { display: flex; gap: 8px; margin-bottom: 18px; }
+  .pomo-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; font-family: inherit; border: none; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity 0.15s; }
+  .pomo-btn.primary { background: var(--teal); color: #fff; }
+  .pomo-btn.primary:hover { opacity: 0.88; }
+  .pomo-btn.secondary { background: var(--surface2); color: var(--text-2); }
+  .pomo-btn.secondary:hover { color: var(--text); }
+  .pomo-settings { display: flex; gap: 10px; padding-top: 14px; border-top: 0.5px solid var(--border); }
+  .pomo-settings label { flex: 1; font-size: 11px; color: var(--text-3); display: flex; flex-direction: column; gap: 5px; }
+  .pomo-settings input { width: 100%; padding: 6px 8px; font-size: 12px; font-family: inherit; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; }
 
   /* DASHBOARD */
   .dash-grid { display: flex; gap: 16px; align-items: center; }
@@ -580,6 +603,7 @@
   <div class="nav-logo"><div class="nav-logo-icon"><i class="ti ti-checklist"></i></div><span>Zarif Central Hub</span></div>
   <div class="nav-links">
     <button class="nav-btn active" data-page="home" onclick="showPage('home')"><i class="ti ti-home"></i><span>Home</span></button>
+    <button class="nav-btn" data-page="widgets" onclick="showPage('widgets')"><i class="ti ti-apps"></i><span>Widgets</span></button>
     <div class="nav-section-label">Hubs</div>
     <div class="nav-group" id="nav-group-helpdesk">
       <div class="nav-group-head">
@@ -666,6 +690,37 @@
       <p>Your own personal space.</p>
     </div>
     <div class="hub-grid" id="hub-grid-personal"></div>
+  </div>
+
+  <!-- WIDGETS PAGE -->
+  <div class="page" id="page-widgets">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-apps" style="color:var(--coral-text);"></i> Widgets</h1>
+        <p>Small standalone tools you can reach from anywhere.</p>
+      </div>
+    </div>
+    <div class="widget-grid">
+      <div class="widget-card">
+        <div class="widget-card-head"><i class="ti ti-hourglass-high"></i><div class="widget-card-title">Pomodoro Timer</div></div>
+        <div class="pomo-modes">
+          <button class="pomo-mode-btn active" data-mode="focus" onclick="pomoSetMode('focus')">Focus</button>
+          <button class="pomo-mode-btn" data-mode="short" onclick="pomoSetMode('short')">Short break</button>
+          <button class="pomo-mode-btn" data-mode="long" onclick="pomoSetMode('long')">Long break</button>
+        </div>
+        <div class="pomo-display" id="pomo-display">25:00</div>
+        <div class="pomo-meta"><span id="pomo-session-label">Session 1 of 4</span><span id="pomo-mode-label">Focus</span></div>
+        <div class="pomo-controls">
+          <button class="pomo-btn primary" id="pomo-toggle-btn" onclick="pomoToggle()"><i class="ti ti-player-play"></i> Start</button>
+          <button class="pomo-btn secondary" onclick="pomoReset()"><i class="ti ti-refresh"></i> Reset</button>
+        </div>
+        <div class="pomo-settings">
+          <label>Focus (min)<input type="number" min="1" max="120" id="pomo-dur-focus" value="25" onchange="pomoSaveDurations()"></label>
+          <label>Short break<input type="number" min="1" max="60" id="pomo-dur-short" value="5" onchange="pomoSaveDurations()"></label>
+          <label>Long break<input type="number" min="1" max="60" id="pomo-dur-long" value="15" onchange="pomoSaveDurations()"></label>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- TASKS PAGE -->
@@ -1863,7 +1918,7 @@ function moveTask(id, dir) {
 
 let currentHub = null;
 let currentPage = 'home';
-const HUB_PAGES = ['home','helpdesk','projects','personal'];
+const HUB_PAGES = ['home','helpdesk','projects','personal','widgets'];
 
 // ---- Hub / page registry ----
 const PAGES = {
@@ -4105,6 +4160,124 @@ function elaboratePoint(id, btn) {
   openAiModal('standup', id);
 }
 
+// ---- Pomodoro timer widget ----
+const POMO_DEFAULTS = { focus: 25, short: 5, long: 15 };
+let pomoDurations = loadPomoDurations();
+let pomoMode = 'focus';
+let pomoRemaining = pomoDurations.focus * 60;
+let pomoRunning = false;
+let pomoIntervalId = null;
+let pomoSessionsCompleted = 0;
+const pomoOrigTitle = document.title;
+
+function loadPomoDurations() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('zarif_pomodoro_durations') || '{}') || {}; } catch(e) {}
+  return {
+    focus: saved.focus || POMO_DEFAULTS.focus,
+    short: saved.short || POMO_DEFAULTS.short,
+    long: saved.long || POMO_DEFAULTS.long,
+  };
+}
+
+function pomoSaveDurations() {
+  pomoDurations.focus = Math.max(1, parseInt(document.getElementById('pomo-dur-focus').value) || POMO_DEFAULTS.focus);
+  pomoDurations.short = Math.max(1, parseInt(document.getElementById('pomo-dur-short').value) || POMO_DEFAULTS.short);
+  pomoDurations.long = Math.max(1, parseInt(document.getElementById('pomo-dur-long').value) || POMO_DEFAULTS.long);
+  localStorage.setItem('zarif_pomodoro_durations', JSON.stringify(pomoDurations));
+  if (!pomoRunning) { pomoRemaining = pomoDurations[pomoMode] * 60; pomoRenderDisplay(); }
+}
+
+function pomoSetMode(mode) {
+  if (pomoRunning) pomoToggle();
+  pomoMode = mode;
+  pomoRemaining = pomoDurations[mode] * 60;
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  pomoRenderDisplay();
+}
+
+function pomoToggle() {
+  const btn = document.getElementById('pomo-toggle-btn');
+  if (pomoRunning) {
+    pomoRunning = false;
+    clearInterval(pomoIntervalId);
+    if (btn) btn.innerHTML = '<i class="ti ti-player-play"></i> Start';
+    document.title = pomoOrigTitle;
+  } else {
+    pomoRunning = true;
+    if (btn) btn.innerHTML = '<i class="ti ti-player-pause"></i> Pause';
+    pomoIntervalId = setInterval(pomoTick, 1000);
+  }
+}
+
+function pomoTick() {
+  pomoRemaining--;
+  if (pomoRemaining <= 0) { pomoComplete(); return; }
+  pomoRenderDisplay();
+}
+
+function pomoComplete() {
+  pomoBeep();
+  if (pomoMode === 'focus') {
+    pomoSessionsCompleted++;
+    pomoMode = (pomoSessionsCompleted % 4 === 0) ? 'long' : 'short';
+  } else {
+    pomoMode = 'focus';
+  }
+  pomoRemaining = pomoDurations[pomoMode] * 60;
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === pomoMode));
+  pomoRenderDisplay();
+}
+
+function pomoReset() {
+  pomoRunning = false;
+  clearInterval(pomoIntervalId);
+  const btn = document.getElementById('pomo-toggle-btn');
+  if (btn) btn.innerHTML = '<i class="ti ti-player-play"></i> Start';
+  document.title = pomoOrigTitle;
+  pomoSessionsCompleted = 0;
+  pomoMode = 'focus';
+  pomoRemaining = pomoDurations.focus * 60;
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'focus'));
+  pomoRenderDisplay();
+}
+
+function pomoRenderDisplay() {
+  const m = Math.floor(pomoRemaining / 60);
+  const s = pomoRemaining % 60;
+  const txt = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  const disp = document.getElementById('pomo-display');
+  if (disp) disp.textContent = txt;
+  const modeLabel = document.getElementById('pomo-mode-label');
+  if (modeLabel) modeLabel.textContent = pomoMode === 'focus' ? 'Focus' : pomoMode === 'short' ? 'Short break' : 'Long break';
+  const sessLabel = document.getElementById('pomo-session-label');
+  if (sessLabel) sessLabel.textContent = 'Session ' + ((pomoSessionsCompleted % 4) + 1) + ' of 4';
+  if (pomoRunning) document.title = txt + ' · ' + (pomoMode === 'focus' ? 'Focus' : 'Break');
+}
+
+function pomoBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function pomoInit() {
+  const fi = document.getElementById('pomo-dur-focus'); if (fi) fi.value = pomoDurations.focus;
+  const si = document.getElementById('pomo-dur-short'); if (si) si.value = pomoDurations.short;
+  const li = document.getElementById('pomo-dur-long'); if (li) li.value = pomoDurations.long;
+  pomoRemaining = pomoDurations.focus * 60;
+  pomoRenderDisplay();
+}
+
 loadSettings();
 renderHubs();
 renderBreakTable();
@@ -4115,6 +4288,7 @@ renderStandup();
 renderTemplates();
 renderNumbers();
 renderMeetings();
+pomoInit();
 </script>
 </body>
 </html>
