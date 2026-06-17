@@ -3148,7 +3148,7 @@ function showPage(p, hub) {
   const HUB_BACK_COLOR = { home:'pb-home', helpdesk:'pb-helpdesk', projects:'pb-projects', personal:'pb-personal', tasks:'pb-tasks' };
   if (back) {
     back.classList.remove('pb-home','pb-helpdesk','pb-projects','pb-personal','pb-tasks');
-    if (p === 'home') {
+    if (p === 'home' || p === 'projdetail') {
       back.style.display = 'none';
     } else if (TOP_LEVEL.includes(p)) {
       back.style.display = 'inline-flex';
