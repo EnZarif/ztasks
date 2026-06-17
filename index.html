@@ -505,7 +505,8 @@
   .proj-sub-dot.pstatus-active    { background: var(--green-text); }
   .proj-sub-dot.pstatus-onhold    { background: var(--amber-text); }
   .proj-sub-dot.pstatus-delivered { background: var(--text-3); }
-  .proj-sub-name { font-size: 12px; color: var(--text); flex: 1; min-width: 0; }
+  .proj-sub-name { font-size: 12px; color: var(--text); flex: 1; min-width: 0; cursor: pointer; }
+  .proj-sub-name-input { font: inherit; font-size: 12px; color: var(--text); background: var(--surface); border: 1.5px solid var(--teal); border-radius: 5px; outline: none; padding: 1px 5px; width: 100%; min-width: 0; flex: 1; }
   .proj-sub-name.delivered { text-decoration: line-through; color: var(--text-3); }
   .proj-sub-status { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
   .proj-sub-date { font-size: 10px; color: var(--text-3); flex-shrink: 0; }
@@ -5129,7 +5130,7 @@ function openProjectPage(projId) {
     const sLbl = subStatusLabel(s.status);
     return `<div class="proj-sub-row" style="cursor:pointer" onclick="openSubProjectPage(${projId},${s.id})">
       <div class="proj-sub-dot ${sCls}"></div>
-      <span class="proj-sub-name${s.status==='delivered'?' delivered':''}">${esc(s.title)}</span>
+      <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" title="Double-click to rename" ondblclick="event.stopPropagation();inlineRenameSubCard(${projId},${s.id},this)" id="subname-${projId}-${s.id}">${esc(s.title)}</span>
       <span class="proj-sub-status ${sCls}">${sLbl}</span>
       ${s.deliveredAt ? `<span class="proj-sub-date">${new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>` : ''}
       <i class="ti ti-chevron-right" style="font-size:13px;color:var(--text-3);margin-left:auto;flex-shrink:0"></i>
@@ -5201,7 +5202,7 @@ function openSubProjectPage(projId, subId) {
       <div class="proj-detail-banner" style="background:${style.bg}">
         <i class="ti ti-layout-kanban proj-detail-icon"></i>
         <div style="flex:1;min-width:0">
-          <div class="proj-detail-title">${esc(s.title)}</div>
+          <div class="proj-detail-title" title="Click to rename" style="cursor:text" onclick="startSubTitleEdit(${projId},${subId})" id="spd-title-${subId}">${esc(s.title)}</div>
           <div class="proj-detail-meta">${typeLabel} · ${esc(p.title)}${dateNote}</div>
         </div>
       </div>
@@ -5296,6 +5297,50 @@ function saveSubField(projId, subId, field, val) {
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
   if (s) { s[field] = val; saveProjects(); }
+}
+
+function inlineRenameSubCard(projId, subId, el) {
+  if (el.querySelector('input')) return;
+  const p = projects.find(x => x.id === projId);
+  const s = p && (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const orig = s.title;
+  const inp = document.createElement('input');
+  inp.className = 'proj-sub-name-input';
+  inp.value = orig;
+  el.textContent = '';
+  el.appendChild(inp);
+  el.onclick = null;
+  inp.focus(); inp.select();
+  function commit() {
+    const val = inp.value.trim() || orig;
+    saveSubField(projId, subId, 'title', val);
+    renderProjects();
+    if (currentPage === 'projdetail') openSubProjectPage(projId, subId);
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } if (e.key === 'Escape') { inp.value = orig; inp.blur(); } });
+}
+
+function startSubTitleEdit(projId, subId) {
+  const el = document.getElementById('spd-title-' + subId);
+  if (!el || el.querySelector('input')) return;
+  const p = projects.find(x => x.id === projId);
+  const s = p && (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const orig = s.title;
+  el.innerHTML = `<input id="spd-title-input-${subId}" class="spd-title-input" value="${esc(orig)}" style="font:inherit;font-size:inherit;font-weight:inherit;color:inherit;background:rgba(255,255,255,0.15);border:none;border-bottom:2px solid rgba(255,255,255,0.6);outline:none;width:100%;border-radius:0;padding:2px 0;">`;
+  el.onclick = null;
+  const inp = document.getElementById('spd-title-input-' + subId);
+  inp.focus(); inp.select();
+  function commit() {
+    const val = inp.value.trim() || orig;
+    saveSubField(projId, subId, 'title', val);
+    renderProjects();
+    openSubProjectPage(projId, subId);
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } if (e.key === 'Escape') { inp.value = orig; inp.blur(); } });
 }
 
 function hasAiKey() {
@@ -5547,7 +5592,7 @@ function renderProjects() {
       const delivDate = s.deliveredAt ? new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'}) : '';
       return `<div class="proj-sub-row">
         <div class="proj-sub-dot ${sColor}"></div>
-        <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" style="cursor:pointer" onclick="openSubProjectPage(${p.id},${s.id})">${esc(s.title)}</span>
+        <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" title="Click to open · Double-click to rename" onclick="openSubProjectPage(${p.id},${s.id})" ondblclick="event.stopPropagation();inlineRenameSubCard(${p.id},${s.id},this)" id="subname-${p.id}-${s.id}">${esc(s.title)}</span>
         ${makeStatusDropdown('subrow-st-' + s.id, s.status, v => setSubStatusVal(p.id, s.id, v), null, SUB_STATUS_OPTIONS)}
         ${delivDate ? `<span class="proj-sub-date">${delivDate}</span>` : ''}
         <button class="proj-sub-open-btn" onclick="openSubProjectPage(${p.id},${s.id})" title="Open"><i class="ti ti-arrow-up-right"></i></button>
@@ -5725,6 +5770,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.12.1', type: 'patch', date: '17 Jun 2026', title: 'Editable sub-project names', changes: [
+    'Double-click any sub-project name in the card list to rename it inline',
+    'Click the title on the sub-project detail page to rename it',
+    'Press Enter to confirm or Escape to cancel — changes persist immediately',
+  ]},
   { ver: '3.12.0', type: 'minor', date: '17 Jun 2026', title: 'Checklist statuses & detail pages', changes: [
     'Every checklist item now has its own status dropdown (Planning, In progress, On hold, Awaiting third-party, Pending action, Due, Delivered)',
     'Setting a checklist item to Delivered also ticks it off',
