@@ -583,6 +583,23 @@
   .spd-todo-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 5px; }
   .spd-todo-del:hover { color: #ef4444; }
   .spd-todo-progress { font-size: 11px; color: var(--text-3); margin-bottom: 8px; }
+  /* notes/deliverables as records */
+  .spd-record-add { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+  .spd-record-textarea { width: 100%; padding: 9px 12px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: 10px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; resize: vertical; min-height: 70px; box-sizing: border-box; line-height: 1.6; transition: border-color 0.15s; }
+  .spd-record-textarea:focus { border-color: var(--text-3); }
+  .spd-record-submit { align-self: flex-end; font-size: 12px; padding: 6px 14px; border-radius: 9px; border: 0.5px solid var(--border-md); background: var(--surface2); color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .spd-record-submit:hover { color: var(--text); border-color: var(--text-3); }
+  .spd-record-list { display: flex; flex-direction: column; gap: 8px; }
+  .spd-record-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 10px 12px; position: relative; }
+  .spd-record-meta { font-size: 10px; color: var(--text-3); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+  .spd-record-text { font-size: 13px; color: var(--text); white-space: pre-wrap; line-height: 1.6; }
+  .spd-record-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 12px; padding: 1px 4px; border-radius: 5px; }
+  .spd-record-del:hover { color: #ef4444; }
+  /* due date badge in sub-project row */
+  .proj-sub-due { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
+  .proj-sub-due.due-ok { background: var(--teal-bg,rgba(20,184,166,0.12)); color: var(--teal-text,#14b8a6); }
+  .proj-sub-due.due-soon { background: rgba(239,159,39,0.15); color: #ef9f27; }
+  .proj-sub-due.due-overdue { background: rgba(239,68,68,0.15); color: #ef4444; }
 
   /* ===== REUSABLE DATE PICKER ===== */
   .dp-wrap { position: relative; display: block; width: 100%; }
@@ -5132,7 +5149,7 @@ function openProjectPage(projId) {
       <div class="proj-sub-dot ${sCls}"></div>
       <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" title="Double-click to rename" ondblclick="event.stopPropagation();inlineRenameSubCard(${projId},${s.id},this)" id="subname-${projId}-${s.id}">${esc(s.title)}</span>
       <span class="proj-sub-status ${sCls}">${sLbl}</span>
-      ${s.deliveredAt ? `<span class="proj-sub-date">${new Date(s.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>` : ''}
+      ${subDueBadge(s)}
       <i class="ti ti-chevron-right" style="font-size:13px;color:var(--text-3);margin-left:auto;flex-shrink:0"></i>
     </div>`;
   }).join('');
@@ -5238,7 +5255,7 @@ function openSubProjectPage(projId, subId) {
 
       <div class="proj-detail-section">
         <div class="proj-detail-section-title">Deliverables</div>
-        <textarea class="proj-detail-textarea" placeholder="What needs to be delivered? Describe the expected output or outcome…" oninput="saveSubField(${projId},${subId},'deliverables',this.value)">${esc(s.deliverables||'')}</textarea>
+        ${renderRecordSection('deliverables', projId, subId, s.deliverables)}
       </div>
 
       <div class="proj-detail-section">
@@ -5256,7 +5273,7 @@ function openSubProjectPage(projId, subId) {
 
       <div class="proj-detail-section">
         <div class="proj-detail-section-title">Notes</div>
-        <textarea class="proj-detail-textarea" placeholder="Context, blockers, decisions, progress updates…" oninput="saveSubField(${projId},${subId},'note',this.value)">${esc(s.note||'')}</textarea>
+        ${renderRecordSection('notes', projId, subId, s.notes)}
       </div>
 
     </div>`;
@@ -5292,11 +5309,86 @@ function saveSubNote(projId, subId, val) {
   saveSubField(projId, subId, 'note', val);
 }
 
+function _getRecords(s, field) {
+  const raw = s[field];
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  // migrate old string value into a single record
+  if (typeof raw === 'string' && raw.trim()) return [{ id: Date.now(), text: raw.trim(), createdAt: new Date().toISOString() }];
+  return [];
+}
+
+function renderRecordSection(field, projId, subId, rawVal) {
+  const recs = (() => {
+    if (!rawVal) return [];
+    if (Array.isArray(rawVal)) return rawVal;
+    if (typeof rawVal === 'string' && rawVal.trim()) return [{ id: Date.now(), text: rawVal.trim(), createdAt: new Date().toISOString() }];
+    return [];
+  })();
+  const ph = field === 'deliverables' ? 'Describe the deliverable or expected output…' : 'Add a note, blocker, decision, or update…';
+  const items = recs.slice().reverse().map(r => {
+    const d = new Date(r.createdAt);
+    const dateStr = d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="spd-record-item" id="rec-${r.id}">
+      <div class="spd-record-meta">
+        <span>${dateStr}</span>
+        <button class="spd-record-del" onclick="deleteSubRecord(${projId},${subId},'${field}',${r.id})" title="Delete"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="spd-record-text">${esc(r.text)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="spd-record-add">
+    <textarea class="spd-record-textarea" id="rec-inp-${field}-${subId}" placeholder="${ph}" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();addSubRecord(${projId},${subId},'${field}')}"></textarea>
+    <button class="spd-record-submit" onclick="addSubRecord(${projId},${subId},'${field}')"><i class="ti ti-send" style="font-size:12px"></i> Submit</button>
+  </div>
+  ${items ? `<div class="spd-record-list">${items}</div>` : '<div style="font-size:12px;color:var(--text-3)">No entries yet.</div>'}`;
+}
+
+function addSubRecord(projId, subId, field) {
+  const inp = document.getElementById(`rec-inp-${field}-${subId}`);
+  if (!inp) return;
+  const text = inp.value.trim();
+  if (!text) return;
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const recs = _getRecords(s, field);
+  recs.push({ id: Date.now() + Math.floor(Math.random()*1000), text, createdAt: new Date().toISOString() });
+  s[field] = recs;
+  saveProjects();
+  openSubProjectPage(projId, subId);
+}
+
+function deleteSubRecord(projId, subId, field, recId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  const recs = _getRecords(s, field);
+  s[field] = recs.filter(r => r.id !== recId);
+  saveProjects();
+  openSubProjectPage(projId, subId);
+}
+
 function saveSubField(projId, subId, field, val) {
   const p = projects.find(x => x.id === projId);
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
   if (s) { s[field] = val; saveProjects(); }
+}
+
+function subDueBadge(s) {
+  if (!s.dueDate || s.status === 'delivered') return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = new Date(s.dueDate); due.setHours(0,0,0,0);
+  const days = Math.round((due - today) / 86400000);
+  let cls, label;
+  if (days < 0) { cls = 'due-overdue'; label = `${Math.abs(days)}d overdue`; }
+  else if (days === 0) { cls = 'due-soon'; label = 'Due today'; }
+  else if (days <= 7) { cls = 'due-soon'; label = `${days}d left`; }
+  else { cls = 'due-ok'; label = due.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }
+  return `<span class="proj-sub-due ${cls}">${label}</span>`;
 }
 
 function inlineRenameSubCard(projId, subId, el) {
@@ -5594,7 +5686,7 @@ function renderProjects() {
         <div class="proj-sub-dot ${sColor}"></div>
         <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" title="Click to open · Double-click to rename" onclick="openSubProjectPage(${p.id},${s.id})" ondblclick="event.stopPropagation();inlineRenameSubCard(${p.id},${s.id},this)" id="subname-${p.id}-${s.id}">${esc(s.title)}</span>
         ${makeStatusDropdown('subrow-st-' + s.id, s.status, v => setSubStatusVal(p.id, s.id, v), null, SUB_STATUS_OPTIONS)}
-        ${delivDate ? `<span class="proj-sub-date">${delivDate}</span>` : ''}
+        ${subDueBadge(s)}
         <button class="proj-sub-open-btn" onclick="openSubProjectPage(${p.id},${s.id})" title="Open"><i class="ti ti-arrow-up-right"></i></button>
         <button class="proj-sub-del" onclick="deleteSubProject(${p.id},${s.id})" title="Delete"><i class="ti ti-trash"></i></button>
       </div>`;
@@ -5770,6 +5862,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.13.0', type: 'minor', date: '17 Jun 2026', title: 'Record-based notes/deliverables & due date badges', changes: [
+    'Notes and Deliverables are now timestamped records — submit entries individually, delete any entry',
+    'Old free-text values are automatically migrated to a single record',
+    'Sub-project rows in the card now show a due date / days-remaining badge (green > 7 days, amber ≤ 7, red = overdue)',
+    'Ctrl+Enter submits a record from the textarea',
+  ]},
   { ver: '3.12.1', type: 'patch', date: '17 Jun 2026', title: 'Editable sub-project names', changes: [
     'Double-click any sub-project name in the card list to rename it inline',
     'Click the title on the sub-project detail page to rename it',
