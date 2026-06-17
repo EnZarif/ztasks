@@ -1249,10 +1249,35 @@
   .ins-feed-empty { font-size: 12.5px; color: var(--text-3); text-align: center; padding: 24px 0; }
   .ins-empty-hint { font-size: 11.5px; color: var(--text-3); margin-top: 10px; display: flex; align-items: center; gap: 6px; }
 
+  /* Time-of-day: peak window headline */
+  .ins-peak { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .ins-peak-ico { width: 52px; height: 52px; border-radius: 14px; background: var(--teal-bg); color: var(--teal-text); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .ins-peak-window { font-size: 28px; font-weight: 600; color: var(--text); letter-spacing: -0.5px; line-height: 1.1; }
+  .ins-peak-cap { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+  .ins-tod-substats { display: flex; gap: 22px; flex-wrap: wrap; margin-left: auto; }
+  .ins-tod-sub-n { font-size: 17px; font-weight: 600; color: var(--text); }
+  .ins-tod-sub-l { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  /* hourly bar chart */
+  .ins-hours { display: flex; align-items: flex-end; gap: 3px; height: 116px; margin-top: 18px; }
+  .ins-hour-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+  .ins-hour-track { width: 100%; flex: 1; display: flex; align-items: flex-end; justify-content: center; }
+  .ins-hour-bar { width: 100%; max-width: 18px; border-radius: 3px 3px 1px 1px; background: var(--teal-bg); min-height: 3px; transition: height 0.6s cubic-bezier(.2,.85,.25,1); }
+  .ins-hour-bar.peak { background: linear-gradient(180deg, var(--teal) 0%, var(--teal-text) 100%); }
+  .ins-hour-lbl { font-size: 9.5px; color: var(--text-3); height: 11px; white-space: nowrap; }
+  /* heatmap */
+  .ins-heat-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .ins-heat { display: grid; grid-template-columns: 32px repeat(24, 1fr); gap: 3px; align-items: center; min-width: 520px; }
+  .ins-heat-rowlbl { font-size: 10.5px; color: var(--text-3); padding-right: 4px; }
+  .ins-heat-collbl { font-size: 9px; color: var(--text-3); text-align: center; height: 12px; }
+  .ins-heat-cell { aspect-ratio: 1; border-radius: 2px; background: var(--teal); }
+  .ins-heat-legend { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--text-3); margin-top: 12px; justify-content: flex-end; }
+  .ins-heat-legend-cell { width: 13px; height: 13px; border-radius: 2px; background: var(--teal); }
+
   @media (max-width: 880px) {
     .ins-layout { grid-template-columns: 1fr; }
     .ins-kpis { grid-template-columns: 1fr 1fr; }
     .ins-chart { height: 160px; }
+    .ins-tod-substats { margin-left: 0; width: 100%; }
   }
 </style>
 </head>
@@ -2669,6 +2694,33 @@ const INS_FEED_META = {
   ai:      { ico: 'ti-sparkles',     cls: 'c-purple',label: 'Used AI assist' },
 };
 
+// hour (0-23) -> "9am"
+function fmtHour(h) {
+  h = ((h % 24) + 24) % 24;
+  const ap = h < 12 ? 'am' : 'pm';
+  return (h % 12 || 12) + ap;
+}
+const INS_WD_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const INS_WD_LONG = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+// bucket task-completion events by Melbourne hour & weekday
+function insTimeOfDay(log) {
+  const hourCounts = new Array(24).fill(0);
+  const heat = Array.from({ length: 7 }, () => new Array(24).fill(0));
+  const dayCounts = new Array(7).fill(0);
+  const WD = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  let totalMin = 0, n = 0;
+  log.forEach(a => {
+    if (a.type !== 'task') return;
+    const h = melbHourOfTs(a.t);
+    const mm = Number(melbFmt({ minute: '2-digit' }, a.t)) || 0;
+    const wi = WD[melbFmt({ weekday: 'short' }, a.t)];
+    if (wi == null) return;
+    hourCounts[h]++; dayCounts[wi]++; heat[wi][h]++;
+    totalMin += h * 60 + mm; n++;
+  });
+  return { hourCounts, heat, dayCounts, totalMin, n };
+}
+
 function renderInsights() {
   const body = document.getElementById('ins-body');
   if (!body) return;
@@ -2748,6 +2800,37 @@ function renderInsights() {
   }).join('');
 
   const noData = log.length === 0;
+
+  // ---- time-of-day analytics (#1 hourly chart, #2 heatmap, #3 peak window) ----
+  const tod = insTimeOfDay(log);
+  const maxHour = Math.max(1, ...tod.hourCounts);
+  const peakHour = tod.n ? tod.hourCounts.indexOf(maxHour) : -1;
+  const avgMin = tod.n ? Math.round(tod.totalMin / tod.n) : 0;
+  const avgTimeStr = tod.n ? fmtTime(`${String(Math.floor(avgMin / 60)).padStart(2,'0')}:${String(avgMin % 60).padStart(2,'0')}`) : '—';
+  const peakDayIdx = tod.n ? tod.dayCounts.indexOf(Math.max(...tod.dayCounts)) : -1;
+  const peakWindow = peakHour >= 0 ? `${fmtHour(peakHour)}–${fmtHour(peakHour + 2)}` : '—';
+  const maxHeat = Math.max(1, ...tod.heat.flat());
+
+  const hourBars = tod.hourCounts.map((c, h) => {
+    const pk = c === maxHour && c > 0;
+    const ht = c ? Math.max(Math.round(c / maxHour * 100), 8) : 3;
+    const lbl = (h % 6 === 0) ? fmtHour(h) : '';
+    return `<div class="ins-hour-col" title="${fmtHour(h)}: ${c} task${c===1?'':'s'}">
+      <div class="ins-hour-track"><div class="ins-hour-bar${pk ? ' peak' : ''}" style="height:${ht}%"></div></div>
+      <div class="ins-hour-lbl">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  const heatCollbls = ['<div></div>'].concat(
+    Array.from({ length: 24 }, (_, h) => `<div class="ins-heat-collbl">${h % 6 === 0 ? fmtHour(h) : ''}</div>`)
+  ).join('');
+  const heatRows = tod.heat.map((row, wi) => {
+    const cells = row.map((c, h) => {
+      const op = c === 0 ? 0.07 : (0.2 + 0.8 * (c / maxHeat)).toFixed(2);
+      return `<div class="ins-heat-cell" style="opacity:${op}" title="${INS_WD_LONG[wi]} ${fmtHour(h)}: ${c} task${c===1?'':'s'}"></div>`;
+    }).join('');
+    return `<div class="ins-heat-rowlbl">${INS_WD_SHORT[wi]}</div>${cells}`;
+  }).join('');
 
   body.innerHTML = `
     <div class="ins-kpis">
@@ -2830,6 +2913,55 @@ function renderInsights() {
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="ins-card" style="margin-top:16px">
+      <div class="ins-card-head">
+        <div>
+          <div class="ins-card-title">When you're most productive</div>
+          <div class="ins-card-sub">Tasks completed by hour of day (Melbourne)</div>
+        </div>
+        <div class="ins-card-sub"><i class="ti ti-clock-hour-9" style="font-size:13px"></i></div>
+      </div>
+      ${tod.n === 0 ? `<div class="ins-feed-empty">No completions logged yet — tick off some tasks and your peak hours will appear here.</div>` : `
+      <div class="ins-peak">
+        <div class="ins-peak-ico"><i class="ti ti-sun-high"></i></div>
+        <div>
+          <div class="ins-peak-window">${peakWindow}</div>
+          <div class="ins-peak-cap">Your most productive window</div>
+        </div>
+        <div class="ins-tod-substats">
+          <div><div class="ins-tod-sub-n">${avgTimeStr}</div><div class="ins-tod-sub-l">Avg. completion time</div></div>
+          <div><div class="ins-tod-sub-n">${peakDayIdx >= 0 ? INS_WD_LONG[peakDayIdx] : '—'}</div><div class="ins-tod-sub-l">Most active day</div></div>
+          <div><div class="ins-tod-sub-n">${tod.n}</div><div class="ins-tod-sub-l">Tasks analysed</div></div>
+        </div>
+      </div>
+      <div class="ins-hours">${hourBars}</div>`}
+    </div>
+
+    <div class="ins-card" style="margin-top:16px">
+      <div class="ins-card-head">
+        <div>
+          <div class="ins-card-title">Activity heatmap</div>
+          <div class="ins-card-sub">When in the week you get things done</div>
+        </div>
+        <div class="ins-card-sub"><i class="ti ti-layout-grid" style="font-size:13px"></i></div>
+      </div>
+      ${tod.n === 0 ? `<div class="ins-feed-empty">Nothing to map yet — completions will fill this grid over time.</div>` : `
+      <div class="ins-heat-wrap">
+        <div class="ins-heat">
+          ${heatCollbls}
+          ${heatRows}
+        </div>
+      </div>
+      <div class="ins-heat-legend">
+        <span>Less</span>
+        <span class="ins-heat-legend-cell" style="opacity:0.15"></span>
+        <span class="ins-heat-legend-cell" style="opacity:0.45"></span>
+        <span class="ins-heat-legend-cell" style="opacity:0.75"></span>
+        <span class="ins-heat-legend-cell" style="opacity:1"></span>
+        <span>More</span>
+      </div>`}
     </div>`;
 }
 
@@ -6676,6 +6808,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.19.0', type: 'minor', date: '17 Jun 2026', title: 'Time-of-day insights', changes: [
+    'New "When you\'re most productive" card showing your peak window, average completion time and most active day',
+    'Hourly bar chart of task completions across the day (Melbourne time), peak hour highlighted',
+    'Activity heatmap — a day-of-week × hour grid showing when in the week you get things done',
+    'All powered by completion timestamps already captured by the activity log',
+  ]},
   { ver: '3.18.2', type: 'patch', date: '17 Jun 2026', title: 'Clock moved to top-right corner', changes: [
     'The clock card now sits in the top-right corner of every page, opposite the back button',
     'Shows on all pages (not just the Tasks hero), wrapping below the back button on narrow screens',
