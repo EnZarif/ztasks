@@ -196,8 +196,6 @@
   .header h1 { font-size: 20px; font-weight: 500; letter-spacing: -0.2px; display: flex; align-items: center; gap: 8px; }
   .header h1 i { font-size: 18px; color: var(--teal); }
   .header p { font-size: 13px; color: var(--text-2); margin-top: 3px; }
-  .date-pill { font-size: 12px; color: var(--text-2); background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 20px; padding: 5px 12px; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
-  .date-pill i { font-size: 13px; color: var(--text-3); }
   .section-header { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 1.2rem 0 8px; display: flex; align-items: center; gap: 8px; }
   .section-header .sec-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .section-header.sh-high .sec-dot { background: #712B13; }
@@ -422,17 +420,17 @@
   .time-field-input { border: none; background: transparent; color: var(--text); font-family: inherit; font-size: 13px; outline: none; width: 100%; color-scheme: dark; }
   .time-field-input::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
   /* live Melbourne clock — cartoon card with inline time | date */
-  .clock-card { display: inline-flex; align-items: center; gap: 14px; background: var(--surface); border: 2px solid var(--teal); box-shadow: 4px 4px 0 var(--teal-bg); border-radius: 16px; padding: 11px 16px; }
+  .clock-card { display: inline-flex; align-items: center; gap: 9px; background: var(--surface); border: 2px solid var(--teal); box-shadow: 4px 4px 0 var(--teal-bg); border-radius: 16px; padding: 16px 12px; }
   :root[data-theme="ink"] .clock-card { border-color: var(--border-md); box-shadow: 4px 4px 0 rgba(255,255,255,0.06); }
-  .clock-card-ico { width: 42px; height: 42px; border-radius: 12px; background: var(--teal-bg); color: var(--teal-text); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-  .clock-card-time { display: flex; align-items: baseline; gap: 5px; }
-  .clock-card-time-val { font-size: 30px; font-weight: 500; letter-spacing: -0.5px; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
-  .clock-card-ampm { font-size: 14px; font-weight: 500; color: var(--teal-text); }
-  .clock-card-divider { width: 1px; height: 36px; background: var(--border-md); flex-shrink: 0; }
+  .clock-card-ico { width: 36px; height: 36px; border-radius: 10px; background: var(--teal-bg); color: var(--teal-text); display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+  .clock-card-time { display: flex; align-items: baseline; gap: 4px; }
+  .clock-card-time-val { font-size: 26px; font-weight: 500; letter-spacing: -0.5px; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .clock-card-ampm { font-size: 13px; font-weight: 500; color: var(--teal-text); }
+  .clock-card-divider { width: 1px; height: 32px; background: var(--border-md); flex-shrink: 0; }
   .clock-card-date { line-height: 1.35; }
-  .clock-card-weekday { font-size: 14.5px; font-weight: 500; color: var(--text); }
-  .clock-card-day { font-size: 12px; color: var(--text-2); }
-  @media (max-width: 480px) { .clock-card { gap: 11px; padding: 10px 13px; } .clock-card-time-val { font-size: 26px; } .clock-card-ico { width: 38px; height: 38px; font-size: 20px; } }
+  .clock-card-weekday { font-size: 13px; font-weight: 500; color: var(--text); }
+  .clock-card-day { font-size: 11px; color: var(--text-2); }
+  @media (max-width: 480px) { .clock-card { gap: 7px; padding: 9px 10px; } .clock-card-time-val { font-size: 22px; } .clock-card-ico { width: 32px; height: 32px; font-size: 17px; } }
 
   /* TASK CARDS */
   .task { background: var(--surface); border: 0.5px solid var(--border); border-left-width: 3px; border-radius: var(--radius-lg); padding: 11px 14px; margin-bottom: 6px; display: flex; gap: 12px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s, transform 0.15s ease; align-items: center; }
@@ -1472,7 +1470,6 @@
         <h1><i class="ti ti-folders"></i> Projects</h1>
         <p>Major projects, responsibilities, and deliverables</p>
       </div>
-      <span class="date-pill" id="datebadge-proj"></span>
     </div>
 
     <div class="proj-stats">
@@ -1526,7 +1523,6 @@
         <div class="ins-greeting">Hey Zarif 👋</div>
         <h1 class="ins-h1">My Dashboard</h1>
       </div>
-      <span class="date-pill"><i class="ti ti-calendar"></i><span id="ins-datebadge"></span></span>
     </div>
     <div id="ins-body"></div>
   </div>
@@ -1538,7 +1534,6 @@
         <h1><i class="ti ti-sparkles"></i> Feature Wishlist</h1>
         <p>Ideas and future features for this project</p>
       </div>
-      <span class="date-pill" id="datebadge-wl"></span>
     </div>
 
     <div class="wl-stats">
@@ -1735,7 +1730,6 @@
         <h1><i class="ti ti-message-2"></i> Daily message</h1>
         <p>Generate your morning Teams message</p>
       </div>
-      <span class="date-pill" id="datebadge2"></span>
     </div>
 
     <!-- Queue assignments -->
@@ -1833,7 +1827,6 @@
         <h1><i class="ti ti-phone-outgoing"></i> Weekly call data</h1>
         <p>Email templates for Wpay &amp; DMG call data</p>
       </div>
-      <span class="date-pill" id="datebadge3"></span>
     </div>
 
     <!-- Wpay -->
@@ -1884,7 +1877,6 @@
         <h1><i class="ti ti-tools"></i> AW / Viridian IT scheduled jobs</h1>
         <p>Email templates for Advanced Works &amp; Viridian IT</p>
       </div>
-      <span class="date-pill" id="datebadge4"></span>
     </div>
 
     <!-- Advanced Works -->
@@ -1935,7 +1927,6 @@
         <h1><i class="ti ti-presentation"></i> Stand up notes</h1>
         <p>Draft your talking points for stand up</p>
       </div>
-      <span class="date-pill" id="datebadge5"></span>
     </div>
 
     <div class="stat-strip">
@@ -1976,7 +1967,6 @@
         <h1><i class="ti ti-template"></i> Templates</h1>
         <p>Save and search reusable message templates &amp; common numbers</p>
       </div>
-      <span class="date-pill" id="datebadge6"></span>
     </div>
 
     <div class="split-grid">
@@ -2045,7 +2035,6 @@
         <h1><i class="ti ti-notes"></i> Meetings</h1>
         <p>Meeting minutes for ANZWL, Wpay &amp; DMG</p>
       </div>
-      <span class="date-pill" id="datebadge7"></span>
     </div>
 
     <div class="stat-strip">
@@ -2133,7 +2122,6 @@
         <h1><i class="ti ti-report-analytics"></i> KPI Report</h1>
         <p>Generate the daily Helpdesk Metrics report from your data exports</p>
       </div>
-      <span class="date-pill" id="datebadge8"></span>
     </div>
 
     <div class="card">
@@ -2724,8 +2712,6 @@ function insTimeOfDay(log) {
 function renderInsights() {
   const body = document.getElementById('ins-body');
   if (!body) return;
-  const badge = document.getElementById('ins-datebadge');
-  if (badge) badge.textContent = new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
 
   if (!activityLog) activityLog = loadActivity();
   const log = activityLog;
@@ -4326,14 +4312,6 @@ function prevWeekRange() {
   return `${fmt(monday)} - ${fmt(sunday)}`;
 }
 
-const dateStr = `${DAY_NAMES[todayDow]}, ${now.getDate()} ${MON_NAMES[now.getMonth()]} ${now.getFullYear()}`;
-document.getElementById('datebadge2').textContent = dateStr;
-document.getElementById('datebadge3').textContent = dateStr;
-document.getElementById('datebadge4').textContent = dateStr;
-document.getElementById('datebadge5').textContent = dateStr;
-document.getElementById('datebadge6').textContent = dateStr;
-document.getElementById('datebadge7').textContent = dateStr;
-document.getElementById('datebadge8').textContent = dateStr;
 
 const weekRange = prevWeekRange();
 document.getElementById('wpay-body').value = `Hi team,\n\nPlease see the Wpay call data from ${weekRange} below:\n\nKind regards,`;
@@ -6589,9 +6567,6 @@ function setProjFilter(f) {
 }
 
 function renderProjects() {
-  const badge = document.getElementById('datebadge-proj');
-  if (badge) badge.textContent = new Date().toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'short'});
-
   const total     = projects.length;
   const active    = projects.filter(p => p.status === 'active').length;
   const delivered = projects.filter(p => p.status === 'delivered').length;
@@ -6760,8 +6735,7 @@ function renderWishlist() {
   const filterStatus = (document.getElementById('wl-filter-status') || {}).value || '';
   const search       = ((document.getElementById('wl-search')        || {}).value || '').toLowerCase();
 
-  const dateBadge = document.getElementById('datebadge-wl');
-  if (dateBadge) dateBadge.textContent = new Date().toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'short'});
+
 
   const total = wishlist.length;
   const done  = wishlist.filter(w => w.done).length;
