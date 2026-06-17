@@ -1146,18 +1146,28 @@
   .ins-bar-day.today { color: var(--teal-text); font-weight: 600; }
 
   /* Hero completion donut card */
-  .ins-hero { background: linear-gradient(140deg, var(--teal) 0%, #1f6fb8 100%); border-radius: var(--radius-lg); padding: 20px; color: #fff; position: relative; overflow: hidden; }
-  :root[data-theme="forest"] .ins-hero { background: linear-gradient(140deg, #639922 0%, #3c6314 100%); }
-  :root[data-theme="ink"] .ins-hero { background: linear-gradient(140deg, #2a2a2a 0%, #0f0f0f 100%); border: 0.5px solid var(--border-md); }
-  .ins-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,0.08); }
-  .ins-hero-label { font-size: 12px; opacity: 0.85; font-weight: 500; }
-  .ins-hero-donut-wrap { display: flex; align-items: center; gap: 18px; margin-top: 14px; }
-  .ins-donut { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.85s cubic-bezier(.2,.85,.25,1); }
-  .ins-donut-hole { width: 70px; height: 70px; border-radius: 50%; background: rgba(0,0,0,0.18); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .ins-donut-pct { font-size: 21px; font-weight: 700; line-height: 1; }
-  .ins-donut-cap { font-size: 9.5px; opacity: 0.8; margin-top: 2px; }
-  .ins-hero-meta { font-size: 12.5px; line-height: 1.7; opacity: 0.92; }
-  .ins-hero-meta b { font-weight: 700; }
+  /* Today's progress — cartoon widget card */
+  .ins-hero { border-radius: 22px; overflow: hidden; background: var(--surface); border: 2.5px solid var(--teal); box-shadow: 5px 5px 0 var(--teal-bg); transition: transform 0.15s, box-shadow 0.15s; }
+  .ins-hero:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--teal-bg); }
+  :root[data-theme="forest"] .ins-hero { border-color: #639922; box-shadow: 5px 5px 0 rgba(99,153,34,0.35); }
+  :root[data-theme="forest"] .ins-hero:hover { box-shadow: 7px 7px 0 rgba(99,153,34,0.35); }
+  :root[data-theme="ink"] .ins-hero { border-color: var(--border-md); box-shadow: 5px 5px 0 rgba(255,255,255,0.06); }
+  .ins-hero-banner { background: linear-gradient(135deg, var(--teal) 0%, #1f6fb8 100%); padding: 20px 22px; color: #fff; display: flex; align-items: center; gap: 18px; position: relative; overflow: hidden; }
+  :root[data-theme="forest"] .ins-hero-banner { background: linear-gradient(135deg, #639922 0%, #3c6314 100%); }
+  :root[data-theme="ink"] .ins-hero-banner { background: linear-gradient(135deg, #2a2a2a 0%, #161616 100%); }
+  .ins-hero-banner::after { content: ''; position: absolute; top: -30px; right: -30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.1); pointer-events: none; }
+  .ins-hero-banner::before { content: ''; position: absolute; bottom: -40px; right: 30px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.06); pointer-events: none; }
+  .ins-hero-label { font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+  .ins-donut { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.85s cubic-bezier(.2,.85,.25,1); }
+  .ins-donut-hole { width: 64px; height: 64px; border-radius: 50%; background: rgba(0,0,0,0.22); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ins-donut-pct { font-size: 19px; font-weight: 700; line-height: 1; color: #fff; }
+  .ins-donut-cap { font-size: 9px; opacity: 0.75; margin-top: 2px; color: #fff; }
+  .ins-hero-meta-title { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: -0.2px; }
+  .ins-hero-meta-sub { font-size: 12px; color: rgba(255,255,255,0.72); margin-top: 4px; line-height: 1.5; }
+  .ins-hero-body { padding: 14px 22px 16px; display: flex; gap: 10px; }
+  .ins-hero-stat { flex: 1; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 12px; padding: 11px 13px; }
+  .ins-hero-stat-n { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1; }
+  .ins-hero-stat-l { font-size: 11px; color: var(--text-3); margin-top: 4px; }
 
   /* Activity feed (transactions style) */
   .ins-feed { display: flex; flex-direction: column; gap: 4px; }
@@ -2685,17 +2695,31 @@ function renderInsights() {
 
       <div class="ins-col">
         <div class="ins-hero">
-          <div class="ins-hero-label">Today's progress</div>
-          <div class="ins-hero-donut-wrap">
-            <div class="ins-donut" style="background:conic-gradient(#fff ${pct}%, rgba(255,255,255,0.18) 0)">
+          <div class="ins-hero-banner">
+            <div class="ins-donut" style="background:conic-gradient(rgba(255,255,255,0.95) ${pct}%, rgba(255,255,255,0.18) 0)">
               <div class="ins-donut-hole">
                 <div class="ins-donut-pct">${pct}%</div>
-                <div class="ins-donut-cap">complete</div>
+                <div class="ins-donut-cap">done</div>
               </div>
             </div>
-            <div class="ins-hero-meta">
-              <div><b>${tDone}</b> of <b>${tTotal}</b> tasks done</div>
-              <div>${tTotal === 0 ? 'No tasks scheduled today' : (pct === 100 ? 'All done — nice work! 🎉' : (tTotal - tDone) + ' still to go')}</div>
+            <div>
+              <div class="ins-hero-label">Today's progress</div>
+              <div class="ins-hero-meta-title">${pct === 100 ? 'All done! 🎉' : tTotal === 0 ? 'No tasks today' : tDone + ' of ' + tTotal + ' tasks'}</div>
+              <div class="ins-hero-meta-sub">${pct === 100 ? 'Perfect day — keep the streak going' : tTotal === 0 ? 'Nothing scheduled yet' : (tTotal - tDone) + ' task${tTotal - tDone === 1 ? '' : 's'} still to go'}</div>
+            </div>
+          </div>
+          <div class="ins-hero-body">
+            <div class="ins-hero-stat">
+              <div class="ins-hero-stat-n">${streak.count || 0}</div>
+              <div class="ins-hero-stat-l">Day streak</div>
+            </div>
+            <div class="ins-hero-stat">
+              <div class="ins-hero-stat-n">${streak.best || 0}</div>
+              <div class="ins-hero-stat-l">Best streak</div>
+            </div>
+            <div class="ins-hero-stat">
+              <div class="ins-hero-stat-n">${tDone}</div>
+              <div class="ins-hero-stat-l">Done today</div>
             </div>
           </div>
         </div>
