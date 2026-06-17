@@ -583,6 +583,45 @@
   .spd-todo-del:hover { color: #ef4444; }
   .spd-todo-progress { font-size: 11px; color: var(--text-3); margin-bottom: 8px; }
 
+  /* ===== REUSABLE DATE PICKER ===== */
+  .dp-wrap { position: relative; display: block; width: 100%; }
+  .dp-trigger { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; padding: 9px 11px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: 9px; background: var(--surface); color: var(--text); font-family: inherit; cursor: pointer; text-align: left; transition: border-color 0.15s; }
+  .dp-trigger:hover { border-color: var(--text-3); }
+  .dp-cal-ico { font-size: 15px; color: var(--text-3); flex-shrink: 0; }
+  .dp-val { flex: 1; min-width: 0; }
+  .dp-trigger.dp-empty .dp-val { color: var(--text-3); }
+  .dp-caret { font-size: 13px; color: var(--text-3); flex-shrink: 0; }
+  .dp-pop { position: fixed; z-index: 99999; background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 14px; padding: 12px; box-shadow: 0 14px 38px rgba(0,0,0,0.45); width: 252px; box-sizing: border-box; animation: fadeIn 0.12s ease; }
+  .dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .dp-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .dp-nav { background: var(--surface2); border: none; color: var(--text-2); width: 27px; height: 27px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.15s; }
+  .dp-nav:hover { background: var(--teal-bg); color: var(--teal-text); }
+  .dp-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+  .dp-dows { margin-bottom: 4px; }
+  .dp-dow { font-size: 10px; font-weight: 600; color: var(--text-3); text-align: center; padding: 3px 0; }
+  .dp-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text); border-radius: 8px; cursor: pointer; transition: all 0.12s; }
+  .dp-cell:hover:not(.dp-empty-cell) { background: var(--teal-bg); color: var(--teal-text); }
+  .dp-empty-cell { cursor: default; }
+  .dp-today { font-weight: 700; box-shadow: inset 0 0 0 1px var(--border-md); }
+  .dp-sel { background: var(--teal); color: var(--bg); font-weight: 700; }
+  .dp-sel:hover { background: var(--teal); color: var(--bg); }
+  .dp-foot { display: flex; gap: 6px; margin-top: 10px; }
+  .dp-foot-btn { flex: 1; font-size: 12px; padding: 7px; border-radius: 8px; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .dp-foot-btn:hover { border-color: var(--text-3); color: var(--text); }
+
+  /* ===== REUSABLE STATUS DROPDOWN ===== */
+  .sd-wrap { display: inline-block; }
+  .sd-trigger { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: none; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  .sd-trigger.sd-lg { font-size: 12px; padding: 6px 14px; }
+  .sd-caret { font-size: 11px; opacity: 0.65; }
+  .sd-pop { position: fixed; z-index: 99999; background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 11px; padding: 5px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); min-width: 150px; animation: fadeIn 0.12s ease; }
+  .sd-item { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--text); padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background 0.12s; }
+  .sd-item:hover { background: var(--surface2); }
+  .sd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sd-dot.pstatus-active    { background: var(--green-text); }
+  .sd-dot.pstatus-onhold    { background: var(--amber-text); }
+  .sd-dot.pstatus-delivered { background: var(--text-3); }
+
   /* WISHLIST */
   .wl-form { display: flex; flex-direction: column; gap: 10px; }
   .wl-tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
@@ -1735,7 +1774,7 @@
       </div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Date</div>
-        <input class="field-input" type="date" id="mtg-date">
+        <div id="mtg-date-holder"></div>
       </div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Notes</div>
@@ -2310,7 +2349,7 @@ function renderCustomTaskDayField() {
       </select>`;
   } else if (freq === 'date') {
     wrap.innerHTML = `<div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due date</div>
-      <input class="field-input" type="date" id="ct-date" value="${todayInputDate()}">`;
+      ${makeDatePicker('ct-date', todayInputDate(), null, 'Pick a date')}`;
   } else {
     wrap.innerHTML = '';
   }
@@ -2448,7 +2487,7 @@ function renderTaskEditDayField(freq, task) {
   } else if (freq === 'date') {
     const current = (task && task.date) ? task.date : todayInputDate();
     wrap.innerHTML = `<div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due date</div>
-      <input class="field-input" type="date" id="te-date" value="${current}">`;
+      ${makeDatePicker('te-date', current, null, 'Pick a date')}`;
   } else {
     wrap.innerHTML = '';
   }
@@ -3941,6 +3980,7 @@ function addMeeting() {
   meetings.push(entry);
   saveMeetings();
   document.getElementById('mtg-notes').value = '';
+  dpSetValue('mtg-date', todayInputDate());
   renderMeetings();
 }
 
@@ -4051,7 +4091,7 @@ function renderMeetings() {
       ${miscEditFields(m)}
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Date</div>
-        <input class="field-input" type="date" id="mtg-edit-date-${m.id}" value="${m.date}">
+        ${makeDatePicker('mtg-edit-date-' + m.id, m.date, null, 'Pick a date')}
       </div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Notes</div>
@@ -4735,7 +4775,190 @@ async function copyRichText(html, text) {
   }
 }
 
-document.getElementById('mtg-date').value = todayInputDate();
+// ===== REUSABLE DATE PICKER =====
+const _datePickers = {};
+let _dpOpenId = null;
+const _DP_MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const _DP_DOW = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function dpFormat(v) {
+  if (!v) return '';
+  const [y,m,d] = v.split('-').map(Number);
+  return new Date(y, m-1, d).toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+}
+// onChange: optional function(value){}; placeholder: text shown when empty
+function makeDatePicker(id, value, onChange, placeholder) {
+  _datePickers[id] = { onChange: onChange || null, ph: placeholder || 'Select date' };
+  const v = value || '';
+  return `<div class="dp-wrap">
+    <input type="hidden" id="${id}" value="${v}">
+    <button type="button" class="dp-trigger${v?'':' dp-empty'}" id="dp-trig-${id}" onclick="dpToggle('${id}',event)">
+      <i class="ti ti-calendar dp-cal-ico"></i>
+      <span class="dp-val" id="dp-val-${id}">${v ? dpFormat(v) : (placeholder || 'Select date')}</span>
+      <i class="ti ti-chevron-down dp-caret"></i>
+    </button>
+  </div>`;
+}
+function dpSetValue(id, val) {
+  const hidden = document.getElementById(id);
+  if (hidden) hidden.value = val || '';
+  const lbl = document.getElementById('dp-val-' + id);
+  const trig = document.getElementById('dp-trig-' + id);
+  const st = _datePickers[id];
+  if (lbl) lbl.textContent = val ? dpFormat(val) : (st ? st.ph : 'Select date');
+  if (trig) trig.classList.toggle('dp-empty', !val);
+}
+function dpToggle(id, ev) {
+  if (ev) ev.stopPropagation();
+  if (_dpOpenId === id) { dpClose(); return; }
+  dpOpen(id);
+}
+function dpOpen(id) {
+  dpClose();
+  _dpOpenId = id;
+  const hidden = document.getElementById(id);
+  const cur = hidden && hidden.value ? hidden.value : '';
+  const st = _datePickers[id] || (_datePickers[id] = { onChange:null, ph:'Select date' });
+  if (cur) { const [y,m] = cur.split('-').map(Number); st.vy = y; st.vm = m-1; }
+  else { const n = new Date(); st.vy = n.getFullYear(); st.vm = n.getMonth(); }
+  const pop = document.createElement('div');
+  pop.className = 'dp-pop'; pop.id = 'dp-floating';
+  pop.onclick = e => e.stopPropagation();
+  document.body.appendChild(pop);
+  dpRender(id);
+  dpPosition(id);
+}
+function dpRender(id) {
+  const pop = document.getElementById('dp-floating');
+  if (!pop) return;
+  const st = _datePickers[id];
+  const y = st.vy, m = st.vm;
+  const hidden = document.getElementById(id);
+  const cur = hidden ? hidden.value : '';
+  const n = new Date();
+  const todayStr = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+  const startDow = new Date(y, m, 1).getDay();
+  const dim = new Date(y, m+1, 0).getDate();
+  let cells = '';
+  for (let i=0; i<startDow; i++) cells += '<div class="dp-cell dp-empty-cell"></div>';
+  for (let d=1; d<=dim; d++) {
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells += `<div class="dp-cell${ds===todayStr?' dp-today':''}${ds===cur?' dp-sel':''}" onclick="dpPick('${id}','${ds}')">${d}</div>`;
+  }
+  pop.innerHTML = `
+    <div class="dp-head">
+      <button type="button" class="dp-nav" onclick="dpNav('${id}',-1)"><i class="ti ti-chevron-left"></i></button>
+      <span class="dp-title">${_DP_MON[m]} ${y}</span>
+      <button type="button" class="dp-nav" onclick="dpNav('${id}',1)"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="dp-grid dp-dows">${_DP_DOW.map(d => `<div class="dp-dow">${d}</div>`).join('')}</div>
+    <div class="dp-grid">${cells}</div>
+    <div class="dp-foot">
+      <button type="button" class="dp-foot-btn" onclick="dpPick('${id}','${todayStr}')">Today</button>
+      <button type="button" class="dp-foot-btn" onclick="dpClear('${id}')">Clear</button>
+    </div>`;
+}
+function dpNav(id, delta) {
+  const st = _datePickers[id];
+  st.vm += delta;
+  if (st.vm < 0) { st.vm = 11; st.vy--; }
+  if (st.vm > 11) { st.vm = 0; st.vy++; }
+  dpRender(id);
+}
+function dpPick(id, ds) {
+  dpSetValue(id, ds);
+  const st = _datePickers[id];
+  if (st && st.onChange) st.onChange(ds);
+  dpClose();
+}
+function dpClear(id) {
+  dpSetValue(id, '');
+  const st = _datePickers[id];
+  if (st && st.onChange) st.onChange('');
+  dpClose();
+}
+function dpPosition(id) {
+  const trig = document.getElementById('dp-trig-' + id);
+  const pop = document.getElementById('dp-floating');
+  if (!trig || !pop) return;
+  const r = trig.getBoundingClientRect();
+  let top = r.bottom + 6;
+  if (top + pop.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - pop.offsetHeight - 6);
+  let left = r.left;
+  if (left + pop.offsetWidth > window.innerWidth - 8) left = Math.max(8, window.innerWidth - pop.offsetWidth - 8);
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+}
+function dpClose() {
+  const pop = document.getElementById('dp-floating');
+  if (pop) pop.remove();
+  _dpOpenId = null;
+}
+
+// ===== REUSABLE STATUS DROPDOWN =====
+const _statusDropdowns = {};
+let _sdOpenId = null;
+const STATUS_OPTIONS = [
+  { val:'active',    label:'Active',    cls:'pstatus-active' },
+  { val:'onhold',    label:'On hold',   cls:'pstatus-onhold' },
+  { val:'delivered', label:'Delivered', cls:'pstatus-delivered' },
+];
+// onChange: function(newStatus){}; size: 'lg' for larger trigger
+function makeStatusDropdown(id, current, onChange, size) {
+  _statusDropdowns[id] = { onChange: onChange || null };
+  const opt = STATUS_OPTIONS.find(o => o.val === current) || STATUS_OPTIONS[0];
+  return `<span class="sd-wrap">
+    <button type="button" class="sd-trigger ${opt.cls}${size==='lg'?' sd-lg':''}" id="sd-trig-${id}" onclick="sdToggle('${id}',event)">
+      <span id="sd-lbl-${id}">${opt.label}</span>
+      <i class="ti ti-chevron-down sd-caret"></i>
+    </button>
+  </span>`;
+}
+function sdToggle(id, ev) {
+  if (ev) ev.stopPropagation();
+  if (_sdOpenId === id) { sdClose(); return; }
+  sdOpen(id);
+}
+function sdOpen(id) {
+  sdClose();
+  _sdOpenId = id;
+  const pop = document.createElement('div');
+  pop.className = 'sd-pop'; pop.id = 'sd-floating';
+  pop.onclick = e => e.stopPropagation();
+  pop.innerHTML = STATUS_OPTIONS.map(o =>
+    `<div class="sd-item" onclick="sdPick('${id}','${o.val}')"><span class="sd-dot ${o.cls}"></span>${o.label}</div>`
+  ).join('');
+  document.body.appendChild(pop);
+  const trig = document.getElementById('sd-trig-' + id);
+  if (trig) {
+    const r = trig.getBoundingClientRect();
+    let top = r.bottom + 5;
+    if (top + pop.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - pop.offsetHeight - 5);
+    let left = r.left;
+    if (left + pop.offsetWidth > window.innerWidth - 8) left = Math.max(8, window.innerWidth - pop.offsetWidth - 8);
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+  }
+}
+function sdClose() {
+  const pop = document.getElementById('sd-floating');
+  if (pop) pop.remove();
+  _sdOpenId = null;
+}
+function sdPick(id, val) {
+  const st = _statusDropdowns[id];
+  sdClose();
+  if (st && st.onChange) st.onChange(val);
+}
+
+// close floating menus on outside click / scroll / resize / escape
+document.addEventListener('click', e => {
+  if (_dpOpenId && !e.target.closest('.dp-wrap') && !e.target.closest('#dp-floating')) dpClose();
+  if (_sdOpenId && !e.target.closest('.sd-wrap') && !e.target.closest('#sd-floating')) sdClose();
+});
+window.addEventListener('scroll', () => { if (_dpOpenId) dpClose(); if (_sdOpenId) sdClose(); }, true);
+window.addEventListener('resize', () => { dpClose(); sdClose(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { dpClose(); sdClose(); } });
 
 // ===== PROJECTS =====
 let projects = [];
@@ -4876,7 +5099,7 @@ function openProjectPage(projId) {
       <div class="proj-detail-section">
         <div class="proj-detail-section-title">Status</div>
         <div class="proj-detail-status-row">
-          <span class="proj-status-lbl ${statusCls}" style="font-size:12px;padding:4px 12px">${statusLabel}</span>
+          ${makeStatusDropdown('proj-st-' + projId, p.status, v => setProjStatusVal(projId, v, true), 'lg')}
           <span style="font-size:12px;color:var(--text-3)">${subs.length} sub-project${subs.length!==1?'s':''} · ${subs.filter(s=>s.status==='active').length} active · ${subs.filter(s=>s.status==='delivered').length} delivered</span>
         </div>
       </div>
@@ -4932,7 +5155,7 @@ function openSubProjectPage(projId, subId) {
         <div class="spd-grid">
           <div class="spd-field">
             <label>Status</label>
-            <button class="spd-status-btn ${statusCls}" onclick="cycleSubStatusDetail(${projId},${subId})">${statusLabel} <i class="ti ti-refresh" style="font-size:10px"></i></button>
+            <div>${makeStatusDropdown('sub-st-' + subId, s.status, v => setSubStatusVal(projId, subId, v, 'subdetail'), 'lg')}</div>
           </div>
           <div class="spd-field">
             <label>Priority</label>
@@ -4945,7 +5168,7 @@ function openSubProjectPage(projId, subId) {
           </div>
           <div class="spd-field">
             <label>Due Date</label>
-            <input type="date" class="spd-input" value="${s.dueDate||''}" onchange="saveSubField(${projId},${subId},'dueDate',this.value)">
+            ${makeDatePicker('sub-due-' + subId, s.dueDate || '', v => saveSubField(projId, subId, 'dueDate', v), 'No due date')}
           </div>
           <div class="spd-field">
             <label>Assignee</label>
@@ -5083,6 +5306,38 @@ function cycleSubStatus(projId, subId) {
   if (card) card.classList.add('open');
 }
 
+// set a project's status directly (from a status dropdown)
+function setProjStatusVal(projId, val, fromDetail) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  p.status = val;
+  if (val === 'delivered') { if (!p.deliveredAt) p.deliveredAt = new Date().toISOString(); }
+  else p.deliveredAt = null;
+  saveProjects();
+  if (fromDetail) { closeDetailPage(); openProjectPage(projId); }
+  renderProjects();
+}
+
+// set a sub-project's status directly (from a status dropdown)
+// mode: 'subdetail' | 'projdetail' | undefined (card list)
+function setSubStatusVal(projId, subId, val, mode) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const s = (p.subs || []).find(x => x.id === subId);
+  if (!s) return;
+  s.status = val;
+  if (val === 'delivered') { if (!s.deliveredAt) s.deliveredAt = new Date().toISOString(); }
+  else s.deliveredAt = null;
+  saveProjects();
+  if (mode === 'subdetail') { closeDetailPage(); openSubProjectPage(projId, subId); }
+  else if (mode === 'projdetail') { closeDetailPage(); openProjectPage(projId); }
+  else {
+    renderProjects();
+    const card = document.getElementById('proj-card-' + projId);
+    if (card) card.classList.add('open');
+  }
+}
+
 function deleteSubProject(projId, subId) {
   const p = projects.find(p => p.id === projId);
   if (!p) return;
@@ -5143,7 +5398,7 @@ function renderProjects() {
       return `<div class="proj-sub-row">
         <div class="proj-sub-dot ${sColor}"></div>
         <span class="proj-sub-name${s.status==='delivered'?' delivered':''}" style="cursor:pointer" onclick="openSubProjectPage(${p.id},${s.id})">${esc(s.title)}</span>
-        <button class="proj-sub-status ${sColor}" onclick="cycleSubStatus(${p.id},${s.id})" title="Click to change status">${sLbl}</button>
+        ${makeStatusDropdown('subrow-st-' + s.id, s.status, v => setSubStatusVal(p.id, s.id, v))}
         ${delivDate ? `<span class="proj-sub-date">${delivDate}</span>` : ''}
         <button class="proj-sub-open-btn" onclick="openSubProjectPage(${p.id},${s.id})" title="Open"><i class="ti ti-arrow-up-right"></i></button>
         <button class="proj-sub-del" onclick="deleteSubProject(${p.id},${s.id})" title="Delete"><i class="ti ti-trash"></i></button>
@@ -5197,7 +5452,7 @@ function renderProjects() {
       </div>
       <div class="proj-body">
         <div class="proj-body-status">
-          <span class="proj-status-lbl ${statusCls}">${statusLabel}</span>
+          ${makeStatusDropdown('projbody-st-' + p.id, p.status, v => setProjStatusVal(p.id, v))}
           ${p.description ? `<span style="font-size:11px;color:var(--text-3)">${esc(p.description)}</span>` : ''}
         </div>
         <div class="proj-sub-filter-row">${filterBtns}</div>
@@ -5323,6 +5578,24 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.10.0', type: 'minor', date: '17 Jun 2026', title: 'Date pickers & status dropdowns', changes: [
+    'Every date field across the app now opens a mini calendar — pick a day instead of typing',
+    'Calendar has month navigation, today highlighting, and Today / Clear shortcuts',
+    'All project & sub-project statuses are now click-to-open dropdown menus (Active / On hold / Delivered)',
+    'Status changes apply instantly from the cards, the project page, and the sub-project page',
+    'Applied to meeting dates, task due dates, and sub-project due dates',
+  ]},
+  { ver: '3.9.0', type: 'minor', date: '17 Jun 2026', title: 'Progress tracker & rich sub-projects', changes: [
+    'Each project card shows a progress strip: segmented bar + active / on-hold / delivered counts',
+    'Sub-project pages now hold deliverables, an interactive checklist, due date, priority, assignee and notes',
+    'Checklist items can be added, ticked off, and deleted with a done-count',
+  ]},
+  { ver: '3.8.0', type: 'minor', date: '17 Jun 2026', title: 'Project detail pages', changes: [
+    'Project cards restyled to match the widget cartoon style — coloured banner, bold border, offset shadow',
+    'Active projects auto-expand; on-hold and delivered start collapsed',
+    'Clicking an open project opens its full detail page; sub-projects open their own pages',
+    'Sub-project filter row inside each card (All / Active / On hold / Delivered)',
+  ]},
   { ver: '3.7.0', type: 'minor', date: '17 Jun 2026', title: 'Projects revamp', changes: [
     'Replaced the empty Projects hub with a full project management page',
     'Add major projects with title, description, type (Operational / Managerial / Handover / Rollout / Internal) and status',
@@ -6009,6 +6282,8 @@ function initNotes() {
   initNotes();
   renderWishlist();
   renderProjects();
+  const mdh = document.getElementById('mtg-date-holder');
+  if (mdh) mdh.innerHTML = makeDatePicker('mtg-date', todayInputDate(), null, 'Pick a date');
 })();
 </script>
 </body>
