@@ -3926,11 +3926,32 @@ function renderTasks() {
       : statFilter === 'high' ? 'No high-priority tasks today.'
       : 'No tasks for today.';
     if (!tasks.length) { paintList(`<div class="empty">${emptyMsg}</div>`); return; }
-    let lastP = null;
-    tasks.forEach(t => {
-      if (t.priority !== lastP) { html += `<div class="section-header sh-${t.priority.toLowerCase()}"><span class="sec-dot"></span>${{HIGH:'High priority',MEDIUM:'Medium priority',LOW:'Low priority'}[t.priority]}</div>`; lastP = t.priority; }
-      html += taskHTML(t, true);
-    });
+
+    if (statFilter === 'done') {
+      // done filter: just show completed
+      tasks.forEach(t => { html += taskHTML(t, true); });
+    } else {
+      // Default today sort: pending timed → pending untimed → completed
+      const pendingTimed = tasks.filter(t => !isDone(t.id) && t.time)
+        .sort((a,b) => timeToMin(a.time) - timeToMin(b.time) || PO[a.priority] - PO[b.priority]);
+      const pendingUntimed = tasks.filter(t => !isDone(t.id) && !t.time)
+        .sort((a,b) => PO[a.priority] - PO[b.priority] || getOrder(a.id) - getOrder(b.id));
+      const completed = tasks.filter(t => isDone(t.id))
+        .sort((a,b) => PO[a.priority] - PO[b.priority] || getOrder(a.id) - getOrder(b.id));
+
+      if (pendingTimed.length) {
+        html += `<div class="freq-group-label"><i class="ti ti-clock"></i>Scheduled</div>`;
+        pendingTimed.forEach(t => { html += taskHTML(t, true); });
+      }
+      if (pendingUntimed.length) {
+        html += `<div class="freq-group-label"><i class="ti ti-list"></i>To Do</div>`;
+        pendingUntimed.forEach(t => { html += taskHTML(t, true); });
+      }
+      if (completed.length) {
+        html += `<div class="freq-group-label" style="opacity:0.5"><i class="ti ti-circle-check"></i>Completed</div>`;
+        completed.forEach(t => { html += taskHTML(t, true); });
+      }
+    }
   } else if (currentTab === 'date') {
     const today = todayInputDate();
     const dated = getAllTasks().filter(t => t.freq === 'date' && t.date)
