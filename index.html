@@ -829,6 +829,26 @@
   .mtg-misc-fields.visible { display: block; }
   .meeting-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); margin: 16px 0 8px; }
   .meeting-group-label:first-child { margin-top: 0; }
+  /* ANZ meeting brief panel */
+  .mtg-anz-panel { border: 0.5px solid var(--purple-text); border-radius: var(--radius); background: var(--purple-bg); padding: 12px 14px; margin-bottom: 14px; animation: fadeIn 0.15s ease; }
+  .mtg-anz-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .mtg-anz-head-title { font-size: 12px; font-weight: 600; color: var(--purple-text); display: flex; align-items: center; gap: 6px; }
+  .mtg-anz-head-title i { font-size: 14px; }
+  .mtg-anz-wed { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: var(--purple-text); color: var(--purple-bg); }
+  .mtg-anz-sub-note { font-size: 11px; color: var(--text-3); margin-bottom: 10px; }
+  .mtg-anz-proj { margin-top: 10px; }
+  .mtg-anz-proj-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+  .mtg-anz-proj-name i { font-size: 12px; color: var(--text-3); }
+  .mtg-anz-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0 5px 16px; border-left: 1.5px solid var(--border-md); margin-left: 4px; }
+  .mtg-anz-row-body { flex: 1; min-width: 0; }
+  .mtg-anz-sub-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .mtg-anz-item { font-size: 12px; color: var(--text-2); margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .mtg-anz-item i { font-size: 11px; color: var(--text-3); }
+  .mtg-anz-item-none { font-size: 12px; color: var(--text-3); font-style: italic; margin-top: 2px; }
+  .mtg-anz-due { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 20px; }
+  .mtg-anz-empty { font-size: 12px; color: var(--text-3); padding: 4px 0; }
+  .mtg-anz-insert { margin-top: 12px; font-size: 12px; padding: 7px 14px; border-radius: 9px; border: none; background: var(--purple-text); color: var(--purple-bg); cursor: pointer; font-family: inherit; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
+  .mtg-anz-insert:hover { opacity: 0.85; }
 
   .kpi-upload-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
   .kpi-upload-row:last-child { border-bottom: none; }
@@ -1803,13 +1823,14 @@
       <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add meeting notes</div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Meeting</div>
-        <select class="field-input" id="mtg-type" onchange="toggleMiscFields()">
+        <select class="field-input" id="mtg-type" onchange="toggleMiscFields();updateMtgAnzPanel()">
           <option value="ANZWL">ANZWL</option>
           <option value="Wpay">Wpay</option>
           <option value="DMG">DMG</option>
           <option value="Misc">Misc / Ad hoc</option>
         </select>
       </div>
+      <div id="mtg-anz-panel"></div>
       <div class="mtg-misc-fields" id="mtg-misc-fields">
         <div class="queue-block">
           <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Requester</div>
@@ -2755,6 +2776,7 @@ function showPage(p, hub) {
     else { back.style.display = 'inline-flex'; backLbl.textContent = currentHub && HUB_META[currentHub] ? 'Back to ' + HUB_META[currentHub].title : 'Back'; }
   }
   if (typeof updatePomoFloat === 'function') updatePomoFloat();
+  if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
   window.scrollTo(0, 0);
 }
 
@@ -4015,6 +4037,93 @@ function toggleMiscFields() {
   document.getElementById('mtg-misc-fields').classList.toggle('visible', isMisc);
 }
 
+// Gather outstanding ANZ project work to brief on during the ANZWL meeting.
+// Returns [{ project, subs:[{ sub, item }] }] where item is the first not-done checklist item (or null).
+function getAnzBriefData() {
+  const anzProjects = (projects || []).filter(p =>
+    /\banz\b|anzwl/i.test(p.title || '') && p.status !== 'delivered'
+  );
+  return anzProjects.map(p => {
+    const subs = (p.subs || [])
+      .filter(s => s.status !== 'delivered')
+      .map(s => {
+        const item = (s.todos || []).find(t => !t.done) || null;
+        return { sub: s, item };
+      });
+    return { project: p, subs };
+  }).filter(g => g.subs.length);
+}
+
+function _anzDueChip(dateStr) {
+  if (!dateStr) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = new Date(dateStr); due.setHours(0,0,0,0);
+  const days = Math.round((due - today) / 86400000);
+  let bg, fg, label;
+  if (days < 0) { bg = 'rgba(239,68,68,0.15)'; fg = '#ef4444'; label = `${Math.abs(days)}d overdue`; }
+  else if (days === 0) { bg = 'rgba(239,159,39,0.15)'; fg = '#ef9f27'; label = 'Due today'; }
+  else if (days <= 7) { bg = 'rgba(239,159,39,0.15)'; fg = '#ef9f27'; label = `${days}d left`; }
+  else { bg = 'var(--teal-bg,rgba(20,184,166,0.12))'; fg = 'var(--teal-text,#14b8a6)'; label = due.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }
+  return `<span class="mtg-anz-due" style="background:${bg};color:${fg}">${label}</span>`;
+}
+
+function updateMtgAnzPanel() {
+  const panel = document.getElementById('mtg-anz-panel');
+  if (!panel) return;
+  const type = (document.getElementById('mtg-type') || {}).value;
+  if (type !== 'ANZWL') { panel.innerHTML = ''; return; }
+
+  const isWed = now.getDay() === 3;
+  const data = getAnzBriefData();
+
+  const body = data.length ? data.map(g => {
+    const rows = g.subs.map(({ sub, item }) => {
+      const itemHtml = item
+        ? `<div class="mtg-anz-item"><i class="ti ti-arrow-right"></i>${esc(item.text)}${_anzDueChip(item.dueDate)}</div>`
+        : `<div class="mtg-anz-item-none">No outstanding checklist items</div>`;
+      return `<div class="mtg-anz-row">
+        <div class="mtg-anz-row-body">
+          <div class="mtg-anz-sub-name">${esc(sub.title)} · <span style="color:var(--text-3);font-weight:400">${esc(subStatusLabel(sub.status))}</span></div>
+          ${itemHtml}
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="mtg-anz-proj">
+      <div class="mtg-anz-proj-name"><i class="ti ti-folder"></i>${esc(g.project.title)}</div>
+      ${rows}
+    </div>`;
+  }).join('') : '<div class="mtg-anz-empty">No outstanding ANZ project work — all sub-projects delivered or have no open items.</div>';
+
+  panel.innerHTML = `<div class="mtg-anz-panel">
+    <div class="mtg-anz-head">
+      <span class="mtg-anz-head-title"><i class="ti ti-clipboard-list"></i> Current ANZ project work</span>
+      ${isWed ? '<span class="mtg-anz-wed">Meeting day</span>' : ''}
+    </div>
+    <div class="mtg-anz-sub-note">First open checklist item per active ANZ sub-project — use as your talking points.</div>
+    ${body}
+    ${data.length ? '<button class="mtg-anz-insert" onclick="insertAnzBriefIntoNotes()"><i class="ti ti-text-plus" style="font-size:13px"></i> Insert as notes</button>' : ''}
+  </div>`;
+}
+
+function insertAnzBriefIntoNotes() {
+  const data = getAnzBriefData();
+  if (!data.length) return;
+  const lines = ['ANZ project updates:', ''];
+  data.forEach(g => {
+    lines.push(`${g.project.title}`);
+    g.subs.forEach(({ sub, item }) => {
+      const itemTxt = item ? ` — ${item.text}${item.dueDate ? ` (due ${item.dueDate})` : ''}` : ' — no open items';
+      lines.push(`  • ${sub.title} [${subStatusLabel(sub.status)}]${itemTxt}`);
+    });
+    lines.push('');
+  });
+  const ta = document.getElementById('mtg-notes');
+  if (!ta) return;
+  const existing = ta.value.trim();
+  ta.value = (existing ? existing + '\n\n' : '') + lines.join('\n').trimEnd();
+  ta.focus();
+}
+
 function addMeeting() {
   const type = document.getElementById('mtg-type').value;
   const date = document.getElementById('mtg-date').value;
@@ -5105,7 +5214,16 @@ function saveProjModal(id) {
 }
 
 function deleteProject(id) {
-  if (!confirm('Delete this project and all its sub-projects?')) return;
+  const p = projects.find(p => p.id === id);
+  const linkedIds = new Set();
+  if (p) (p.subs || []).forEach(s => (s.todos || []).forEach(t => { if (t.taskId) linkedIds.add(t.taskId); }));
+  const warnTask = linkedIds.size ? ` This will also remove ${linkedIds.size} linked task${linkedIds.size > 1 ? 's' : ''} from the Task Manager.` : '';
+  if (!confirm(`Delete project "${p ? p.title : ''}" and all its sub-projects?${warnTask}`)) return;
+  if (linkedIds.size) {
+    customTasks = customTasks.filter(ct => !linkedIds.has(ct.id));
+    saveCustomTasks();
+    if (typeof renderTasks === 'function') renderTasks();
+  }
   projects = projects.filter(p => p.id !== id);
   saveProjects();
   renderProjects();
@@ -5361,6 +5479,7 @@ function addSubRecord(projId, subId, field) {
 }
 
 function deleteSubRecord(projId, subId, field, recId) {
+  if (!confirm(`Delete this ${field === 'deliverables' ? 'deliverable' : 'note'} entry?`)) return;
   const p = projects.find(x => x.id === projId);
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
@@ -5539,6 +5658,8 @@ function deleteSubTodo(projId, subId, todoId) {
   const s = (p.subs || []).find(x => x.id === subId);
   if (!s) return;
   const t = (s.todos || []).find(x => x.id === todoId);
+  const warnTask = t && t.taskId ? ' This will also remove its linked task from the Task Manager.' : '';
+  if (!confirm('Delete this checklist item?' + warnTask)) return;
   // remove the linked Task Manager task, if any
   if (t && t.taskId) {
     customTasks = customTasks.filter(ct => ct.id !== t.taskId);
@@ -5629,6 +5750,17 @@ function setSubStatusVal(projId, subId, val, mode) {
 function deleteSubProject(projId, subId) {
   const p = projects.find(p => p.id === projId);
   if (!p) return;
+  const s = (p.subs || []).find(s => s.id === subId);
+  const linkedCount = s && (s.todos || []).filter(t => t.taskId).length;
+  const warnTask = linkedCount ? ` This will also remove ${linkedCount} linked task${linkedCount > 1 ? 's' : ''} from the Task Manager.` : '';
+  if (!confirm(`Delete sub-project "${s ? s.title : ''}" and all its checklist items?${warnTask}`)) return;
+  // clean up any linked Task Manager tasks
+  if (s && linkedCount) {
+    const ids = new Set((s.todos || []).filter(t => t.taskId).map(t => t.taskId));
+    customTasks = customTasks.filter(ct => !ids.has(ct.id));
+    saveCustomTasks();
+    if (typeof renderTasks === 'function') renderTasks();
+  }
   p.subs = (p.subs || []).filter(s => s.id !== subId);
   saveProjects();
   renderProjects();
@@ -5862,6 +5994,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.14.0', type: 'minor', date: '17 Jun 2026', title: 'Delete confirmations & ANZ meeting brief', changes: [
+    'Deleting a project, sub-project, checklist item, or note/deliverable entry now asks for confirmation first',
+    'Delete prompts warn when linked Task Manager tasks will also be removed (and now clean them up properly)',
+    'Meetings page: selecting an ANZWL meeting shows a "Current ANZ project work" brief — the first open checklist item per active ANZ sub-project',
+    'Brief shows a "Meeting day" badge on Wednesdays and an "Insert as notes" button to drop the talking points into the notes field',
+  ]},
   { ver: '3.13.0', type: 'minor', date: '17 Jun 2026', title: 'Record-based notes/deliverables & due date badges', changes: [
     'Notes and Deliverables are now timestamped records — submit entries individually, delete any entry',
     'Old free-text values are automatically migrated to a single record',
@@ -6595,6 +6733,7 @@ function initNotes() {
   renderProjects();
   const mdh = document.getElementById('mtg-date-holder');
   if (mdh) mdh.innerHTML = makeDatePicker('mtg-date', todayInputDate(), null, 'Pick a date');
+  updateMtgAnzPanel();
 })();
 </script>
 </body>
