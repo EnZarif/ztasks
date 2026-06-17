@@ -347,6 +347,22 @@
   .tab i { font-size: 13px; }
   .tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 500; }
   .tab:hover:not(.active) { color: var(--text-2); }
+  /* hub filter bar */
+  .hub-filter-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .hub-filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-right: 2px; white-space: nowrap; }
+  .hub-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 5px 13px; border-radius: 20px; border: 1.5px solid var(--border-md); background: var(--surface); color: var(--text-3); cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
+  .hub-pill i { font-size: 13px; }
+  .hub-pill:hover:not(.active) { border-color: var(--text-3); color: var(--text-2); }
+  .hub-pill.active { font-weight: 600; }
+  .hub-pill.active.hp-all      { border-color: var(--teal); background: var(--teal-bg); color: var(--teal-text); }
+  .hub-pill.active.hp-helpdesk { border-color: #378ADD; background: rgba(55,138,221,0.12); color: #378ADD; }
+  .hub-pill.active.hp-projects { border-color: #EF9F27; background: rgba(239,159,39,0.12); color: #EF9F27; }
+  .hub-pill.active.hp-personal { border-color: #7F77DD; background: rgba(127,119,221,0.12); color: #7F77DD; }
+  /* hub badge on each task row */
+  .task-hub-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; flex-shrink: 0; }
+  .thb-helpdesk { background: rgba(55,138,221,0.12); color: #378ADD; }
+  .thb-projects { background: rgba(239,159,39,0.12); color: #EF9F27; }
+  .thb-personal { background: rgba(127,119,221,0.12); color: #7F77DD; }
   .freq-group-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); margin: 1.5rem 0 8px; }
   .freq-group-label i { font-size: 14px; }
   .freq-group-label:has(.ti-clock-bolt) i { color: var(--amber-text); }
@@ -1416,6 +1432,14 @@
       <span id="banner-text"></span>
     </div>
 
+    <div class="hub-filter-bar" id="task-hub-filter-bar">
+      <span class="hub-filter-label"><i class="ti ti-filter" style="font-size:12px;margin-right:2px"></i>Hub</span>
+      <button class="hub-pill hp-all active" data-hub="all" onclick="setTaskHubFilter('all')"><i class="ti ti-layout-grid"></i> All</button>
+      <button class="hub-pill hp-helpdesk" data-hub="helpdesk" onclick="setTaskHubFilter('helpdesk')"><i class="ti ti-headset"></i> Helpdesk</button>
+      <button class="hub-pill hp-projects" data-hub="projects" onclick="setTaskHubFilter('projects')"><i class="ti ti-folders"></i> Projects</button>
+      <button class="hub-pill hp-personal" data-hub="personal" onclick="setTaskHubFilter('personal')"><i class="ti ti-user"></i> Personal</button>
+    </div>
+
     <div class="tabs">
       <button class="tab active" data-tab="today" onclick="switchTab('today')"><i class="ti ti-star"></i> Today</button>
       <button class="tab" data-tab="daily" onclick="switchTab('daily')"><i class="ti ti-sun"></i> Daily</button>
@@ -1456,6 +1480,14 @@
             <option value="monthly">Monthly</option>
             <option value="date">On a date</option>
             <option value="once">Once (today only)</option>
+          </select>
+        </div>
+        <div class="queue-block">
+          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Hub</div>
+          <select class="field-input" id="ct-hub">
+            <option value="helpdesk">Helpdesk</option>
+            <option value="projects">Projects</option>
+            <option value="personal">Personal</option>
           </select>
         </div>
         <div class="queue-block" id="ct-day-wrap"></div>
@@ -2216,6 +2248,14 @@
         </select>
       </div>
       <div class="queue-block" id="te-day-wrap"></div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Hub</div>
+        <select class="field-input" id="te-hub">
+          <option value="helpdesk">Helpdesk</option>
+          <option value="projects">Projects</option>
+          <option value="personal">Personal</option>
+        </select>
+      </div>
     </div>
     <div class="kpi-modal-actions">
       <button class="kpi-file-btn" onclick="closeTaskEditModal()">Cancel</button>
@@ -2247,23 +2287,23 @@ function dbDel(key) {
 }
 
 const TASKS = [
-  {id:1,  freq:'daily',   days:'all', name:'Daily tasks message',                    priority:'HIGH',   assignees:['Zarif','Fin','Nalani'], note:''},
-  {id:2,  freq:'daily',   days:'all', name:'Daily KPIs to operators',                priority:'HIGH',   assignees:['Zarif','Fin','Nalani'], note:''},
-  {id:3,  freq:'daily',   days:'all', name:'Daily AW/Viridian IT scheduled jobs',    priority:'HIGH',   assignees:['Zarif','Emily'],        note:''},
-  {id:4,  freq:'daily',   days:'all', name:'Fiserv RTS',                             priority:'HIGH',   assignees:['All TLs'],              note:'Currently assigned to Bella & Zoe — keep track of the queue and push them.'},
-  {id:5,  freq:'daily',   days:'all', name:'File load',                              priority:'HIGH',   assignees:['All TLs'],              note:'Fiserv KDS files are to be actioned ASAP.'},
-  {id:6,  freq:'daily',   days:'all', name:'Phone reviews',                          priority:'MEDIUM', assignees:['All TLs'],              note:''},
-  {id:7,  freq:'daily',   days:'all', name:'Stand up',                               priority:'LOW',    assignees:['All TLs'],              note:'Try your best to do at least twice a week.'},
-  {id:8,  freq:'weekly',  days:[1],   name:'Weekly call data to Wpay & DMG',         priority:'HIGH',   assignees:['Zarif'],                note:'Send every Monday.'},
-  {id:9,  freq:'weekly',  days:[1],   name:'Nickel Operator Xero approval',          priority:'HIGH',   assignees:['Zarif','Emily'],        note:'Every Monday. If Monday is a public holiday, remind operator to do timesheet the Friday before.'},
-  {id:10, freq:'weekly',  days:'all', name:'Modules completion — Elmo / Wpay / Fiserv', priority:'MEDIUM', assignees:['Zarif','Fin','Nalani'], note:'Zac still needs to complete his modules for all 3.'},
-  {id:11, freq:'weekly',      days:[3],                  name:'ANZWL meetings',     priority:'MEDIUM', assignees:['Zarif','Emily'],        note:'Every Wednesday.'},
-  {id:12, freq:'fortnightly', anchor:[2026,6,4],         name:'DMG meetings',       priority:'MEDIUM', assignees:['Zarif','Fin','Nalani'], note:'Every other Thursday, starting 4 June 2026.'},
-  {id:13, freq:'fortnightly', anchor:[2026,6,9],         name:'Wpay meetings',      priority:'MEDIUM', assignees:['Zarif','Fin'],          note:'Every other Tuesday, starting 9 June 2026.'},
-  {id:14, freq:'weekly',  days:'all', name:'Prospend bills from Nickel',             priority:'LOW',    assignees:['Zarif'],                note:''},
-  {id:15, freq:'monthly', days:'all', name:'Monthly meeting — inbound/outbound operators', priority:'HIGH', assignees:['Zarif','Fin','Nalani'], note:'Set up meeting for all operators including night shift.'},
-  {id:16, freq:'monthly', dayRange:[1,10], name:'KPIs report',                       priority:'LOW',    assignees:['Zarif','Fin','Nalani'], note:'Complete and send out within the first 10 days of the month.'},
-  {id:17, freq:'monthly', dayRange:[1,10], name:'NSLA report',                       priority:'LOW',    assignees:['Zarif','Fin','Nalani'], note:'Complete and send out within the first 10 days of the month.'},
+  {id:1,  freq:'daily',   days:'all', name:'Daily tasks message',                    priority:'HIGH',   assignees:['Zarif','Fin','Nalani'], note:'',                                                                                                                            hub:'helpdesk'},
+  {id:2,  freq:'daily',   days:'all', name:'Daily KPIs to operators',                priority:'HIGH',   assignees:['Zarif','Fin','Nalani'], note:'',                                                                                                                            hub:'helpdesk'},
+  {id:3,  freq:'daily',   days:'all', name:'Daily AW/Viridian IT scheduled jobs',    priority:'HIGH',   assignees:['Zarif','Emily'],        note:'',                                                                                                                            hub:'helpdesk'},
+  {id:4,  freq:'daily',   days:'all', name:'Fiserv RTS',                             priority:'HIGH',   assignees:['All TLs'],              note:'Currently assigned to Bella & Zoe — keep track of the queue and push them.',                                                  hub:'helpdesk'},
+  {id:5,  freq:'daily',   days:'all', name:'File load',                              priority:'HIGH',   assignees:['All TLs'],              note:'Fiserv KDS files are to be actioned ASAP.',                                                                                   hub:'helpdesk'},
+  {id:6,  freq:'daily',   days:'all', name:'Phone reviews',                          priority:'MEDIUM', assignees:['All TLs'],              note:'',                                                                                                                            hub:'helpdesk'},
+  {id:7,  freq:'daily',   days:'all', name:'Stand up',                               priority:'LOW',    assignees:['All TLs'],              note:'Try your best to do at least twice a week.',                                                                                  hub:'helpdesk'},
+  {id:8,  freq:'weekly',  days:[1],   name:'Weekly call data to Wpay & DMG',         priority:'HIGH',   assignees:['Zarif'],                note:'Send every Monday.',                                                                                                          hub:'helpdesk'},
+  {id:9,  freq:'weekly',  days:[1],   name:'Nickel Operator Xero approval',          priority:'HIGH',   assignees:['Zarif','Emily'],        note:'Every Monday. If Monday is a public holiday, remind operator to do timesheet the Friday before.',                             hub:'helpdesk'},
+  {id:10, freq:'weekly',  days:'all', name:'Modules completion — Elmo / Wpay / Fiserv', priority:'MEDIUM', assignees:['Zarif','Fin','Nalani'], note:'Zac still needs to complete his modules for all 3.',                                                                      hub:'helpdesk'},
+  {id:11, freq:'weekly',      days:[3],                  name:'ANZWL meetings',     priority:'MEDIUM', assignees:['Zarif','Emily'],        note:'Every Wednesday.',                                                                                                             hub:'projects'},
+  {id:12, freq:'fortnightly', anchor:[2026,6,4],         name:'DMG meetings',       priority:'MEDIUM', assignees:['Zarif','Fin','Nalani'], note:'Every other Thursday, starting 4 June 2026.',                                                                                  hub:'projects'},
+  {id:13, freq:'fortnightly', anchor:[2026,6,9],         name:'Wpay meetings',      priority:'MEDIUM', assignees:['Zarif','Fin'],          note:'Every other Tuesday, starting 9 June 2026.',                                                                                   hub:'projects'},
+  {id:14, freq:'weekly',  days:'all', name:'Prospend bills from Nickel',             priority:'LOW',    assignees:['Zarif'],                note:'',                                                                                                                            hub:'helpdesk'},
+  {id:15, freq:'monthly', days:'all', name:'Monthly meeting — inbound/outbound operators', priority:'HIGH', assignees:['Zarif','Fin','Nalani'], note:'Set up meeting for all operators including night shift.',                                                                  hub:'helpdesk'},
+  {id:16, freq:'monthly', dayRange:[1,10], name:'KPIs report',                       priority:'LOW',    assignees:['Zarif','Fin','Nalani'], note:'Complete and send out within the first 10 days of the month.',                                                                hub:'helpdesk'},
+  {id:17, freq:'monthly', dayRange:[1,10], name:'NSLA report',                       priority:'LOW',    assignees:['Zarif','Fin','Nalani'], note:'Complete and send out within the first 10 days of the month.',                                                                hub:'helpdesk'},
 ];
 
 const DEFAULT_BREAKS = [
@@ -2348,8 +2388,21 @@ function saveCustomTasks() { dbSet('zarif_custom_tasks', customTasks); }
 function saveTaskOverrides() { dbSet('zarif_task_overrides', taskOverrides); }
 function saveTaskOrder() { dbSet('zarif_task_order', taskOrder); }
 function getOrder(id) { return taskOrder[id] !== undefined ? taskOrder[id] : 0; }
+
+let taskHubFilter = 'all';
+
+function setTaskHubFilter(hub) {
+  taskHubFilter = hub;
+  document.querySelectorAll('.hub-pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.hub === hub);
+  });
+  renderTasks();
+}
+
 function getAllTasks() {
-  return [...TASKS, ...customTasks].map(t => taskOverrides[t.id] ? {...t, ...taskOverrides[t.id]} : t);
+  const all = [...TASKS, ...customTasks].map(t => taskOverrides[t.id] ? {...t, ...taskOverrides[t.id]} : t);
+  if (taskHubFilter === 'all') return all;
+  return all.filter(t => (t.hub || 'helpdesk') === taskHubFilter);
 }
 function taskKey(id) { return `${todayKey}_${id}`; }
 function isDone(id) { return !!done[taskKey(id)]; }
@@ -2448,7 +2501,9 @@ function addCustomTask() {
   const dayEl = document.getElementById('ct-day');
   const dayVal = dayEl ? dayEl.value : 'all';
 
-  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note: '', custom: true };
+  const hubEl = document.getElementById('ct-hub');
+  const hub = hubEl ? hubEl.value : 'helpdesk';
+  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note: '', custom: true, hub };
   if (freq === 'weekly' && dayVal !== 'all') {
     task.days = [parseInt(dayVal, 10)];
   } else if (freq === 'monthly' && dayVal !== 'all') {
@@ -2584,6 +2639,7 @@ function openTaskEdit(id) {
   document.getElementById('te-name').value = task.name;
   document.getElementById('te-priority').value = task.priority;
   document.getElementById('te-freq').value = task.freq;
+  document.getElementById('te-hub').value = task.hub || 'helpdesk';
   renderTaskEditDayField(task.freq, task);
   document.getElementById('task-edit-modal-overlay').classList.add('active');
 }
@@ -2626,6 +2682,7 @@ function saveTaskEdit() {
   }
   // fortnightly: leave days/dayRange/date/anchor untouched
 
+  override.hub = document.getElementById('te-hub').value;
   taskOverrides[editingTaskId] = { ...(taskOverrides[editingTaskId] || {}), ...override };
   saveTaskOverrides();
   closeTaskEditModal();
@@ -3007,11 +3064,17 @@ function taskHTML(t, showFreqPill) {
   const editBtn = `<button class="task-edit-btn" onclick="event.stopPropagation(); openTaskEdit('${t.id}')"><i class="ti ti-pencil"></i></button>`;
   const upBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', -1)"><i class="ti ti-chevron-up"></i></button>`;
   const downBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', 1)"><i class="ti ti-chevron-down"></i></button>`;
+  const hub = t.hub || 'helpdesk';
+  const hubIcons = {helpdesk:'ti-headset', projects:'ti-folders', personal:'ti-user'};
+  const hubLabels = {helpdesk:'Helpdesk', projects:'Projects', personal:'Personal'};
+  const hubBadge = taskHubFilter === 'all'
+    ? `<span class="task-hub-badge thb-${hub}"><i class="ti ${hubIcons[hub]}" style="font-size:10px;margin-right:3px"></i>${hubLabels[hub]}</span>`
+    : '';
   return `<div class="task ${pCls}${d?' done':''}" onclick="${click}">
     <div class="cb${d?' on':''}${(d && String(t.id)===String(justToggledId))?' cb-pop':''}" title="Mark done" onclick="event.stopPropagation(); toggle('${t.id}')"><i class="ti ti-check"></i></div>
     <div class="tbody">
       <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}"><i class="ti ${bIcon}"></i>${bLbl}</span></div>
-      <div class="tmeta">${freqPill}<div class="pills">${pills}</div></div>
+      <div class="tmeta">${freqPill}${hubBadge}<div class="pills">${pills}</div></div>
       ${note}
     </div>
     <div class="task-actions">
@@ -6007,6 +6070,13 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.15.0', type: 'minor', date: '17 Jun 2026', title: 'Hub filter for Task Manager', changes: [
+    'New hub filter bar above the task list: All / Helpdesk / Projects / Personal',
+    'All built-in tasks tagged with their hub (helpdesk or projects)',
+    'Custom tasks get a hub selector when adding or editing',
+    'Hub badge shown on each task card in the "All" view; hides when already filtered',
+    'Hub assignment persists via task overrides for built-in tasks, directly on custom tasks',
+  ]},
   { ver: '3.14.2', type: 'patch', date: '17 Jun 2026', title: 'ANZ panel: due date & readable colours', changes: [
     'Sub-project due date now shown inline in the ANZ meeting brief panel',
     'Due date also included in the "Insert as notes" text output',
