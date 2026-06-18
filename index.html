@@ -7666,11 +7666,18 @@ function elaboratePoint(id, btn) {
 let _notesTimer = null;
 let _notesAiResult = '';
 let _notesRecords = [];
+let _notesEditingId = null; // id of record being edited, null = new record
 
 function notesOnInput() {
   const ta = document.getElementById('notes-textarea');
   const cc = document.getElementById('notes-char-count');
   if (cc) cc.textContent = ta.value.length + ' chars';
+  // If user clears the pad manually, drop the editing link
+  if (!ta.value.trim() && _notesEditingId !== null) {
+    _notesEditingId = null;
+    const saveBtn = document.querySelector('.notes-save-btn');
+    if (saveBtn) saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> Save record';
+  }
   clearTimeout(_notesTimer);
   _notesTimer = setTimeout(() => {
     dbSet('zarif_notes', ta.value);
@@ -7684,8 +7691,15 @@ function notesSaveRecord() {
   const content = ta.value.trim();
   if (!content) return;
   const firstLine = content.split('\n')[0].slice(0, 60) || 'Note';
-  const record = { id: Date.now(), title: firstLine, content, createdAt: new Date().toISOString() };
-  _notesRecords.unshift(record);
+  if (_notesEditingId !== null) {
+    const idx = _notesRecords.findIndex(x => x.id === _notesEditingId);
+    if (idx !== -1) {
+      _notesRecords[idx] = { ..._notesRecords[idx], title: firstLine, content, updatedAt: new Date().toISOString() };
+    }
+  } else {
+    _notesRecords.unshift({ id: Date.now(), title: firstLine, content, createdAt: new Date().toISOString() });
+  }
+  _notesEditingId = null;
   dbSet('zarif_notes_records', _notesRecords);
   ta.value = '';
   dbSet('zarif_notes', '');
@@ -7740,9 +7754,12 @@ function notesRestoreRecord(id) {
   const r = _notesRecords.find(x => x.id === id);
   if (!r) return;
   const ta = document.getElementById('notes-textarea');
-  if (ta.value.trim() && !confirm('Replace current draft with this record?')) return;
+  if (ta.value.trim() && _notesEditingId !== id && !confirm('Replace current draft with this record?')) return;
   ta.value = r.content;
+  _notesEditingId = id;
   notesOnInput();
+  const saveBtn = document.querySelector('.notes-save-btn');
+  if (saveBtn) { saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> Update record'; }
   window.scrollTo(0, 0);
 }
 
