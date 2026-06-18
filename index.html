@@ -6730,7 +6730,15 @@ function toggleSubTodo(projId, subId, todoId) {
   const s = (p.subs || []).find(x => x.id === subId);
   if (!s) return;
   const t = (s.todos || []).find(x => x.id === todoId);
-  if (t) { t.done = !t.done; saveProjects(); }
+  if (t) {
+    t.done = !t.done;
+    // Auto-deliver sub-project when all checklist items are ticked
+    if (t.done && s.todos.length > 0 && s.todos.every(x => x.done)) {
+      s.status = 'delivered';
+      if (!s.deliveredAt) s.deliveredAt = new Date().toISOString();
+    }
+    saveProjects();
+  }
   openSubProjectPage(projId, subId);
 }
 
