@@ -7085,6 +7085,59 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.23.6', type: 'patch', date: '18 Jun 2026', title: 'Checklist item auto-deliver', changes: [
+    'Ticking a checklist item now automatically sets that item\'s status to Delivered',
+    'Unticking reverts the item status back to Active',
+  ]},
+  { ver: '3.23.5', type: 'patch', date: '18 Jun 2026', title: 'Sub-project auto-deliver', changes: [
+    'When the last checklist item on a sub-project is ticked, the sub-project status is automatically set to Delivered',
+    'Delivered date is stamped automatically',
+  ]},
+  { ver: '3.23.4', type: 'patch', date: '18 Jun 2026', title: 'Weekly tasks persist all week', changes: [
+    'Weekly tasks now use an ISO week key instead of a daily key',
+    'Ticking a weekly task keeps it done Tuesday through Sunday; resets fresh on Monday',
+  ]},
+  { ver: '3.23.3', type: 'patch', date: '18 Jun 2026', title: 'Meeting type placeholder', changes: [
+    'New meeting form now defaults to "— Choose meeting type —" instead of pre-selecting ANZWL',
+    'Saving without selecting a type shows a prompt',
+  ]},
+  { ver: '3.23.2', type: 'patch', date: '18 Jun 2026', title: 'CVTS tasks timed', changes: [
+    'Auto-created CVTS tasks (Bella + Jack both off) now have times: 09:00 and 16:00',
+    'Tasks appear in the Scheduled section of the Today tab and trigger Needs Attention at the right time',
+  ]},
+  { ver: '3.23.1', type: 'patch', date: '18 Jun 2026', title: 'Scratchpad edit in place', changes: [
+    'Restoring a record to the scratchpad now tracks which record is being edited',
+    'Saving after restoring updates the original record in place — no duplicate created',
+    'Save button label changes to "Update record" while editing a restored record',
+  ]},
+  { ver: '3.23.0', type: 'minor', date: '18 Jun 2026', title: 'Scratchpad → Wishlist & Task (AI)', changes: [
+    'Expanded scratchpad records now have two new action buttons: Wishlist and Task (AI)',
+    'Wishlist: instantly adds the record as a wishlist idea (first line = title, rest = description)',
+    'Task (AI): calls Groq AI to suggest a task name, priority, frequency, and elaborated note; opens a pre-filled confirmation modal',
+    'If no AI key is set, the modal still opens with note content pre-filled for manual editing',
+  ]},
+  { ver: '3.22.0', type: 'minor', date: '18 Jun 2026', title: 'Today tab smart sorting', changes: [
+    'Today tab now groups tasks: Scheduled (timed, sorted by time) → To Do (untimed, sorted by priority) → Completed (at the bottom)',
+    'Completed tasks are pushed to the bottom with a dimmed section header',
+    'Done filter still shows completed tasks flat without grouping',
+  ]},
+  { ver: '3.21.1', type: 'patch', date: '18 Jun 2026', title: 'Settings toggle switch fix', changes: [
+    'Toggle switches in Settings → Appearance were overflowing their container and invisible in off state',
+    'Fixed by adding display:inline-block so width/height are respected',
+    'Off-state now has a visible semi-white track; on-state uses solid teal with a bright white knob',
+  ]},
+  { ver: '3.21.0', type: 'minor', date: '18 Jun 2026', title: 'End of Day page', changes: [
+    'New End of Day page under the Personal hub',
+    'Mirrors the scratchpad for review and processing; edits sync back to the main scratchpad',
+    'Shows today\'s incomplete tasks with tick-off buttons',
+    'Wrap-up summary input with daily log (last 14 entries) persisted to Supabase',
+  ]},
+  { ver: '3.20.0', type: 'minor', date: '18 Jun 2026', title: 'Weekly Review page', changes: [
+    'New Weekly Review page under the Personal hub',
+    'Form with four sections: What went well, What to improve, Next week\'s focus, Career action',
+    'Past reviews saved to Supabase, collapsible, deletable',
+    'Week label auto-generated (e.g. "Week of 16 Jun – 22 Jun")',
+  ]},
   { ver: '3.19.0', type: 'minor', date: '17 Jun 2026', title: 'Time-of-day insights', changes: [
     'New "When you\'re most productive" card showing your peak window, average completion time and most active day',
     'Hourly bar chart of task completions across the day (Melbourne time), peak hour highlighted',
