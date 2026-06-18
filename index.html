@@ -12,6 +12,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+  ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); border-radius: 99px; border: 1px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); background-clip: padding-box; }
+  * { scrollbar-width: thin; scrollbar-color: rgba(128,128,128,0.25) transparent; }
   :root {
     --bg: #111315; --surface: #161a1d; --surface2: rgba(255,255,255,0.05);
     --border: rgba(255,255,255,0.06); --border-md: rgba(255,255,255,0.11);
