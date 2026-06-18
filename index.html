@@ -2770,6 +2770,14 @@ const MON_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','
 const now = new Date();
 const todayDow = now.getDay();
 const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+// Week key: ISO week so weekly tasks stay done Mon→Sun and reset next Monday
+const weekKey = (() => {
+  const d = new Date(now); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const y = d.getFullYear();
+  const w = Math.ceil(((d - new Date(y, 0, 1)) / 86400000 + 1) / 7);
+  return `${y}-W${String(w).padStart(2,'0')}`;
+})();
 
 let currentTab = 'today';
 let statFilter = 'all';
@@ -2820,7 +2828,11 @@ function getAllTasks() {
   if (taskHubFilter === 'all') return all;
   return all.filter(t => (t.hub || 'helpdesk') === taskHubFilter);
 }
-function taskKey(id) { return `${todayKey}_${id}`; }
+function taskKey(id) {
+  const task = [...TASKS, ...customTasks].find(t => String(t.id) === String(id));
+  if (task && task.freq === 'weekly') return `${weekKey}_${id}`;
+  return `${todayKey}_${id}`;
+}
 function isDone(id) { return !!done[taskKey(id)]; }
 let justToggledId = null;
 let skipListAnim = false;
