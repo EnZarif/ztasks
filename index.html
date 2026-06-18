@@ -6732,6 +6732,11 @@ function toggleSubTodo(projId, subId, todoId) {
   const t = (s.todos || []).find(x => x.id === todoId);
   if (t) {
     t.done = !t.done;
+    if (t.done) {
+      t.status = 'delivered';
+    } else {
+      if (t.status === 'delivered') t.status = 'active';
+    }
     // Auto-deliver sub-project when all checklist items are ticked
     if (t.done && s.todos.length > 0 && s.todos.every(x => x.done)) {
       s.status = 'delivered';
