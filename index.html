@@ -2229,6 +2229,7 @@
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Meeting</div>
         <select class="field-input" id="mtg-type" onchange="toggleMiscFields();updateMtgAnzPanel()">
+          <option value="" disabled selected>— Choose meeting type —</option>
           <option value="ANZWL">ANZWL</option>
           <option value="Wpay">Wpay</option>
           <option value="DMG">DMG</option>
@@ -5103,6 +5104,7 @@ function addMeeting() {
   const timeEl = document.getElementById('mtg-time');
   const time = timeEl && timeEl.value ? timeEl.value : '';
   const notes = document.getElementById('mtg-notes').value.trim();
+  if (!type) { alert('Please choose a meeting type.'); return; }
   if (!date || !notes) { alert('Please pick a date and enter some notes.'); return; }
   const entry = {id: nextMeetingId++, type, date, time, notes};
   if (type === 'Misc') {
