@@ -3301,6 +3301,7 @@ function deleteCustomTask(id) {
 // ===== KNOWLEDGE BASE SIDEBAR =====
 function saveKbFacts() { dbSet('zarif_kb_facts', kbFacts); }
 
+function kbText(f) { return typeof f === 'string' ? f : f.text; }
 function renderKbFact() {
   const factEl = document.getElementById('kb-fact');
   const dotsEl = document.getElementById('kb-dots');
@@ -3313,7 +3314,8 @@ function renderKbFact() {
   if (kbIndex >= kbFacts.length) kbIndex = 0;
   factEl.classList.add('fading');
   setTimeout(() => {
-    factEl.textContent = kbFacts[kbIndex];
+    const f = kbFacts[kbIndex];
+    factEl.textContent = kbText(f);
     factEl.classList.remove('fading');
   }, 300);
   dotsEl.innerHTML = kbFacts.map((_,i) => `<button class="kb-dot${i===kbIndex?' active':''}" onclick="kbGoTo(${i})"></button>`).join('');
@@ -3346,14 +3348,17 @@ function toggleKbManage() {
 function renderKbList() {
   const list = document.getElementById('kb-list');
   if (!list.classList.contains('open')) return;
-  list.innerHTML = kbFacts.map((f,i) => `<div class="kb-list-item"><span>${esc(f)}</span><button class="task-del-btn" onclick="deleteKbFact(${i})"><i class="ti ti-trash"></i></button></div>`).join('') || '<div class="kb-list-item"><span style="color:var(--text-3);">No facts yet.</span></div>';
+  list.innerHTML = kbFacts.map((f,i) => {
+    const ts = typeof f === 'object' && f.createdAt ? `<span style="font-size:10px;color:var(--text-3);margin-left:6px;">${fmtTs(f.createdAt)}</span>` : '';
+    return `<div class="kb-list-item"><span>${esc(kbText(f))}${ts}</span><button class="task-del-btn" onclick="deleteKbFact(${i})"><i class="ti ti-trash"></i></button></div>`;
+  }).join('') || '<div class="kb-list-item"><span style="color:var(--text-3);">No facts yet.</span></div>';
 }
 
 function addKbFact() {
   const input = document.getElementById('kb-new-fact');
   const val = input.value.trim();
   if (!val) return;
-  kbFacts.push(val);
+  kbFacts.push({ text: val, createdAt: new Date().toISOString() });
   saveKbFacts();
   input.value = '';
   renderKbList();
@@ -3478,6 +3483,14 @@ function isToday(task) {
   if (task.freq === 'date') return task.date === todayInputDate() || (task.date < todayInputDate() && !isDone(task.id));
   if (task.freq === 'untildone') return !isDone(task.id);
   return false;
+}
+// Format ISO timestamp → "18 Jun · 2:34 pm"
+function fmtTs(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const date = d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  const time = d.toLocaleTimeString('en-AU', { hour:'numeric', minute:'2-digit', hour12:true });
+  return `${date} · ${time}`;
 }
 function fmtShortDate(s) {
   if (!s) return '';
@@ -4653,7 +4666,7 @@ function addStandupPoint() {
   const input = document.getElementById('new-point');
   const text = input.value.trim();
   if (!text) return;
-  standupPoints.push({id: nextStandupId++, text, elaboration: ''});
+  standupPoints.push({id: nextStandupId++, text, elaboration: '', createdAt: new Date().toISOString()});
   saveStandup();
   input.value = '';
   renderStandup();
@@ -4696,6 +4709,7 @@ function renderStandup() {
     <div class="standup-item" id="su-item-${p.id}">
       <div class="standup-item-row">
         <div class="standup-point-display" id="su-display-${p.id}">${esc(p.elaboration || p.text)}</div>
+        ${p.createdAt ? `<div style="font-size:10.5px;color:var(--text-3);margin-top:3px;">${fmtTs(p.createdAt)}</div>` : ''}
         <div class="standup-item-actions">
           <button class="icon-btn" title="Edit" onclick="editStandupPoint(${p.id})"><i class="ti ti-pencil"></i></button>
           <button class="icon-btn" title="Elaborate with AI" onclick="elaboratePoint(${p.id}, this)"><i class="ti ti-sparkles"></i></button>
@@ -5152,7 +5166,7 @@ function addMeeting() {
   const notes = document.getElementById('mtg-notes').value.trim();
   if (!type) { alert('Please choose a meeting type.'); return; }
   if (!date || !notes) { alert('Please pick a date and enter some notes.'); return; }
-  const entry = {id: nextMeetingId++, type, date, time, notes};
+  const entry = {id: nextMeetingId++, type, date, time, notes, savedAt: new Date().toISOString()};
   if (type === 'Misc') {
     entry.requester = document.getElementById('mtg-requester').value.trim();
     entry.agenda = document.getElementById('mtg-agenda').value.trim();
@@ -5311,6 +5325,7 @@ function renderMeetings() {
       </div>
       ${miscDisplay(m)}
       <div class="meeting-item-notes">${esc(m.notes)}</div>
+      ${m.savedAt ? `<div style="font-size:10.5px;color:var(--text-3);margin-top:6px;"><i class="ti ti-clock" style="font-size:10px;margin-right:3px;"></i>Logged ${fmtTs(m.savedAt)}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -7753,7 +7768,7 @@ function applyAiResult() {
     const m = meetings.find(m => m.id === id);
     if (m) { m.notes = result; saveMeetings(); renderMeetings(); }
   } else if (type === 'kb') {
-    kbFacts.push(result);
+    kbFacts.push({ text: result, createdAt: new Date().toISOString() });
     saveKbFacts();
     renderKbFact();
     renderKbList();
@@ -7840,8 +7855,7 @@ function renderNotesRecords() {
     return;
   }
   list.innerHTML = _notesRecords.map((r, i) => {
-    const d = new Date(r.createdAt);
-    const dateStr = d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'2-digit' });
+    const dateStr = fmtTs(r.createdAt) + (r.updatedAt ? ' · edited ' + fmtTs(r.updatedAt) : '');
     const preview = r.content.replace(/\n/g,' ').slice(0, 80);
     return `<div class="notes-record" id="nrec-${r.id}">
       <div class="notes-record-header" onclick="notesToggleRecord(${r.id})">
@@ -8175,7 +8189,7 @@ function eodCloseDay() {
   const todayTasks = getTodayTasks();
   const done = todayTasks.filter(t => isDone(t.id)).length;
   const total = todayTasks.length;
-  _eodLog.unshift({ id: Date.now(), date: todayInputDate(), summary, done, total });
+  _eodLog.unshift({ id: Date.now(), date: todayInputDate(), summary, done, total, savedAt: new Date().toISOString() });
   saveEodLog();
   const inp = document.getElementById('eod-summary');
   if (inp) inp.value = '';
@@ -8198,7 +8212,10 @@ function renderEodLog() {
     const [y,m,d] = e.date.split('-').map(Number);
     const label = `${d} ${MON_NAMES[m-1]}`;
     return `<div class="eod-log-entry">
-      <div class="eod-log-date">${label}</div>
+      <div>
+        <div class="eod-log-date">${label}</div>
+        ${e.savedAt ? `<div style="font-size:10px;color:var(--text-3);">${fmtTs(e.savedAt)}</div>` : ''}
+      </div>
       <div class="eod-log-summary">${e.summary ? esc(e.summary) : '<span style="color:var(--text-3);font-style:italic">No summary</span>'}</div>
       <div class="eod-log-stats">${e.done}/${e.total} tasks</div>
       <button class="eod-log-del" onclick="deleteEodEntry(${e.id})"><i class="ti ti-x"></i></button>
@@ -8230,7 +8247,7 @@ function initNotes() {
   customTasks   = dbGet('zarif_custom_tasks')   || [];
   taskOverrides = dbGet('zarif_task_overrides') || {};
   taskOrder     = dbGet('zarif_task_order')     || {};
-  kbFacts       = dbGet('zarif_kb_facts')       || DEFAULT_KB_FACTS.slice();
+  kbFacts       = (dbGet('zarif_kb_facts') || DEFAULT_KB_FACTS.slice()).map(f => typeof f === 'string' ? { text: f, createdAt: null } : f);
   hubLayout     = loadHubLayout();
   pomo          = loadPomo();
 
