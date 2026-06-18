@@ -2601,13 +2601,14 @@
 <div class="kpi-modal-overlay" id="kpi-ops-modal-overlay">
   <div class="kpi-modal">
     <div class="kpi-modal-header">
-      <strong>Email preview</strong>
+      <strong>Email preview — <span id="kpi-ops-modal-pos"></span></strong>
       <button class="icon-btn" onclick="kpiOpsModalClose()"><i class="ti ti-x"></i></button>
     </div>
     <div class="kpi-modal-preview" id="kpi-ops-modal-preview"></div>
     <div class="kpi-modal-actions">
       <button class="kpi-file-btn" onclick="kpiOpsModalClose()">Close</button>
       <button class="generate-btn" id="kpi-ops-modal-copy-btn" style="width:auto; margin-bottom:0; padding:8px 18px;" onclick="kpiOpsModalCopy()"><i class="ti ti-copy" style="font-size:15px;"></i> Copy email</button>
+      <button class="generate-btn" id="kpi-ops-modal-next-btn" style="width:auto; margin-bottom:0; padding:8px 18px; display:none;" onclick="kpiOpsModalNext()"><i class="ti ti-arrow-right" style="font-size:15px;"></i> Next</button>
     </div>
   </div>
 </div>
@@ -5923,8 +5924,10 @@ function buildKpiOpsTableHtml(row) {
 
 let kpiOpsCurrentHtml = '';
 let kpiOpsCurrentText = '';
+let kpiOpsCurrentIdx = 0;
 
 function kpiOpsCopy(i) {
+  kpiOpsCurrentIdx = i;
   const row = kpiOpsRows[i];
   const firstName = row[0].split(/\s+/)[0] || row[0];
   const table = buildKpiOpsTableHtml(row);
@@ -5945,6 +5948,10 @@ function kpiOpsCopy(i) {
   kpiOpsCurrentHtml = html;
   kpiOpsCurrentText = text;
   document.getElementById('kpi-ops-modal-preview').innerHTML = html;
+  document.getElementById('kpi-ops-modal-pos').textContent = `${i + 1} of ${kpiOpsRows.length}`;
+  document.getElementById('kpi-ops-modal-next-btn').style.display = 'none';
+  const copyBtn = document.getElementById('kpi-ops-modal-copy-btn');
+  copyBtn.innerHTML = '<i class="ti ti-copy" style="font-size:15px;"></i> Copy email';
   document.getElementById('kpi-ops-modal-overlay').classList.add('active');
 }
 
@@ -5955,10 +5962,16 @@ function kpiOpsModalClose() {
 function kpiOpsModalCopy() {
   copyRichText(kpiOpsCurrentHtml, kpiOpsCurrentText).then(() => {
     const btn = document.getElementById('kpi-ops-modal-copy-btn');
-    const original = btn.innerHTML;
     btn.innerHTML = '<i class="ti ti-check" style="font-size:15px;"></i> Copied!';
-    setTimeout(() => { btn.innerHTML = original; }, 1500);
+    const nextBtn = document.getElementById('kpi-ops-modal-next-btn');
+    if (kpiOpsCurrentIdx < kpiOpsRows.length - 1) {
+      nextBtn.style.display = '';
+    }
   });
+}
+
+function kpiOpsModalNext() {
+  kpiOpsCopy(kpiOpsCurrentIdx + 1);
 }
 
 async function copyRichText(html, text) {
