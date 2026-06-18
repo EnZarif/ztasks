@@ -6956,10 +6956,10 @@ function renderProjects() {
     return;
   }
 
-  // preserve open state; on first render auto-open active projects
+  // preserve open state; on first render all cards start collapsed
   let openIds;
   if (!_projInitialized) {
-    openIds = new Set(projects.filter(p => p.status === 'active').map(p => String(p.id)));
+    openIds = new Set();
     _projInitialized = true;
   } else {
     openIds = new Set([...document.querySelectorAll('.proj-card.open')].map(c => c.id.replace('proj-card-','')));
