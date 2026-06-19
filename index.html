@@ -694,6 +694,14 @@
   .proj-field label { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 5px; }
   .proj-field input, .proj-field select, .proj-field textarea { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: 9px; background: var(--bg); color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; resize: vertical; }
   .proj-field input:focus, .proj-field select:focus, .proj-field textarea:focus { border-color: var(--amber-text); }
+  .pm-color-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .pm-color-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; flex-shrink: 0; transition: transform 0.12s, border-color 0.12s; }
+  .pm-color-swatch:hover { transform: scale(1.1); }
+  .pm-color-swatch.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg); }
+  .pm-color-default { background: var(--surface2); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 13px; }
+  .pm-color-custom-wrap { width: 26px; height: 26px; border-radius: 50%; overflow: hidden; border: 2px solid transparent; flex-shrink: 0; transition: border-color 0.12s; }
+  .pm-color-custom-wrap.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg); }
+  .pm-color-custom-wrap input[type=color] { width: 36px; height: 36px; margin: -5px; border: none; cursor: pointer; padding: 0; }
   .proj-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
   .proj-modal-cancel { font-size: 13px; padding: 8px 16px; border-radius: 9px; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-2); cursor: pointer; font-family: inherit; }
   .proj-modal-cancel:hover { border-color: var(--text-3); color: var(--text); }
@@ -6312,6 +6320,31 @@ const PROJ_TYPE_STYLES = {
   internal:    { border:'#1D9E75', shadow:'rgba(29,158,117,0.4)', bg:'linear-gradient(135deg,#0F6E56 0%,#1D9E75 100%)', icon:'ti-tools' },
 };
 const PROJ_STATUS_LABELS = { active:'Active', onhold:'On hold', 'awaiting-client':'Awaiting client', delivered:'Delivered' };
+const PROJ_COLOR_PALETTE = ['#378ADD','#1D9E75','#D85A30','#EF9F27','#7F77DD','#D4537E','#E24B4A','#888780'];
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const num = parseInt(hex, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+function shadeHex(hex, percent) {
+  const { r, g, b } = hexToRgb(hex);
+  const t = percent < 0 ? 0 : 255, p = Math.abs(percent) / 100;
+  const nr = Math.round((t - r) * p) + r, ng = Math.round((t - g) * p) + g, nb = Math.round((t - b) * p) + b;
+  return '#' + [nr, ng, nb].map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+}
+function projStyleFor(p) {
+  const base = PROJ_TYPE_STYLES[p.type] || PROJ_TYPE_STYLES.internal;
+  if (!p.color) return base;
+  const { r, g, b } = hexToRgb(p.color);
+  return {
+    border: p.color,
+    shadow: `rgba(${r},${g},${b},0.4)`,
+    bg: `linear-gradient(135deg,${shadeHex(p.color, -25)} 0%,${p.color} 100%)`,
+    icon: base.icon,
+  };
+}
 
 function openProjModal(id) {
   const existing = id ? projects.find(p => p.id === id) : null;
@@ -6336,6 +6369,16 @@ function openProjModal(id) {
           <option value="delivered" ${existing&&existing.status==='delivered'?'selected':''}>Delivered</option>
         </select>
       </div>
+      <div class="proj-field"><label>Card color <span style="font-weight:400;color:var(--text-3)">(optional — overrides the type color)</span></label>
+        <div class="pm-color-row" id="pm-color-row">
+          <button type="button" class="pm-color-swatch pm-color-default" data-color="" title="Use type default"><i class="ti ti-x"></i></button>
+          ${PROJ_COLOR_PALETTE.map(c => `<button type="button" class="pm-color-swatch" data-color="${c}" style="background:${c}"></button>`).join('')}
+          <label class="pm-color-custom-wrap" id="pm-color-custom-wrap" title="Custom color">
+            <input type="color" id="pm-color-custom" value="${existing && existing.color ? existing.color : '#378ADD'}">
+          </label>
+        </div>
+        <input type="hidden" id="pm-color" value="${existing && existing.color ? existing.color : ''}">
+      </div>
       <div class="proj-modal-actions">
         <button class="proj-modal-cancel" onclick="closeProjModal()">Cancel</button>
         <button class="proj-modal-save" onclick="saveProjModal('${id||''}')">Save project</button>
@@ -6344,6 +6387,30 @@ function openProjModal(id) {
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
   document.getElementById('pm-title').focus();
+  initProjColorPicker(existing && existing.color ? existing.color : '');
+}
+
+function initProjColorPicker(currentColor) {
+  const row = document.getElementById('pm-color-row');
+  const hidden = document.getElementById('pm-color');
+  const customWrap = document.getElementById('pm-color-custom-wrap');
+  const customInput = document.getElementById('pm-color-custom');
+  if (!row) return;
+
+  function refreshSelected() {
+    row.querySelectorAll('.pm-color-swatch').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.color === hidden.value);
+    });
+    const isCustom = hidden.value && !PROJ_COLOR_PALETTE.includes(hidden.value);
+    customWrap.classList.toggle('selected', isCustom);
+  }
+
+  row.querySelectorAll('.pm-color-swatch').forEach(btn => {
+    btn.addEventListener('click', () => { hidden.value = btn.dataset.color; refreshSelected(); });
+  });
+  customInput.addEventListener('input', () => { hidden.value = customInput.value; refreshSelected(); });
+
+  refreshSelected();
 }
 
 function closeProjModal() {
@@ -6357,12 +6424,13 @@ function saveProjModal(id) {
   const type   = document.getElementById('pm-type').value;
   const status = document.getElementById('pm-status').value;
   const desc   = (document.getElementById('pm-desc').value || '').trim();
+  const color  = (document.getElementById('pm-color').value || '').trim();
   if (id) {
     const p = projects.find(p => String(p.id) === String(id));
-    if (p) { p.title = title; p.type = type; p.status = status; p.description = desc;
+    if (p) { p.title = title; p.type = type; p.status = status; p.description = desc; p.color = color || null;
       if (status === 'delivered' && !p.deliveredAt) p.deliveredAt = new Date().toISOString(); }
   } else {
-    projects.push({ id: nextProjectId++, title, type, status, description: desc, subs: [], createdAt: new Date().toISOString(), deliveredAt: status === 'delivered' ? new Date().toISOString() : null });
+    projects.push({ id: nextProjectId++, title, type, status, description: desc, color: color || null, subs: [], createdAt: new Date().toISOString(), deliveredAt: status === 'delivered' ? new Date().toISOString() : null });
   }
   saveProjects();
   closeProjModal();
@@ -6408,7 +6476,7 @@ function setSubFilter(projId, f) {
 function openProjectPage(projId) {
   const p = projects.find(x => x.id === projId);
   if (!p) return;
-  const style = PROJ_TYPE_STYLES[p.type] || PROJ_TYPE_STYLES.internal;
+  const style = projStyleFor(p);
   const typeLabel = PROJ_TYPE_LABELS[p.type] || p.type;
   const statusLabel = PROJ_STATUS_LABELS[p.status] || p.status;
   const statusCls = p.status === 'active' ? 'pstatus-active' : p.status === 'onhold' ? 'pstatus-onhold' : p.status === 'awaiting-client' ? 'pstatus-awaiting-client' : 'pstatus-delivered';
@@ -6466,7 +6534,7 @@ function openSubProjectPage(projId, subId) {
   if (!p) return;
   const s = (p.subs || []).find(x => x.id === subId);
   if (!s) return;
-  const style = PROJ_TYPE_STYLES[p.type] || PROJ_TYPE_STYLES.internal;
+  const style = projStyleFor(p);
   const typeLabel = PROJ_TYPE_LABELS[p.type] || p.type;
   const statusLabel = PROJ_STATUS_LABELS[s.status] || s.status;
   const statusCls = s.status === 'active' ? 'pstatus-active' : s.status === 'onhold' ? 'pstatus-onhold' : s.status === 'awaiting-client' ? 'pstatus-awaiting-client' : 'pstatus-delivered';
@@ -7083,7 +7151,7 @@ function renderProjects() {
     const typeLabel   = PROJ_TYPE_LABELS[p.type] || p.type;
     const statusLabel = PROJ_STATUS_LABELS[p.status] || p.status;
     const statusCls   = p.status === 'active' ? 'pstatus-active' : p.status === 'onhold' ? 'pstatus-onhold' : 'pstatus-delivered';
-    const style       = PROJ_TYPE_STYLES[p.type] || PROJ_TYPE_STYLES.internal;
+    const style       = projStyleFor(p);
     const dateNote    = p.deliveredAt
       ? `Delivered ${new Date(p.deliveredAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`
       : `Started ${new Date(p.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}`;
