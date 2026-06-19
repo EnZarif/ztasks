@@ -134,17 +134,17 @@
   .tp-sw-main { flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 5px 6px; }
   .tp-sw-line { height: 6px; border-radius: 3px; opacity: 0.6; }
   .tp-name { font-size: 11px; font-weight: 500; color: var(--text-2); text-align: center; }
-  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-left: 220px; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-left: 0; padding-top: 90px; }
   .wrap { padding: 2rem 3rem 4rem; }
 
-  /* SIDEBAR NAV */
-  .nav { width: 220px; background: var(--surface); border-right: 0.5px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; padding: 18px 10px 14px; z-index: 10; overflow-y: auto; }
-  .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text); padding: 0 4px; margin-bottom: 22px; flex-shrink: 0; }
+  /* TOP NAV */
+  .nav { width: 100%; background: var(--surface); border-bottom: 0.5px solid var(--border); position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; padding: 9px 18px; z-index: 10; overflow: visible; gap: 18px; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text); padding: 0 4px; flex-shrink: 0; }
   .nav-logo-icon { width: 30px; height: 30px; background: #185FA5; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .nav-logo-icon i { font-size: 15px; color: #fff; }
-  .nav-links { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-  .nav-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-3); padding: 12px 8px 5px; margin-top: 4px; }
-  .nav-btn { width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; text-align: left; }
+  .nav-links { display: flex; flex-direction: row; align-items: center; gap: 3px; flex: 1; min-width: 0; overflow-x: auto; overflow-y: visible; scrollbar-width: thin; }
+  .nav-section-label { display: none; }
+  .nav-btn { padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; text-align: left; white-space: nowrap; flex-shrink: 0; }
   .nav-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
   .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
   /* per-hub icon tiles: monochrome gold, opacity-tiered */
@@ -164,8 +164,12 @@
   .nav-btn[data-page="projects"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
   .nav-btn[data-page="personal"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
   .nav-btn[data-page="settings"].active { background: var(--surface2); box-shadow: inset 3px 0 0 var(--text-3); }
-  .nav-bottom { margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 3px; }
-  .theme-toggle-btn { width: 100%; padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; }
+  .nav-bottom { margin-left: auto; padding-top: 0; border-top: none; display: flex; flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; }
+  .nav-clock { flex-shrink: 0; padding: 8px 11px; gap: 8px; }
+  .nav-clock .clock-card-time-val { font-size: 18px; }
+  .nav-clock .clock-card-divider { height: 26px; }
+  .nav-clock .clock-card-ico { width: 28px; height: 28px; font-size: 15px; }
+  .theme-toggle-btn { padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; white-space: nowrap; }
   .theme-toggle-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--surface2); color: var(--text-2); }
   .theme-toggle-btn:hover { color: var(--text); }
   .theme-toggle-btn:hover i { background: var(--border-md); }
@@ -202,11 +206,24 @@
     .mobile-topbar-logo span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mobile-topbar-logo .nav-logo-icon { width: 28px; height: 28px; }
 
-    /* Drawer */
-    .nav { width: 270px; max-width: 84vw; z-index: 70; transform: translateX(-100%);
+    /* Drawer: nav reverts to a vertical sidebar layout while it's an overlay */
+    .nav { width: 270px; max-width: 84vw; height: 100vh; top: 0; bottom: 0; right: auto; z-index: 70; transform: translateX(-100%);
+           flex-direction: column; align-items: stretch; padding: 18px 10px 14px; overflow-y: auto; overflow-x: hidden; gap: 0;
            transition: transform 0.28s cubic-bezier(.4,0,.2,1); will-change: transform; }
     body.nav-open .nav { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,0.45); }
     body.nav-open { overflow: hidden; }
+    .nav-logo { margin-bottom: 22px; }
+    .nav-links { flex-direction: column; align-items: stretch; flex: 1; width: 100%; }
+    .nav-btn { width: 100%; }
+    .nav-section-label { display: block; }
+    .nav-group { position: static; }
+    .nav-sub { position: static; box-shadow: none; min-width: 0; margin: 1px 0 4px 14px; padding: 0 0 0 8px; border: none; border-left: 0.5px solid var(--border); border-radius: 0; background: none; }
+    .nav-bottom { margin-left: 0; margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border); flex-direction: column; align-items: stretch; width: 100%; }
+    .nav-clock { width: 100%; box-sizing: border-box; padding: 16px 12px; gap: 9px; }
+    .nav-clock .clock-card-time-val { font-size: 26px; }
+    .nav-clock .clock-card-divider { height: 32px; }
+    .nav-clock .clock-card-ico { width: 36px; height: 36px; font-size: 19px; }
+    .theme-toggle-btn { width: 100%; }
 
     /* Scrim behind drawer */
     .nav-scrim { display: block; position: fixed; inset: 0; z-index: 65; background: rgba(0,0,0,0);
@@ -264,15 +281,15 @@
   .page-back.pb-tasks    { background: color-mix(in srgb, var(--amber-text) 16%, transparent); color: var(--amber-text); border-color: color-mix(in srgb, var(--amber-text) 35%, transparent); }
   .page-back.pb-tasks i  { background: color-mix(in srgb, var(--amber-text) 30%, transparent); }
 
-  /* SIDEBAR CASCADE */
-  .nav-group { display: flex; flex-direction: column; }
+  /* NAV CASCADE (dropdown from the top bar) */
+  .nav-group { display: flex; flex-direction: column; position: relative; flex-shrink: 0; }
   .nav-group-head { display: flex; align-items: center; }
   .nav-group-head .nav-btn { flex: 1; }
   .nav-expand { background: none; border: none; cursor: pointer; color: var(--text-3); padding: 6px; border-radius: 6px; display: flex; align-items: center; transition: all 0.15s; flex-shrink: 0; }
   .nav-expand:hover { color: var(--text); background: var(--surface2); }
   .nav-expand i { font-size: 14px; transition: transform 0.2s ease; }
   .nav-group.open .nav-expand i { transform: rotate(180deg); }
-  .nav-sub { display: none; flex-direction: column; gap: 1px; margin: 1px 0 4px 14px; padding-left: 8px; border-left: 0.5px solid var(--border); }
+  .nav-sub { display: none; flex-direction: column; gap: 1px; position: absolute; top: calc(100% + 6px); left: 0; min-width: 200px; margin: 0; padding: 6px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; box-shadow: 0 12px 28px rgba(0,0,0,0.3); z-index: 20; }
   .nav-group.open .nav-sub { display: flex; }
   .nav-sublink { background: none; border: none; cursor: pointer; color: var(--text-2); font-family: inherit; font-size: 13px; text-align: left; padding: 5px 8px; border-radius: 8px; display: flex; align-items: center; gap: 9px; transition: all 0.15s; }
   .nav-sublink:hover { color: var(--text); background: var(--surface2); }
@@ -281,31 +298,25 @@
   .nav-sub-empty { font-size: 11px; color: var(--text-3); padding: 4px 8px; font-style: italic; }
 
   /* HUB / LANDING */
-  #page-home { position: relative; border-radius: 26px; overflow: hidden; min-height: 72vh; padding: 32px 28px; }
-  #home-mesh-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
-  #page-home .hub-head, #page-home .hub-grid { position: relative; z-index: 1; }
-  #page-home .hub-head h1, #page-home .hub-head p { color: #fff; }
-  #page-home .hub-head p { color: rgba(255,255,255,0.72); }
-  :root:not([data-theme="copper"]) #page-home .app-card { background: rgba(20,14,28,0.45); backdrop-filter: blur(14px); border: 0.5px solid rgba(255,255,255,0.14); }
-  :root:not([data-theme="copper"]) #page-home .app-card:hover { background: rgba(20,14,28,0.6); border-color: rgba(255,255,255,0.26); }
-  :root:not([data-theme="copper"]) #page-home .app-card-title { color: #fff; }
-  :root:not([data-theme="copper"]) #page-home .app-card-desc { color: rgba(255,255,255,0.65); }
-  :root:not([data-theme="copper"]) #page-home .app-card-meta { color: rgba(255,255,255,0.55); }
-  .hub-head { margin-bottom: 1.6rem; }
+  #page-home { position: relative; padding: 4px 0 0; }
+  .hub-head { margin-bottom: 1.6rem; position: relative; z-index: 1; }
   .hub-back { font-size: 12px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; padding: 0; margin-bottom: 10px; transition: color 0.15s; }
   .hub-back:hover { color: var(--text-2); }
   .hub-back i { font-size: 14px; }
   .hub-head h1 { font-size: 22px; font-weight: 500; letter-spacing: -0.2px; display: flex; align-items: center; gap: 10px; }
   .hub-head p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
-  .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  #home-greeting { font-size: 34px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.15; }
+  .home-greeting-name { color: var(--amber-text); }
+  #home-date { font-size: 14px; color: color-mix(in srgb, var(--amber-text) 55%, var(--text-2)); margin-top: 6px; }
+  .hub-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
   .app-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: border-color 0.15s, transform 0.15s ease, background 0.15s; display: flex; flex-direction: column; gap: 12px; min-height: 150px; animation: taskSlideIn 0.4s cubic-bezier(.2,.85,.25,1) both; }
   .app-card:hover { border-color: var(--border-md); transform: translateY(-2px); }
   .app-card.soon { cursor: default; opacity: 0.6; }
   .app-card.soon:hover { transform: none; border-color: var(--border); }
   .app-card-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 23px; flex-shrink: 0; background: linear-gradient(155deg, var(--teal), var(--amber-text)); color: #fff; }
   .app-card-title { font-size: 15px; font-weight: 500; color: var(--text); }
-  .app-card-desc { font-size: 12px; color: var(--text-3); line-height: 1.55; }
-  .app-card-meta { margin-top: auto; font-size: 11px; color: var(--text-3); display: flex; align-items: center; gap: 5px; }
+  .app-card-desc { font-size: 12px; color: color-mix(in srgb, var(--amber-text) 45%, var(--text-3)); line-height: 1.55; }
+  .app-card-meta { margin-top: auto; font-size: 11px; color: var(--amber-text); display: flex; align-items: center; gap: 5px; }
   .app-card-meta i { font-size: 13px; }
   .hub-grid .app-card:nth-child(1){animation-delay:.03s}
   .hub-grid .app-card:nth-child(2){animation-delay:.08s}
@@ -315,43 +326,24 @@
   .hub-grid .app-card:nth-child(6){animation-delay:.28s}
   @media (prefers-reduced-motion: reduce) { .app-card { animation: none; } }
 
-  /* ── Home dashboard: topbar, project ring card, new-task button, particles (all themes) ── */
-  .home-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; position: relative; z-index: 2; }
-  .home-logo { font-family: 'Fraunces', serif; font-weight: 800; font-size: 19px; color: var(--text); }
-  .home-logo-dot { color: var(--teal); }
-  .home-clock.clock-card { padding: 10px 14px; }
-  .home-clock .clock-card-time-val { font-size: 20px; }
+  /* ── Home dashboard: project ring card, new-task button, particles (all themes) ── */
   .home-card-project { flex-direction: row !important; align-items: center; justify-content: space-between; gap: 14px; }
   .home-project-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .home-card-project .ring { width: 56px; height: 56px; flex-shrink: 0; }
   .home-card-project .ring-hole { width: 42px; height: 42px; font-size: 11px; }
   .home-new-task-btn { position: relative; z-index: 1; margin-top: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 30px; border: none; background: var(--text); color: var(--bg); cursor: pointer; transition: opacity 0.15s; font-family: inherit; }
   .home-new-task-btn:hover { opacity: 0.85; }
-  .home-particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
-  .home-particle { position: absolute; bottom: 0; border-radius: 50%; background: var(--text); animation: homeParticleFloat linear infinite; }
+  .home-particles { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .home-particle { position: absolute; bottom: 0; border-radius: 50%; background: var(--amber-text); animation: homeParticleFloat linear infinite; }
   @keyframes homeParticleFloat { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 0.55; } 90% { opacity: 0.4; } 100% { transform: translateY(-340px); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .home-particle { animation: none; display: none; } }
 
-  /* ── COPPER theme: bento home layout, grain + glow, live motion ── */
-  :root[data-theme="copper"] #page-home { border-radius: 0; box-shadow: none; }
-  :root[data-theme="copper"] #page-home::before {
-    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  :root[data-theme="copper"] #page-home::after {
-    content: ''; position: absolute; z-index: 1; pointer-events: none; width: 720px; height: 720px; top: -220px; right: -180px;
-    border-radius: 50%; filter: blur(10px); opacity: 0.55;
-    background: radial-gradient(circle at 35% 35%, var(--copper-glow-1), var(--copper-glow-2) 55%, transparent 78%);
-    animation: copperPulse 6s ease-in-out infinite;
-  }
-  @keyframes copperPulse { 0%,100% { transform: scale(1) translate(0,0); opacity: 0.5; } 50% { transform: scale(1.15) translate(-20px,24px); opacity: 0.7; } }
-  :root[data-theme="copper"] .home-particle { background: var(--copper-glow-2); }
+  /* ── COPPER theme: bento home layout (no blob/glow, no mouse tilt) ── */
   :root[data-theme="copper"] .hub-grid { grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: auto auto; }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) {
     grid-row: span 2; position: relative; overflow: hidden;
     background: linear-gradient(155deg, var(--copper-glow-1), #b5531f);
-    border-color: transparent; transform: rotate(-1.2deg);
-    animation: taskSlideIn 0.4s cubic-bezier(.2,.85,.25,1) both, copperFloat 6s ease-in-out infinite 0.8s;
+    border-color: transparent;
   }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-title,
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-desc,
@@ -361,20 +353,7 @@
     content: '01'; position: absolute; bottom: 2px; right: 12px; font-family: 'Fraunces', serif; font-weight: 800;
     font-size: 84px; color: #1c0f06; opacity: 0.16; line-height: 1; pointer-events: none;
   }
-  :root[data-theme="copper"] .hub-grid .app-card:nth-child(2) { transform: rotate(1deg); }
-  :root[data-theme="copper"] .hub-grid .app-card:nth-child(3) { transform: rotate(-0.8deg); }
-  :root[data-theme="copper"] .hub-grid .app-card:nth-child(4) { grid-column: span 2; transform: rotate(0.4deg); }
-  @keyframes copperFloat { 0%,100% { transform: rotate(-1.2deg) translateY(0); } 50% { transform: rotate(-0.8deg) translateY(-5px); } }
-  :root[data-theme="copper"] .ring { animation: copperRingSpin 12s linear infinite; }
-  :root[data-theme="copper"] .ring-hole { animation: copperRingUnspin 12s linear infinite; }
-  @keyframes copperRingSpin { to { transform: rotate(360deg); } }
-  @keyframes copperRingUnspin { to { transform: rotate(-360deg); } }
-  @media (prefers-reduced-motion: reduce) {
-    :root[data-theme="copper"] #page-home::after,
-    :root[data-theme="copper"] .hub-grid .app-card:nth-child(1),
-    :root[data-theme="copper"] .ring,
-    :root[data-theme="copper"] .ring-hole { animation: none; }
-  }
+  :root[data-theme="copper"] .hub-grid .app-card:nth-child(4) { grid-column: span 2; }
 
   /* DASHBOARD */
   .dash-grid { display: flex; gap: 16px; align-items: center; }
@@ -1535,14 +1514,7 @@
   <div class="nav-bottom">
     <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><i class="ti ti-settings"></i><span>Settings</span></button>
     <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Cycle theme"><i class="ti ti-palette"></i><span>Theme</span></button>
-  </div>
-</nav>
-
-<div class="wrap">
-
-  <div class="page-topbar">
-    <button id="page-back" class="page-back" style="display:none" onclick="goBack()"><i class="ti ti-arrow-left"></i> <span id="page-back-label">Back</span></button>
-    <div class="clock-card" title="Melbourne time">
+    <div class="clock-card nav-clock" title="Melbourne time">
       <div class="clock-card-ico"><i class="ti ti-clock"></i></div>
       <div class="clock-card-time"><span class="clock-card-time-val" id="melb-clock-time">--:--</span><span class="clock-card-ampm" id="melb-clock-ampm"></span></div>
       <div class="clock-card-divider"></div>
@@ -1552,24 +1524,18 @@
       </div>
     </div>
   </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="page-topbar">
+    <button id="page-back" class="page-back" style="display:none" onclick="goBack()"><i class="ti ti-arrow-left"></i> <span id="page-back-label">Back</span></button>
+  </div>
 
   <!-- HOME LANDING -->
   <div class="page active" id="page-home">
-    <canvas id="home-mesh-bg"></canvas>
     <div class="home-particles" id="home-particles"></div>
     <div class="hub-head">
-      <div class="home-topbar">
-        <div class="home-logo">central<span class="home-logo-dot">.</span></div>
-        <div class="clock-card home-clock" title="Melbourne time">
-          <div class="clock-card-ico"><i class="ti ti-clock"></i></div>
-          <div class="clock-card-time"><span class="clock-card-time-val" id="home-clock-time">--:--</span><span class="clock-card-ampm" id="home-clock-ampm"></span></div>
-          <div class="clock-card-divider"></div>
-          <div class="clock-card-date">
-            <div class="clock-card-weekday" id="home-clock-weekday"></div>
-            <div class="clock-card-day" id="home-clock-day"></div>
-          </div>
-        </div>
-      </div>
       <h1 id="home-greeting">Good evening, Zarif</h1>
       <p id="home-date">Loading…</p>
     </div>
@@ -3020,8 +2986,6 @@ function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', t);
   }
   document.querySelectorAll('.tp-card').forEach(c => c.classList.toggle('tp-active', c.dataset.themeId === t));
-  if (typeof meshBgRefreshPalette === 'function') meshBgRefreshPalette();
-  if (typeof setupCopperTilt === 'function') setupCopperTilt(t === 'copper');
 }
 
 function pickTheme(name) {
@@ -3033,41 +2997,6 @@ function toggleTheme() {
   const current = localStorage.getItem('zarif_theme') || 'midnight';
   const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
   pickTheme(next);
-}
-
-let _copperTiltCleanup = null;
-function setupCopperTilt(enable) {
-  if (_copperTiltCleanup) { _copperTiltCleanup(); _copperTiltCleanup = null; }
-  if (!enable) return;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (typeof Motion === 'undefined' || !Motion.animate) return;
-  const cards = document.querySelectorAll('.hub-grid .app-card');
-  const handlers = [];
-  cards.forEach(card => {
-    const onMove = (e) => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      Motion.animate(card, {
-        transform: `perspective(800px) rotateX(${(-y * 10).toFixed(2)}deg) rotateY(${(x * 10).toFixed(2)}deg) translateZ(8px)`
-      }, { type: 'spring', stiffness: 300, damping: 22 });
-    };
-    const onLeave = () => {
-      Motion.animate(card, {
-        transform: 'perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
-      }, { type: 'spring', stiffness: 200, damping: 20 });
-    };
-    card.addEventListener('pointermove', onMove);
-    card.addEventListener('pointerleave', onLeave);
-    handlers.push([card, onMove, onLeave]);
-  });
-  _copperTiltCleanup = () => {
-    handlers.forEach(([card, onMove, onLeave]) => {
-      card.removeEventListener('pointermove', onMove);
-      card.removeEventListener('pointerleave', onLeave);
-      card.style.transform = '';
-    });
-  };
 }
 
 applyTheme(localStorage.getItem('zarif_theme') || 'midnight');
@@ -3823,17 +3752,16 @@ function tickMelbClock() {
   const m = hm.match(/(\d{1,2}:\d{2})\s*(am|pm)/i);
   const weekday = melbFmt({ weekday: 'long' });
   const day = melbFmt({ day: 'numeric', month: 'long', year: 'numeric' });
-  ['melb-clock', 'home-clock'].forEach(prefix => {
-    const timeEl = document.getElementById(prefix + '-time');
-    if (!timeEl) return;
+  const timeEl = document.getElementById('melb-clock-time');
+  if (timeEl) {
     timeEl.textContent = m ? m[1] : hm;
-    const apEl = document.getElementById(prefix + '-ampm');
+    const apEl = document.getElementById('melb-clock-ampm');
     if (apEl) apEl.textContent = m ? m[2].toUpperCase() : '';
-    const wd = document.getElementById(prefix + '-weekday');
+    const wd = document.getElementById('melb-clock-weekday');
     if (wd) wd.textContent = weekday;
-    const dy = document.getElementById(prefix + '-day');
+    const dy = document.getElementById('melb-clock-day');
     if (dy) dy.textContent = day;
-  });
+  }
 }
 
 // ===== REMINDERS / NOTIFICATIONS =====
@@ -4074,8 +4002,6 @@ function showPage(p, hub) {
     }
   }
   if (typeof updatePomoFloat === 'function') updatePomoFloat();
-  if (p === 'home' && typeof meshBgStart === 'function') meshBgStart();
-  else if (typeof meshBgStop === 'function') meshBgStop();
   if (p === 'home' && typeof renderHomeDashboard === 'function') renderHomeDashboard();
   if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
   if (p === 'insights' && typeof renderInsights === 'function') renderInsights();
@@ -4350,8 +4276,8 @@ function renderHomeDashboard() {
   if (greetEl) {
     const h = now.getHours();
     const part = h < 5 ? 'night' : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
-    const s = (dbGet('zarif_settings') || {}).displayName || 'Zarif';
-    greetEl.textContent = `Good ${part}, ${s}`;
+    const s = esc((dbGet('zarif_settings') || {}).displayName || 'Zarif');
+    greetEl.innerHTML = `<span class="home-greeting-word">Good ${part},</span> <span class="home-greeting-name">${s}</span>`;
   }
   const todayTasks = getTodayTasks();
   const undone = todayTasks.filter(t => !isDone(t.id));
@@ -4415,9 +4341,6 @@ function renderHomeDashboard() {
     }
   }
 
-  if (typeof setupCopperTilt === 'function') {
-    setupCopperTilt(document.documentElement.getAttribute('data-theme') === 'copper');
-  }
 }
 
 function renderTasks() {
@@ -7653,6 +7576,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.29.0', type: 'major', date: '19 Jun 2026', title: 'Sidebar moved to a top bar, calmer home hero', changes: [
+    'The left sidebar is gone — navigation now lives in a top bar, with hub dropdowns and a single Melbourne clock in the top-right',
+    'Removed the home page\'s animated mesh background, Copper glow blob, and mouse-tilt hover effect on the dashboard cards',
+    'Home greeting now reads as a real headline — bigger type, with your name in gold — instead of plain text',
+    'Dashboard cards are solid (no more translucency) and their secondary text/labels now pick up the gold accent',
+  ]},
   { ver: '3.28.4', type: 'minor', date: '19 Jun 2026', title: 'Home hero: clock, particles, bigger glow', changes: [
     'Replaced the Home nav pills with a wordmark + the Melbourne clock card in the top-right corner',
     'Copper theme\'s home page no longer renders as a boxed/rounded card — it now bleeds edge-to-edge like the rest of the page',
@@ -8972,7 +8901,6 @@ function initNotes() {
   loadEodLog(); renderEodLog();
   renderProjects();
   renderHomeDashboard();
-  if (typeof meshBgStart === 'function' && document.getElementById('page-home')?.classList.contains('active')) meshBgStart();
   const mdh = document.getElementById('mtg-date-holder');
   if (mdh) mdh.innerHTML = makeDatePicker('mtg-date', todayInputDate(), null, 'Pick a date');
   const cth = document.getElementById('ct-time-holder');
@@ -8985,152 +8913,6 @@ function initNotes() {
   updateNotifPermStatus();
 })();
 
-// ===== MESH GRADIENT WALLPAPER (home page) =====
-(function() {
-  const canvas = document.getElementById('home-mesh-bg');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const page = document.getElementById('page-home');
-  let running = false, raf = null, t = 0;
-  let dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let w = 0, h = 0;
-  const mouse = { x: 0.5, y: 0.42 };
-  const mouseTarget = { x: 0.5, y: 0.42 };
-  const ripples = [];
-  let palette = null;
-
-  function rgbOf(c) {
-    c = (c || '').trim();
-    if (c.startsWith('#')) {
-      const hex = c.replace('#', '');
-      const full = hex.length === 3 ? hex.split('').map(x => x + x).join('') : hex;
-      const num = parseInt(full, 16);
-      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-    }
-    const m = c.match(/rgba?\(([^)]+)\)/);
-    if (m) {
-      const parts = m[1].split(',').map(s => parseFloat(s));
-      return { r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 };
-    }
-    return { r: 60, g: 60, b: 80 };
-  }
-  function withAlpha(c, a) {
-    const { r, g, b } = rgbOf(c);
-    return `rgba(${r},${g},${b},${a})`;
-  }
-
-  function refreshPalette() {
-    const cs = getComputedStyle(document.documentElement);
-    const isCopper = document.documentElement.getAttribute('data-theme') === 'copper';
-    const base    = cs.getPropertyValue('--hero-bg').trim() || cs.getPropertyValue('--bg').trim() || '#0e1215';
-    const accent  = (isCopper && cs.getPropertyValue('--copper-glow-1').trim()) || cs.getPropertyValue('--teal').trim() || '#378ADD';
-    const warm    = (isCopper && cs.getPropertyValue('--copper-glow-2').trim()) || cs.getPropertyValue('--amber-text').trim() || '#FAC775';
-    const second  = isCopper ? warm : (cs.getPropertyValue('--pink-text').trim() || '#ED93B1');
-    palette = {
-      base,
-      cornerAccent: withAlpha(accent, isCopper ? 0.5 : 0.35),
-      cornerWarm: withAlpha(warm, isCopper ? 0.6 : 0.45),
-      mainAccent: withAlpha(accent, isCopper ? 1 : 0.85),
-      secondary: withAlpha(second, isCopper ? 0.55 : 0.45),
-      rippleA: withAlpha(accent, 1),
-      rippleB: withAlpha(warm, 1),
-    };
-  }
-
-  function resize() {
-    const r = page.getBoundingClientRect();
-    w = Math.max(1, r.width);
-    h = Math.max(1, r.height);
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function onMove(e) {
-    const r = canvas.getBoundingClientRect();
-    mouseTarget.x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-    mouseTarget.y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-  }
-  function onClick(e) {
-    const r = canvas.getBoundingClientRect();
-    ripples.push({
-      x: (e.clientX - r.left), y: (e.clientY - r.top),
-      start: performance.now(),
-      warm: Math.random() > 0.5,
-    });
-    if (ripples.length > 6) ripples.shift();
-  }
-
-  function draw() {
-    if (!palette) refreshPalette();
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = palette.base;
-    ctx.fillRect(0, 0, w, h);
-
-    mouse.x += (mouseTarget.x - mouse.x) * 0.045;
-    mouse.y += (mouseTarget.y - mouse.y) * 0.045;
-
-    const maxR = Math.max(w, h);
-    const blobs = [
-      { x: w * (0.12 + 0.04 * Math.sin(t * 0.6)), y: h * (0.92 + 0.03 * Math.cos(t * 0.5)), r: maxR * 0.62, color: palette.cornerAccent },
-      { x: w * (0.88 + 0.03 * Math.sin(t * 0.8 + 1)), y: h * (0.06 + 0.025 * Math.cos(t * 0.7)), r: maxR * 0.55, color: palette.cornerWarm },
-      { x: w * (0.22 + mouse.x * 0.42), y: h * (0.18 + mouse.y * 0.42), r: maxR * 0.5, color: palette.mainAccent },
-      { x: w * (0.68 + 0.05 * Math.sin(t * 0.5 + 2)), y: h * (0.78 + 0.04 * Math.cos(t * 0.45 + 1)), r: maxR * 0.4, color: palette.secondary },
-    ];
-
-    const now = performance.now();
-    for (let i = ripples.length - 1; i >= 0; i--) {
-      const rp = ripples[i];
-      const age = now - rp.start;
-      if (age > 1100) { ripples.splice(i, 1); continue; }
-      const p = age / 1100;
-      const ease = 1 - Math.pow(1 - p, 3);
-      const rad = ease * maxR * 0.38;
-      const alpha = (1 - p) * 0.5;
-      const base = rgbOf(rp.warm ? palette.rippleB : palette.rippleA);
-      blobs.push({ x: rp.x, y: rp.y, r: rad, color: `rgba(${base.r},${base.g},${base.b},${alpha})` });
-    }
-
-    ctx.globalCompositeOperation = 'screen';
-    blobs.forEach(b => {
-      if (b.r <= 0) return;
-      const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-      g.addColorStop(0, b.color);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    ctx.globalCompositeOperation = 'source-over';
-
-    t += 0.012;
-    if (running) raf = requestAnimationFrame(draw);
-  }
-
-  function start() {
-    refreshPalette();
-    if (running) return;
-    running = true;
-    resize();
-    canvas.addEventListener('mousemove', onMove);
-    canvas.addEventListener('click', onClick);
-    window.addEventListener('resize', resize);
-    raf = requestAnimationFrame(draw);
-  }
-  function stop() {
-    running = false;
-    if (raf) cancelAnimationFrame(raf);
-    canvas.removeEventListener('mousemove', onMove);
-    canvas.removeEventListener('click', onClick);
-    window.removeEventListener('resize', resize);
-  }
-
-  window.meshBgStart = start;
-  window.meshBgStop = stop;
-  window.meshBgRefreshPalette = refreshPalette;
-  if (document.getElementById('page-home').classList.contains('active')) start();
-})();
 
 // ===== MOTION ANIMATIONS =====
 const _M = window.Motion;
