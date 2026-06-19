@@ -140,8 +140,22 @@
   /* TOP NAV */
   .nav { width: 100%; background: var(--surface); border-bottom: 0.5px solid var(--border); position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; padding: 9px 18px; z-index: 10; overflow: visible; gap: 18px; }
   .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text); padding: 0 4px; flex-shrink: 0; }
-  .nav-logo-icon { width: 30px; height: 30px; background: #185FA5; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .nav-logo-icon i { font-size: 15px; color: #fff; }
+  .nav-logo-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; perspective: 120px; }
+  .nav-logo-btn { background: none; border: none; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .nav-logo-btn:hover { opacity: 0.8; }
+  .nav-wordmark { font-family: 'Fraunces', serif; font-weight: 800; font-size: 18px; color: var(--text); }
+  .nav-wordmark-dot { color: #e87f3e; }
+  .nav-cube { width: 16px; height: 16px; position: relative; transform-style: preserve-3d; animation: navCubeSpin 6s linear infinite; }
+  .nav-cube-face { position: absolute; width: 16px; height: 16px; box-sizing: border-box; border: 2.5px solid #3c2415; background: #f0d9a8; animation: navCubeFill 3s ease-in-out infinite; }
+  .nav-cube-front { transform: translateZ(8px); }
+  .nav-cube-back { transform: rotateY(180deg) translateZ(8px); animation-delay: 0.5s; }
+  .nav-cube-right { transform: rotateY(90deg) translateZ(8px); animation-delay: 0.25s; }
+  .nav-cube-left { transform: rotateY(-90deg) translateZ(8px); animation-delay: 0.75s; }
+  .nav-cube-top { transform: rotateX(90deg) translateZ(8px); animation-delay: 0.1s; }
+  .nav-cube-bottom { transform: rotateX(-90deg) translateZ(8px); animation-delay: 0.6s; }
+  @keyframes navCubeSpin { from { transform: rotateX(-18deg) rotateY(0deg); } to { transform: rotateX(-18deg) rotateY(360deg); } }
+  @keyframes navCubeFill { 0%, 60% { background: #f0d9a8; } 85%, 100% { background: #e87f3e; } }
+  @media (prefers-reduced-motion: reduce) { .nav-cube { animation: none; } .nav-cube-face { animation: none; background: #f0d9a8; } }
   .nav-links { display: flex; flex-direction: row; align-items: center; gap: 3px; flex: 1; min-width: 0; overflow-x: auto; overflow-y: visible; scrollbar-width: thin; }
   .nav-section-label { display: none; }
   .nav-btn { padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; text-align: left; white-space: nowrap; flex-shrink: 0; }
@@ -264,6 +278,7 @@
 
   /* GLOBAL BACK BUTTON */
   .page-topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .page-topbar.topbar-empty { margin-bottom: 0; }
   .page-topbar .clock-card { margin-left: auto; }
   .page-topbar .page-back { margin-bottom: 0; }
   .page-back { font-size: 13px; font-weight: 500; border-radius: 20px; padding: 7px 15px 7px 11px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.2rem; transition: all 0.15s; border: 1.5px solid transparent; }
@@ -298,7 +313,7 @@
   .nav-sub-empty { font-size: 11px; color: var(--text-3); padding: 4px 8px; font-style: italic; }
 
   /* HUB / LANDING */
-  #page-home { position: relative; padding: 4px 0 0; }
+  #page-home { position: relative; padding: 4px 0 0; margin-top: -2rem; }
   .hub-head { margin-bottom: 1.6rem; position: relative; z-index: 1; }
   .hub-back { font-size: 12px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; padding: 0; margin-bottom: 10px; transition: color 0.15s; }
   .hub-back:hover { color: var(--text-2); }
@@ -306,7 +321,7 @@
   .hub-head h1 { font-size: 22px; font-weight: 500; letter-spacing: -0.2px; display: flex; align-items: center; gap: 10px; }
   .hub-head p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
   #home-greeting { font-size: 34px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.15; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-  .home-greeting-name { color: #e87f3e; font-size: 48px; font-weight: 700; }
+  .home-greeting-name { color: #e87f3e; font-size: 48px; font-weight: 700; font-style: italic; }
   #home-date { font-size: 14px; color: color-mix(in srgb, var(--amber-text) 55%, var(--text-2)); margin-top: 6px; }
   .hub-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
   .app-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: border-color 0.15s, transform 0.15s ease, background 0.15s; display: flex; flex-direction: column; gap: 12px; min-height: 150px; animation: taskSlideIn 0.4s cubic-bezier(.2,.85,.25,1) both; }
@@ -1473,15 +1488,14 @@
 
 <header class="mobile-topbar">
   <button class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Open menu"><i class="ti ti-menu-2"></i></button>
-  <div class="mobile-topbar-logo"><div class="nav-logo-icon"><i class="ti ti-checklist"></i></div><span>Zarif Central Hub</span></div>
+  <button class="mobile-topbar-logo nav-logo-btn" onclick="showPage('home')"><div class="nav-logo-icon"><div class="nav-cube"><div class="nav-cube-face nav-cube-front"></div><div class="nav-cube-face nav-cube-back"></div><div class="nav-cube-face nav-cube-right"></div><div class="nav-cube-face nav-cube-left"></div><div class="nav-cube-face nav-cube-top"></div><div class="nav-cube-face nav-cube-bottom"></div></div></div><span class="nav-wordmark">central<span class="nav-wordmark-dot">.</span></span></button>
   <button class="mobile-theme-btn" onclick="toggleTheme()" aria-label="Cycle theme"><i class="ti ti-palette"></i></button>
 </header>
 <div class="nav-scrim" id="nav-scrim" onclick="closeMobileNav()"></div>
 
 <nav class="nav">
-  <div class="nav-logo"><div class="nav-logo-icon"><i class="ti ti-checklist"></i></div><span>Zarif Central Hub</span></div>
+  <button class="nav-logo nav-logo-btn" onclick="showPage('home')"><div class="nav-logo-icon"><div class="nav-cube"><div class="nav-cube-face nav-cube-front"></div><div class="nav-cube-face nav-cube-back"></div><div class="nav-cube-face nav-cube-right"></div><div class="nav-cube-face nav-cube-left"></div><div class="nav-cube-face nav-cube-top"></div><div class="nav-cube-face nav-cube-bottom"></div></div></div><span class="nav-wordmark">central<span class="nav-wordmark-dot">.</span></span></button>
   <div class="nav-links">
-    <button class="nav-btn active" data-page="home" onclick="showPage('home')"><i class="ti ti-home"></i><span>Home</span></button>
     <button class="nav-btn" data-page="widgets" onclick="showPage('widgets')"><i class="ti ti-apps"></i><span>Widgets</span></button>
   </div>
   <div class="nav-bottom">
@@ -1501,7 +1515,7 @@
 
 <div class="wrap">
 
-  <div class="page-topbar">
+  <div class="page-topbar topbar-empty">
     <button id="page-back" class="page-back" style="display:none" onclick="goBack()"><i class="ti ti-arrow-left"></i> <span id="page-back-label">Back</span></button>
   </div>
 
@@ -3957,6 +3971,8 @@ function showPage(p, hub) {
   const back = document.getElementById('page-back');
   const backLbl = document.getElementById('page-back-label');
   const HUB_BACK_COLOR = { home:'pb-home', helpdesk:'pb-helpdesk', projects:'pb-projects', personal:'pb-personal', tasks:'pb-tasks' };
+  const topbar = document.querySelector('.page-topbar');
+  if (topbar) topbar.classList.toggle('topbar-empty', p === 'home');
   if (back) {
     back.classList.remove('pb-home','pb-helpdesk','pb-projects','pb-personal','pb-tasks');
     if (p === 'home' || p === 'projdetail') {
@@ -7489,6 +7505,15 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.29.4', type: 'patch', date: '20 Jun 2026', title: 'Logo is now a spinning 3D cube', changes: [
+    'Replaced the flat checklist icon with a genuine rotating 3D cube — each face fills from pale gold to orange as it spins, with a thicker copper-brown outline',
+    '"Zarif" in the home greeting is italic again',
+  ]},
+  { ver: '3.29.3', type: 'patch', date: '20 Jun 2026', title: 'Home sits flush under the nav, wordmark is "central."', changes: [
+    'Removed the empty gap between the top nav and the home greeting — it now sits right beneath the bar',
+    'Renamed "Zarif Central Hub" to "central." with an orange accent period, in a distinct serif',
+    'Removed the separate Home nav button — clicking the logo/wordmark now takes you back to the landing page',
+  ]},
   { ver: '3.29.2', type: 'patch', date: '20 Jun 2026', title: 'Particles now rise the full height of the page', changes: [
     'Home particles travel the full height of the page and fade out under the top nav, instead of a short drift',
     'Particles are now white',
