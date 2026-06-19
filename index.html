@@ -293,11 +293,11 @@
   #page-home .hub-head, #page-home .hub-grid { position: relative; z-index: 1; }
   #page-home .hub-head h1, #page-home .hub-head p { color: #fff; }
   #page-home .hub-head p { color: rgba(255,255,255,0.72); }
-  #page-home .app-card { background: rgba(20,14,28,0.45); backdrop-filter: blur(14px); border: 0.5px solid rgba(255,255,255,0.14); }
-  #page-home .app-card:hover { background: rgba(20,14,28,0.6); border-color: rgba(255,255,255,0.26); }
-  #page-home .app-card-title { color: #fff; }
-  #page-home .app-card-desc { color: rgba(255,255,255,0.65); }
-  #page-home .app-card-meta { color: rgba(255,255,255,0.55); }
+  :root:not([data-theme="copper"]) #page-home .app-card { background: rgba(20,14,28,0.45); backdrop-filter: blur(14px); border: 0.5px solid rgba(255,255,255,0.14); }
+  :root:not([data-theme="copper"]) #page-home .app-card:hover { background: rgba(20,14,28,0.6); border-color: rgba(255,255,255,0.26); }
+  :root:not([data-theme="copper"]) #page-home .app-card-title { color: #fff; }
+  :root:not([data-theme="copper"]) #page-home .app-card-desc { color: rgba(255,255,255,0.65); }
+  :root:not([data-theme="copper"]) #page-home .app-card-meta { color: rgba(255,255,255,0.55); }
   .hub-head { margin-bottom: 1.6rem; }
   .hub-back { font-size: 12px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; padding: 0; margin-bottom: 10px; transition: color 0.15s; }
   .hub-back:hover { color: var(--text-2); }
@@ -329,13 +329,23 @@
   .hub-grid .app-card:nth-child(6){animation-delay:.28s}
   @media (prefers-reduced-motion: reduce) { .app-card { animation: none; } }
 
+  /* ── Home dashboard: pills, project ring card, new-task button (all themes) ── */
+  .home-pills { display: flex; gap: 7px; margin-bottom: 14px; flex-wrap: wrap; }
+  #page-home .hub-pill.active.hp-all { border-color: var(--teal); background: var(--teal-bg); color: var(--teal-text); }
+  .home-card-project { flex-direction: row !important; align-items: center; justify-content: space-between; gap: 14px; }
+  .home-project-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .home-card-project .ring { width: 56px; height: 56px; flex-shrink: 0; }
+  .home-card-project .ring-hole { width: 42px; height: 42px; font-size: 11px; }
+  .home-new-task-btn { position: relative; z-index: 1; margin-top: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 30px; border: none; background: var(--text); color: var(--bg); cursor: pointer; transition: opacity 0.15s; font-family: inherit; }
+  .home-new-task-btn:hover { opacity: 0.85; }
+
   /* ── COPPER theme: bento home layout, grain + glow, live motion ── */
   :root[data-theme="copper"] #page-home::before {
-    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
+    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   :root[data-theme="copper"] #page-home::after {
-    content: ''; position: absolute; z-index: 0; pointer-events: none; width: 380px; height: 380px; top: -130px; right: -110px;
+    content: ''; position: absolute; z-index: 1; pointer-events: none; width: 380px; height: 380px; top: -130px; right: -110px;
     border-radius: 50%; filter: blur(6px); opacity: 0.4;
     background: radial-gradient(circle at 35% 35%, var(--copper-glow-1), var(--copper-glow-2) 55%, transparent 78%);
     animation: copperPulse 5s ease-in-out infinite;
@@ -358,6 +368,7 @@
   }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(2) { transform: rotate(1deg); }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(3) { transform: rotate(-0.8deg); }
+  :root[data-theme="copper"] .hub-grid .app-card:nth-child(4) { grid-column: span 2; transform: rotate(0.4deg); }
   @keyframes copperFloat { 0%,100% { transform: rotate(-1.2deg) translateY(0); } 50% { transform: rotate(-0.8deg) translateY(-5px); } }
   :root[data-theme="copper"] .ring { animation: copperRingSpin 12s linear infinite; }
   :root[data-theme="copper"] .ring-hole { animation: copperRingUnspin 12s linear infinite; }
@@ -1555,29 +1566,44 @@
   <div class="page active" id="page-home">
     <canvas id="home-mesh-bg"></canvas>
     <div class="hub-head">
-      <h1><i class="ti ti-layout-grid" style="color:var(--teal);"></i> Zarif Central Hub</h1>
-      <p>Choose where you want to go.</p>
+      <div class="home-pills">
+        <button class="hub-pill active hp-all" onclick="showPage('home')"><i class="ti ti-home"></i>Home</button>
+        <button class="hub-pill" onclick="showPage('tasks')"><i class="ti ti-list-check"></i>Tasks</button>
+        <button class="hub-pill" onclick="showPage('projects')"><i class="ti ti-folders"></i>Projects</button>
+        <button class="hub-pill" onclick="showPage('personal')"><i class="ti ti-user-heart"></i>Personal</button>
+      </div>
+      <h1 id="home-greeting">Good evening, Zarif</h1>
+      <p id="home-date">Loading…</p>
     </div>
     <div class="hub-grid">
-      <div class="app-card" onclick="showPage('helpdesk')">
-        <div class="app-card-icon c-blue"><i class="ti ti-headset"></i></div>
-        <div class="app-card-title">Helpdesk Management</div>
-        <div class="app-card-desc">Daily tasks, KPI reports, meetings, daily message and templates.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open hub</div>
+      <div class="app-card" id="home-card-due" onclick="showPage('tasks')">
+        <div class="app-card-icon c-blue"><i class="ti ti-sun-high"></i></div>
+        <div class="app-card-title">Due today</div>
+        <div class="app-card-desc">Loading…</div>
+        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open tasks</div>
       </div>
-      <div class="app-card" onclick="showPage('projects')">
-        <div class="app-card-icon c-amber"><i class="ti ti-folders"></i></div>
-        <div class="app-card-title">Projects</div>
-        <div class="app-card-desc">Project meetings and more, coming over time.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open hub</div>
+      <div class="app-card" id="home-card-progress" onclick="showPage('tasks')">
+        <div class="app-card-icon c-amber"><i class="ti ti-progress"></i></div>
+        <div class="app-card-title">In progress</div>
+        <div class="app-card-desc">Loading…</div>
+        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open tasks</div>
       </div>
-      <div class="app-card" onclick="showPage('personal')">
-        <div class="app-card-icon c-pink"><i class="ti ti-user-heart"></i></div>
-        <div class="app-card-title">Personal</div>
-        <div class="app-card-desc">Your own personal space — to be filled in later.</div>
-        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open hub</div>
+      <div class="app-card" id="home-card-upcoming" onclick="showPage('tasks')">
+        <div class="app-card-icon c-pink"><i class="ti ti-calendar-event"></i></div>
+        <div class="app-card-title">Upcoming</div>
+        <div class="app-card-desc">Loading…</div>
+        <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open tasks</div>
+      </div>
+      <div class="app-card home-card-project" id="home-card-project" onclick="showPage('projects')">
+        <div class="home-project-info">
+          <div class="app-card-icon c-purple"><i class="ti ti-folder-bolt"></i></div>
+          <div class="app-card-title">Projects</div>
+          <div class="app-card-desc">Loading…</div>
+        </div>
+        <div class="ring" id="home-ring"><div class="ring-hole"><span id="home-ring-pct">0%</span></div></div>
       </div>
     </div>
+    <button class="home-new-task-btn" onclick="showPage('tasks')"><i class="ti ti-plus"></i> New Task</button>
   </div>
 
   <!-- WIDGETS -->
@@ -4048,6 +4074,7 @@ function showPage(p, hub) {
   if (typeof updatePomoFloat === 'function') updatePomoFloat();
   if (p === 'home' && typeof meshBgStart === 'function') meshBgStart();
   else if (typeof meshBgStop === 'function') meshBgStop();
+  if (p === 'home' && typeof renderHomeDashboard === 'function') renderHomeDashboard();
   if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
   if (p === 'insights' && typeof renderInsights === 'function') renderInsights();
   if (p === 'end-of-day' && typeof initEndOfDay === 'function') initEndOfDay();
@@ -4298,7 +4325,84 @@ function taskHTML(t, showFreqPill) {
   </div>`;
 }
 
+function renderHomeDashboard() {
+  const greetEl = document.getElementById('home-greeting');
+  const dateEl = document.getElementById('home-date');
+  if (greetEl) {
+    const h = now.getHours();
+    const part = h < 5 ? 'night' : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+    const s = (dbGet('zarif_settings') || {}).displayName || 'Zarif';
+    greetEl.textContent = `Good ${part}, ${s}`;
+  }
+  const todayTasks = getTodayTasks();
+  const undone = todayTasks.filter(t => !isDone(t.id));
+  if (dateEl) {
+    const dStr = now.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+    dateEl.textContent = `${dStr} — ${undone.length} due today`;
+  }
+
+  const dueCard = document.getElementById('home-card-due');
+  if (dueCard) {
+    const desc = dueCard.querySelector('.app-card-desc');
+    if (undone.length) {
+      desc.textContent = undone[0].name;
+      dueCard.dataset.count = undone.length;
+    } else {
+      desc.textContent = todayTasks.length ? 'All done for today!' : 'Nothing scheduled today.';
+      dueCard.dataset.count = '0';
+    }
+  }
+
+  const progCard = document.getElementById('home-card-progress');
+  if (progCard) {
+    const desc = progCard.querySelector('.app-card-desc');
+    if (undone.length > 1) desc.textContent = undone[1].name;
+    else if (undone.length === 1) desc.textContent = 'Just one left — go get it.';
+    else desc.textContent = 'Nothing in progress.';
+  }
+
+  const upCard = document.getElementById('home-card-upcoming');
+  if (upCard) {
+    const desc = upCard.querySelector('.app-card-desc');
+    const today = todayInputDate();
+    const weekEnd = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate()+7));
+    const upcomingTasks = getAllTasks()
+      .filter(t => t.freq === 'date' && t.date && t.date > today && t.date <= weekEnd && !isDone(t.id))
+      .map(t => ({ label: t.name, date: t.date }));
+    const upcomingMtgs = (typeof meetings !== 'undefined' ? meetings : [])
+      .filter(m => m.date && m.date > today && m.date <= weekEnd)
+      .map(m => ({ label: m.type || 'Meeting', date: m.date }));
+    const upcoming = [...upcomingTasks, ...upcomingMtgs].sort((a,b) => a.date.localeCompare(b.date));
+    desc.textContent = upcoming.length ? `${esc(upcoming[0].label)} · ${fmtShortDate(upcoming[0].date)}` : 'Nothing on the horizon.';
+  }
+
+  const projCard = document.getElementById('home-card-project');
+  if (projCard) {
+    const desc = projCard.querySelector('.app-card-desc');
+    const ring = document.getElementById('home-ring');
+    const pctEl = document.getElementById('home-ring-pct');
+    const list = (typeof projects !== 'undefined' ? projects : []);
+    const proj = list.find(p => p.status === 'active' && (p.subs||[]).length) || list[0];
+    if (proj) {
+      const subs = proj.subs || [];
+      const pct = subs.length ? Math.round(subs.filter(s => s.status === 'delivered').length / subs.length * 100) : 0;
+      desc.textContent = proj.title;
+      if (ring) ring.style.background = `conic-gradient(var(--teal) ${pct}%, var(--border-md) 0)`;
+      if (pctEl) pctEl.textContent = pct + '%';
+    } else {
+      desc.textContent = 'No projects yet.';
+      if (ring) ring.style.background = `conic-gradient(var(--border-md) 0%, var(--border-md) 0)`;
+      if (pctEl) pctEl.textContent = '—';
+    }
+  }
+
+  if (typeof setupCopperTilt === 'function') {
+    setupCopperTilt(document.documentElement.getAttribute('data-theme') === 'copper');
+  }
+}
+
 function renderTasks() {
+  if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
   renderDueSoon();
   const todayTasks = getTodayTasks();
   const todayTotal = todayTasks.length;
@@ -7314,6 +7418,7 @@ function setProjFilter(f) {
 }
 
 function renderProjects() {
+  if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
   const total     = projects.length;
   const active    = projects.filter(p => p.status === 'active').length;
   const delivered = projects.filter(p => p.status === 'delivered').length;
@@ -7529,6 +7634,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.27.11', type: 'minor', date: '19 Jun 2026', title: 'Home page is now a live dashboard', changes: [
+    'Home replaces the static 3-card hub chooser with a real dashboard: greeting, date, and nav pills (Home/Tasks/Projects/Personal)',
+    'Bento cards now show live data — next due-today task, what\'s in progress, the nearest upcoming task or meeting, and a project with a real completion ring',
+    'Fixed a CSS specificity bug that was muting the Copper theme\'s gradient/dark-text hero card styling',
+    'Copper theme\'s mesh wallpaper now uses richer copper/gold tones',
+  ]},
   { ver: '3.27.10', type: 'minor', date: '19 Jun 2026', title: 'Copper theme: bento home + live motion', changes: [
     'New "Copper" theme — warm charcoal/copper palette with Fraunces serif headings and Space Grotesk body text',
     'Home page renders as an asymmetric bento grid under Copper, with a gradient hero card, ghost numeral, grain texture, and a pulsing glow blob',
@@ -8823,6 +8934,8 @@ function initNotes() {
   loadWrReviews(); renderWeeklyReview();
   loadEodLog(); renderEodLog();
   renderProjects();
+  renderHomeDashboard();
+  if (typeof meshBgStart === 'function' && document.getElementById('page-home')?.classList.contains('active')) meshBgStart();
   const mdh = document.getElementById('mtg-date-holder');
   if (mdh) mdh.innerHTML = makeDatePicker('mtg-date', todayInputDate(), null, 'Pick a date');
   const cth = document.getElementById('ct-time-holder');
@@ -8871,16 +8984,17 @@ function initNotes() {
 
   function refreshPalette() {
     const cs = getComputedStyle(document.documentElement);
+    const isCopper = document.documentElement.getAttribute('data-theme') === 'copper';
     const base    = cs.getPropertyValue('--hero-bg').trim() || cs.getPropertyValue('--bg').trim() || '#0e1215';
-    const accent  = cs.getPropertyValue('--teal').trim() || '#378ADD';
-    const warm    = cs.getPropertyValue('--amber-text').trim() || '#FAC775';
-    const second  = cs.getPropertyValue('--pink-text').trim() || '#ED93B1';
+    const accent  = (isCopper && cs.getPropertyValue('--copper-glow-1').trim()) || cs.getPropertyValue('--teal').trim() || '#378ADD';
+    const warm    = (isCopper && cs.getPropertyValue('--copper-glow-2').trim()) || cs.getPropertyValue('--amber-text').trim() || '#FAC775';
+    const second  = isCopper ? warm : (cs.getPropertyValue('--pink-text').trim() || '#ED93B1');
     palette = {
       base,
-      cornerAccent: withAlpha(accent, 0.35),
-      cornerWarm: withAlpha(warm, 0.45),
-      mainAccent: withAlpha(accent, 0.85),
-      secondary: withAlpha(second, 0.45),
+      cornerAccent: withAlpha(accent, isCopper ? 0.5 : 0.35),
+      cornerWarm: withAlpha(warm, isCopper ? 0.6 : 0.45),
+      mainAccent: withAlpha(accent, isCopper ? 1 : 0.85),
+      secondary: withAlpha(second, isCopper ? 0.55 : 0.45),
       rippleA: withAlpha(accent, 1),
       rippleB: withAlpha(warm, 1),
     };
