@@ -2893,6 +2893,7 @@ function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', t);
   }
   document.querySelectorAll('.tp-card').forEach(c => c.classList.toggle('tp-active', c.dataset.themeId === t));
+  if (typeof meshBgRefreshPalette === 'function') meshBgRefreshPalette();
 }
 
 function pickTheme(name) {
@@ -8561,6 +8562,44 @@ function initNotes() {
   const mouse = { x: 0.5, y: 0.42 };
   const mouseTarget = { x: 0.5, y: 0.42 };
   const ripples = [];
+  let palette = null;
+
+  function rgbOf(c) {
+    c = (c || '').trim();
+    if (c.startsWith('#')) {
+      const hex = c.replace('#', '');
+      const full = hex.length === 3 ? hex.split('').map(x => x + x).join('') : hex;
+      const num = parseInt(full, 16);
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+    const m = c.match(/rgba?\(([^)]+)\)/);
+    if (m) {
+      const parts = m[1].split(',').map(s => parseFloat(s));
+      return { r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 };
+    }
+    return { r: 60, g: 60, b: 80 };
+  }
+  function withAlpha(c, a) {
+    const { r, g, b } = rgbOf(c);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function refreshPalette() {
+    const cs = getComputedStyle(document.documentElement);
+    const base    = cs.getPropertyValue('--hero-bg').trim() || cs.getPropertyValue('--bg').trim() || '#0e1215';
+    const accent  = cs.getPropertyValue('--teal').trim() || '#378ADD';
+    const warm    = cs.getPropertyValue('--amber-text').trim() || '#FAC775';
+    const second  = cs.getPropertyValue('--pink-text').trim() || '#ED93B1';
+    palette = {
+      base,
+      cornerAccent: withAlpha(accent, 0.35),
+      cornerWarm: withAlpha(warm, 0.45),
+      mainAccent: withAlpha(accent, 0.85),
+      secondary: withAlpha(second, 0.45),
+      rippleA: withAlpha(accent, 1),
+      rippleB: withAlpha(warm, 1),
+    };
+  }
 
   function resize() {
     const r = page.getBoundingClientRect();
@@ -8587,8 +8626,9 @@ function initNotes() {
   }
 
   function draw() {
+    if (!palette) refreshPalette();
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#1c1526';
+    ctx.fillStyle = palette.base;
     ctx.fillRect(0, 0, w, h);
 
     mouse.x += (mouseTarget.x - mouse.x) * 0.045;
@@ -8596,10 +8636,10 @@ function initNotes() {
 
     const maxR = Math.max(w, h);
     const blobs = [
-      { x: w * (0.12 + 0.04 * Math.sin(t * 0.6)), y: h * (0.92 + 0.03 * Math.cos(t * 0.5)), r: maxR * 0.62, color: 'rgba(36,27,53,0.95)' },
-      { x: w * (0.88 + 0.03 * Math.sin(t * 0.8 + 1)), y: h * (0.06 + 0.025 * Math.cos(t * 0.7)), r: maxR * 0.55, color: 'rgba(232,168,122,0.5)' },
-      { x: w * (0.22 + mouse.x * 0.42), y: h * (0.18 + mouse.y * 0.42), r: maxR * 0.5, color: 'rgba(99,73,158,0.85)' },
-      { x: w * (0.68 + 0.05 * Math.sin(t * 0.5 + 2)), y: h * (0.78 + 0.04 * Math.cos(t * 0.45 + 1)), r: maxR * 0.4, color: 'rgba(92,58,82,0.55)' },
+      { x: w * (0.12 + 0.04 * Math.sin(t * 0.6)), y: h * (0.92 + 0.03 * Math.cos(t * 0.5)), r: maxR * 0.62, color: palette.cornerAccent },
+      { x: w * (0.88 + 0.03 * Math.sin(t * 0.8 + 1)), y: h * (0.06 + 0.025 * Math.cos(t * 0.7)), r: maxR * 0.55, color: palette.cornerWarm },
+      { x: w * (0.22 + mouse.x * 0.42), y: h * (0.18 + mouse.y * 0.42), r: maxR * 0.5, color: palette.mainAccent },
+      { x: w * (0.68 + 0.05 * Math.sin(t * 0.5 + 2)), y: h * (0.78 + 0.04 * Math.cos(t * 0.45 + 1)), r: maxR * 0.4, color: palette.secondary },
     ];
 
     const now = performance.now();
@@ -8611,8 +8651,8 @@ function initNotes() {
       const ease = 1 - Math.pow(1 - p, 3);
       const rad = ease * maxR * 0.38;
       const alpha = (1 - p) * 0.5;
-      const col = rp.warm ? `rgba(232,178,140,${alpha})` : `rgba(150,120,210,${alpha})`;
-      blobs.push({ x: rp.x, y: rp.y, r: rad, color: col });
+      const base = rgbOf(rp.warm ? palette.rippleB : palette.rippleA);
+      blobs.push({ x: rp.x, y: rp.y, r: rad, color: `rgba(${base.r},${base.g},${base.b},${alpha})` });
     }
 
     ctx.globalCompositeOperation = 'screen';
@@ -8633,6 +8673,7 @@ function initNotes() {
   }
 
   function start() {
+    refreshPalette();
     if (running) return;
     running = true;
     resize();
@@ -8651,6 +8692,7 @@ function initNotes() {
 
   window.meshBgStart = start;
   window.meshBgStop = stop;
+  window.meshBgRefreshPalette = refreshPalette;
   if (document.getElementById('page-home').classList.contains('active')) start();
 })();
 
