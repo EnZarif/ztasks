@@ -10,6 +10,7 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/fflate@0.8.2/umd/index.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -8388,6 +8389,68 @@ function initNotes() {
   tickMelbClock();
   setInterval(tickMelbClock, 1000);
 })();
+
+// ===== MOTION ANIMATIONS =====
+const _M = window.Motion;
+
+function motionStagger(selector, parent) {
+  if (!_M) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = parent
+    ? [...(parent.querySelectorAll(selector))]
+    : [...document.querySelectorAll(selector)];
+  if (!els.length) return;
+  _M.animate(els, { opacity: [0, 1], y: [14, 0], scale: [0.97, 1] },
+    { duration: 0.38, easing: [0.2, 0.85, 0.25, 1], delay: _M.stagger(0.055) });
+}
+
+function motionModalOpen(overlayId) {
+  if (!_M) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const modal = document.querySelector('#' + overlayId + ' > *');
+  if (!modal) return;
+  _M.animate(modal, { opacity: [0, 1], scale: [0.94, 1], y: [10, 0] },
+    { duration: 0.3, easing: [0.2, 0.85, 0.25, 1] });
+}
+
+// Hook into renderTasks — animate task items after list is painted
+const _origRenderTasks = renderTasks;
+renderTasks = function() {
+  _origRenderTasks.apply(this, arguments);
+  requestAnimationFrame(() => motionStagger('.task'));
+};
+
+// Hook into renderProjects — animate project cards after paint
+const _origRenderProjects = renderProjects;
+renderProjects = function() {
+  _origRenderProjects.apply(this, arguments);
+  requestAnimationFrame(() => motionStagger('.proj-card'));
+};
+
+// Hook modal opens
+const _origKpiOpsCopy = kpiOpsCopy;
+kpiOpsCopy = function() {
+  _origKpiOpsCopy.apply(this, arguments);
+  motionModalOpen('kpi-ops-modal-overlay');
+};
+
+const _origOpenTaskEdit = openTaskEdit;
+openTaskEdit = function() {
+  _origOpenTaskEdit.apply(this, arguments);
+  motionModalOpen('task-edit-modal-overlay');
+};
+
+const _origOpenProjModal = openProjModal;
+openProjModal = function() {
+  _origOpenProjModal.apply(this, arguments);
+  requestAnimationFrame(() => {
+    if (!_M) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const modal = document.querySelector('#proj-modal > .proj-modal');
+    if (modal) _M.animate(modal, { opacity: [0, 1], scale: [0.94, 1], y: [10, 0] },
+      { duration: 0.3, easing: [0.2, 0.85, 0.25, 1] });
+  });
+};
 </script>
 </body>
 </html>
