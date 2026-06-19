@@ -638,7 +638,7 @@
   .proj-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; align-items: start; }
   @media (max-width: 800px) { .proj-list { grid-template-columns: 1fr; } }
   /* cartoon card shell */
-  .proj-card { border-radius: 22px; overflow: hidden; background: var(--surface); border: 0.5px solid var(--border-md); box-shadow: 0 3px 10px -4px rgba(0,0,0,0.3); transition: transform 0.15s, box-shadow 0.15s; display: flex; flex-direction: column; }
+  .proj-card { border-radius: 22px; overflow: hidden; background: var(--surface); transition: transform 0.15s, box-shadow 0.15s; display: flex; flex-direction: column; }
   .proj-card:hover { transform: translate(-2px,-2px); }
   /* colored banner */
   .proj-card-banner { display: flex; align-items: flex-start; gap: 13px; padding: 18px 20px 16px; flex-shrink: 0; cursor: pointer; position: relative; }
@@ -651,34 +651,6 @@
   .proj-banner-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
   .proj-card-chev { transition: transform 0.2s; flex-shrink: 0; }
   .proj-card.open .proj-card-chev { transform: rotate(180deg); }
-  /* playing-card style banner face */
-  #page-projects { position: relative; }
-  #page-projects::before { content:''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.05; mix-blend-mode: overlay;
-    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0); background-size: 3px 3px; }
-  .proj-card { perspective: 800px; }
-  .pc-face { display: block; padding: 0; height: 168px; border-radius: 22px 22px 0 0; background: radial-gradient(circle at 28% 22%, #f7f2e6, #ecdfc0 75%);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.16), inset 0 -1px 2px rgba(255,255,255,0.5); overflow: hidden; cursor: pointer; position: relative;
-    transform-style: preserve-3d; transition: transform 0.18s ease-out; will-change: transform; }
-  .pc-layer { position: absolute; inset: 0; pointer-events: none; }
-  .pc-noise { mix-blend-mode: overlay; }
-  .pc-iri { mix-blend-mode: soft-light; opacity: 0.8;
-    background: radial-gradient(circle 340px at var(--mx,50%) var(--my,50%), #ffc9ec 0%, #dcc6ff 35%, #c2e6ff 60%, transparent 85%); }
-  .pc-shadow { mix-blend-mode: multiply; background: radial-gradient(circle 150px at var(--mx,50%) var(--my,50%), rgba(0,0,0,0.14), transparent 70%); }
-  .pc-border { position: absolute; inset: 9px; border: 1.5px solid var(--pc-ink, #161616); border-radius: 14px; pointer-events: none; z-index: 4; }
-  .pc-corner-info { position: absolute; top: 18px; left: 18px; z-index: 3; max-width: 60%; }
-  .pc-corner-info .pc-title { font-size: 13px; font-weight: 500; color: var(--pc-ink, #141414); line-height: 1.25; }
-  .pc-corner-info .pc-desc { font-size: 10px; color: var(--pc-ink, #141414); opacity: 0.62; margin-top: 3px; line-height: 1.3; }
-  .pc-corner-info .pc-date { font-size: 9.5px; color: var(--pc-ink, #141414); opacity: 0.5; margin-top: 2px; }
-  .pc-corner-mark { position: absolute; bottom: 16px; right: 18px; transform: rotate(180deg); z-index: 3; }
-  .pc-corner-mark i { font-size: 13px; color: var(--pc-ink, #141414); filter: drop-shadow(0 1px 1px rgba(255,255,255,0.4)); }
-  .pc-center { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
-  .pc-icon { font-size: 46px; color: var(--pc-ink, #141414); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.25)) drop-shadow(0 -1px 0 rgba(255,255,255,0.35)); }
-  .pc-actions { position: absolute; top: 13px; right: 13px; z-index: 5; display: flex; gap: 4px; }
-  .pc-btn { background: rgba(0,0,0,0.07); border: none; color: var(--pc-ink, #141414); opacity: 0.55; cursor: pointer; font-size: 13px; padding: 5px 7px; border-radius: 7px; transition: background 0.15s, opacity 0.15s; }
-  .pc-btn:hover { background: rgba(0,0,0,0.13); opacity: 0.9; }
-  .pc-chev-btn { position: absolute; bottom: 13px; left: 14px; z-index: 5; transition: transform 0.2s; }
-  .proj-card.open .pc-chev-btn { transform: rotate(180deg); }
-  @media (prefers-reduced-motion: reduce) { .pc-face { transition: none !important; } }
   /* status pills in body */
   .pstatus-active          { background: rgba(99,153,34,0.18); color: var(--green-text); }
   .pstatus-onhold          { background: var(--amber-bg); color: var(--amber-text); }
@@ -7195,27 +7167,18 @@ function renderProjects() {
       `<span class="proj-pc-item"><span class="proj-pc-dot ${o.cls}"></span>${statusCounts[o.val]} ${o.label.toLowerCase()}</span>`
     ).join('') || '<span class="proj-pc-item" style="color:var(--text-3)">No sub-projects yet</span>';
 
-    return `<div class="proj-card${isOpen?' open':''}" id="proj-card-${p.id}">
-      <div class="pc-face" style="--pc-ink:${style.border};" onclick="openOrNavigateProject(${p.id})">
-        <svg class="pc-layer pc-noise" width="100%" height="100%">
-          <filter id="pcnf-${p.id}"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0"/></filter>
-          <rect width="100%" height="100%" filter="url(#pcnf-${p.id})" style="opacity:0.1"/>
-        </svg>
-        <div class="pc-layer pc-iri"></div>
-        <div class="pc-layer pc-shadow"></div>
-        <div class="pc-border"></div>
-        <div class="pc-corner-info">
-          <div class="pc-title">${esc(p.title)}</div>
-          <div class="pc-desc">${typeLabel} · ${subs.length} sub-project${subs.length!==1?'s':''}</div>
-          <div class="pc-date">${dateNote}</div>
+    return `<div class="proj-card${isOpen?' open':''}" id="proj-card-${p.id}" style="border:2.5px solid ${style.border};box-shadow:5px 5px 0 ${style.shadow};">
+      <div class="proj-card-banner" style="background:${style.bg}" onclick="openOrNavigateProject(${p.id})">
+        <i class="ti ${style.icon} proj-banner-icon"></i>
+        <div class="proj-banner-text">
+          <div class="proj-banner-title">${esc(p.title)}</div>
+          <div class="proj-banner-sub">${typeLabel} · ${subs.length} sub-project${subs.length!==1?'s':''} · ${dateNote}</div>
         </div>
-        <div class="pc-corner-mark"><i class="ti ${style.icon}" aria-hidden="true"></i></div>
-        <div class="pc-center"><i class="ti ${style.icon} pc-icon" aria-hidden="true"></i></div>
-        <div class="pc-actions" onclick="event.stopPropagation()">
-          <button class="pc-btn" onclick="openProjModal(${p.id})" title="Edit"><i class="ti ti-pencil"></i></button>
-          <button class="pc-btn" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
+        <div class="proj-banner-actions" onclick="event.stopPropagation()">
+          <button class="proj-banner-btn" onclick="openProjModal(${p.id})" title="Edit"><i class="ti ti-pencil"></i></button>
+          <button class="proj-banner-btn" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
         </div>
-        <button class="pc-btn pc-chev-btn" onclick="event.stopPropagation();toggleProjOpen(${p.id})" title="Expand / collapse"><i class="ti ti-chevron-down"></i></button>
+        <button class="proj-banner-btn proj-card-chev" onclick="event.stopPropagation();toggleProjOpen(${p.id})" title="Expand / collapse"><i class="ti ti-chevron-down"></i></button>
       </div>
       <div class="proj-progress-strip">
         <div class="proj-progress-bar">${progressBar || '<div style="width:100%;background:var(--surface2);border-radius:4px"></div>'}</div>
@@ -8635,33 +8598,6 @@ renderProjects = function() {
   _origRenderProjects.apply(this, arguments);
   requestAnimationFrame(() => motionStagger('.proj-card'));
 };
-
-// Playing-card face tilt/glow — delegated so it survives renderProjects() re-renders
-(function() {
-  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.addEventListener('mousemove', e => {
-    const face = e.target.closest('.pc-face');
-    if (!face) return;
-    if (reduceMotion()) return;
-    const r = face.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    const y = (e.clientY - r.top) / r.height;
-    face.style.setProperty('--mx', (x * 100) + '%');
-    face.style.setProperty('--my', (y * 100) + '%');
-    const tilt = 10;
-    const rx = (0.5 - y) * tilt;
-    const ry = (x - 0.5) * tilt;
-    face.style.transform = `scale(1.015) rotateX(${rx}deg) rotateY(${ry}deg)`;
-  });
-  document.addEventListener('mouseout', e => {
-    const face = e.target.closest('.pc-face');
-    if (!face) return;
-    if (face.contains(e.relatedTarget)) return;
-    face.style.transform = 'scale(1) rotateX(0deg) rotateY(0deg)';
-    face.style.setProperty('--mx', '50%');
-    face.style.setProperty('--my', '50%');
-  });
-})();
 
 // Hook modal opens
 const _origKpiOpsCopy = kpiOpsCopy;
