@@ -147,22 +147,22 @@
   .nav-btn { width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; text-align: left; }
   .nav-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
   .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
-  /* per-hub coloured icon tiles */
-  .nav-btn[data-page="home"] i { background: var(--teal-bg); color: var(--teal-text); }
-  .nav-btn[data-page="tasks"] i { background: var(--green-bg); color: var(--green-text); }
-  .nav-btn[data-page="tasks"].active { background: var(--green-bg); box-shadow: inset 3px 0 0 #639922; }
-  .nav-btn[data-page="widgets"] i { background: var(--purple-bg); color: var(--purple-text); }
-  .nav-btn[data-page="widgets"].active { background: var(--purple-bg); box-shadow: inset 3px 0 0 #7F77DD; }
-  .nav-btn[data-page="helpdesk"] i { background: var(--blue-bg); color: var(--blue-text); }
-  .nav-btn[data-page="projects"] i { background: var(--amber-bg); color: var(--amber-text); }
-  .nav-btn[data-page="personal"] i { background: var(--pink-bg); color: var(--pink-text); }
+  /* per-hub icon tiles: monochrome gold, opacity-tiered */
+  .nav-btn[data-page="home"] i { background: color-mix(in srgb, var(--amber-text) 85%, transparent); color: var(--hero-bg); }
+  .nav-btn[data-page="tasks"] i { background: color-mix(in srgb, var(--amber-text) 68%, transparent); color: var(--hero-bg); }
+  .nav-btn[data-page="tasks"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="widgets"] i { background: color-mix(in srgb, var(--amber-text) 52%, transparent); color: var(--hero-bg); }
+  .nav-btn[data-page="widgets"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="helpdesk"] i { background: color-mix(in srgb, var(--amber-text) 40%, transparent); color: var(--amber-text); }
+  .nav-btn[data-page="projects"] i { background: color-mix(in srgb, var(--amber-text) 28%, transparent); color: var(--amber-text); }
+  .nav-btn[data-page="personal"] i { background: color-mix(in srgb, var(--amber-text) 18%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="settings"] i { background: var(--surface2); color: var(--text-2); }
-  /* active: tinted pill + left accent bar (per hub) */
+  /* active: tinted pill + left accent bar (gold, uniform) */
   .nav-btn.active { color: var(--text); font-weight: 500; }
-  .nav-btn[data-page="home"].active { background: var(--teal-bg); box-shadow: inset 3px 0 0 #1D9E75; }
-  .nav-btn[data-page="helpdesk"].active { background: var(--blue-bg); box-shadow: inset 3px 0 0 #378ADD; }
-  .nav-btn[data-page="projects"].active { background: var(--amber-bg); box-shadow: inset 3px 0 0 #EF9F27; }
-  .nav-btn[data-page="personal"].active { background: var(--pink-bg); box-shadow: inset 3px 0 0 #D4537E; }
+  .nav-btn[data-page="home"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="helpdesk"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="projects"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="personal"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
   .nav-btn[data-page="settings"].active { background: var(--surface2); box-shadow: inset 3px 0 0 var(--text-3); }
   .nav-bottom { margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 3px; }
   .theme-toggle-btn { width: 100%; padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; }
@@ -7616,6 +7616,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.28.2', type: 'minor', date: '19 Jun 2026', title: 'Sidebar icons go monochrome gold', changes: [
+    'Left sidebar nav icons (Home, Task Manager, Helpdesk, Projects, Personal, Widgets) now use a single gold tone at tiered opacity instead of mismatched blue/green/purple/pink',
+    'The blue Helpdesk icon specifically is now gold, consistent with every other nav icon',
+    'Active-page highlight bar is now gold across the board instead of a different hardcoded color per page',
+  ]},
   { ver: '3.28.1', type: 'minor', date: '19 Jun 2026', title: 'Gradient icon badges, no more rainbow categories', changes: [
     'All icon badges (hub cards, nav sub-links, stat cards) now render as a theme-accent gradient with a white glyph instead of mismatched per-category colors',
     'Replaced the literal blue Helpdesk icon (and all other blue/green/purple/pink icon variants) so nothing clashes with the active theme — applies across every theme, not just Copper',
