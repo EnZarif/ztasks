@@ -519,14 +519,13 @@
   .time-pill i { font-size: 11px; }
   .time-pill.tp-overdue { background: var(--coral-bg); color: var(--coral-text); border-color: rgba(210,85,40,0.4); }
   /* due-soon section */
-  .due-soon-section { margin-bottom: 14px; border: 1.5px solid var(--amber-text); border-radius: 14px; overflow: hidden; box-shadow: 0 16px 32px -18px rgba(239,168,0,0.35); }
-  :root[data-theme="ink"] .due-soon-section { border-color: var(--amber-text); }
-  .due-soon-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--amber-bg); border-bottom: 1px solid rgba(180,120,0,0.15); }
-  .due-soon-header i { font-size: 15px; color: var(--amber-text); animation: dueSoonPulse 1.6s ease-in-out infinite; }
+  .due-soon-section { margin-bottom: 14px; border: 1.5px solid #efa800; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 32px -18px rgba(239,168,0,0.4); }
+  .due-soon-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(239,168,0,0.16); border-bottom: 1px solid rgba(180,120,0,0.15); }
+  .due-soon-header i { font-size: 15px; color: #f0b94a; animation: dueSoonPulse 1.6s ease-in-out infinite; }
   @keyframes dueSoonPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
   @media (prefers-reduced-motion: reduce) { .due-soon-header i { animation: none; } }
-  .due-soon-header-title { font-size: 13px; font-weight: 600; color: var(--amber-text); flex: 1; }
-  .due-soon-header-count { font-size: 11px; font-weight: 500; color: var(--amber-text); opacity: 0.8; background: rgba(180,120,0,0.12); border-radius: 20px; padding: 2px 8px; }
+  .due-soon-header-title { font-size: 13px; font-weight: 600; color: #f0b94a; flex: 1; }
+  .due-soon-header-count { font-size: 11px; font-weight: 500; color: #f0b94a; opacity: 0.9; background: rgba(180,120,0,0.18); border-radius: 20px; padding: 2px 8px; }
   .due-soon-section .task { border-radius: 0; border-left: none; border-right: none; border-bottom: none; border-top: 1px solid var(--border); margin: 0; }
   .due-soon-section .task:first-of-type { border-top: none; }
   /* styled native time input */
@@ -1161,7 +1160,11 @@
   .kpi-modal { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.35); }
   .kpi-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; color: var(--text); }
   .kpi-modal-preview { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow: auto; color: #000000; }
-  #task-edit-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  #task-edit-modal-overlay .kpi-modal-preview,
+  #add-task-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  .add-task-trigger { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 14px; margin-bottom: 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); color: var(--text-2); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
+  .add-task-trigger:hover { border-color: var(--teal); color: var(--teal-text); background: var(--teal-bg); }
+  .add-task-trigger i { font-size: 15px; }
   .kpi-modal-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
 
   /* SETTINGS PAGE */
@@ -2018,52 +2021,10 @@
       <button class="reset" onclick="resetDay()"><i class="ti ti-refresh"></i> Reset today</button>
     </div>
 
-    <div class="card" style="margin-top:16px;">
-      <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add your own task</div>
-      <div class="custom-task-row">
-        <div class="queue-block">
-          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Task name</div>
-          <input class="field-input" id="ct-name" placeholder="e.g. Check Xero invoices">
-        </div>
-        <div class="queue-block">
-          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Priority</div>
-          <select class="field-input" id="ct-priority">
-            <option value="HIGH">High</option>
-            <option value="MEDIUM" selected>Medium</option>
-            <option value="LOW">Low</option>
-          </select>
-        </div>
-        <div class="queue-block">
-          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Frequency</div>
-          <select class="field-input" id="ct-freq" onchange="renderCustomTaskDayField()">
-            <option value="untildone">Until completion</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="date">On a date</option>
-            <option value="once">Once (today only)</option>
-          </select>
-        </div>
-        <div class="queue-block">
-          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Hub</div>
-          <select class="field-input" id="ct-hub">
-            <option value="helpdesk">Helpdesk</option>
-            <option value="projects">Projects</option>
-            <option value="personal">Personal</option>
-          </select>
-        </div>
-        <div class="queue-block" id="ct-day-wrap"></div>
-        <div class="queue-block">
-          <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due by time <span style="font-weight:400;">(optional)</span></div>
-          <div id="ct-time-holder"></div>
-        </div>
-      </div>
-      <button class="generate-btn" style="margin-top:14px; margin-bottom:0;" onclick="addCustomTask()"><i class="ti ti-plus" style="font-size:16px;"></i> Add task</button>
-    </div>
-
     </div>
 
     <div class="tasks-sidebar">
+      <button class="add-task-trigger" onclick="openAddTaskModal()"><i class="ti ti-plus"></i> Add your own task</button>
       <div class="card kb-card">
         <div class="card-title"><i class="ti ti-bulb"></i> Knowledge base</div>
         <div class="kb-fact" id="kb-fact"></div>
@@ -2914,6 +2875,57 @@
     <div class="kpi-modal-actions">
       <button class="kpi-file-btn" onclick="closeTaskEditModal()">Cancel</button>
       <button class="generate-btn" style="width:auto; margin-bottom:0; padding:8px 18px;" onclick="saveTaskEdit()"><i class="ti ti-check" style="font-size:15px;"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="kpi-modal-overlay" id="add-task-modal-overlay">
+  <div class="kpi-modal">
+    <div class="kpi-modal-header">
+      <strong>Add your own task</strong>
+      <button class="icon-btn" onclick="closeAddTaskModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="kpi-modal-preview">
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Task name</div>
+        <input class="field-input" id="ct-name" placeholder="e.g. Check Xero invoices">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Priority</div>
+        <select class="field-input" id="ct-priority">
+          <option value="HIGH">High</option>
+          <option value="MEDIUM" selected>Medium</option>
+          <option value="LOW">Low</option>
+        </select>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Frequency</div>
+        <select class="field-input" id="ct-freq" onchange="renderCustomTaskDayField()">
+          <option value="untildone">Until completion</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="date">On a date</option>
+          <option value="once">Once (today only)</option>
+        </select>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Hub</div>
+        <select class="field-input" id="ct-hub">
+          <option value="helpdesk">Helpdesk</option>
+          <option value="projects">Projects</option>
+          <option value="personal">Personal</option>
+        </select>
+      </div>
+      <div class="queue-block" id="ct-day-wrap"></div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due by time <span style="font-weight:400;">(optional)</span></div>
+        <div id="ct-time-holder"></div>
+      </div>
+    </div>
+    <div class="kpi-modal-actions">
+      <button class="kpi-file-btn" onclick="closeAddTaskModal()">Cancel</button>
+      <button class="generate-btn" style="width:auto; margin-bottom:0; padding:8px 18px;" onclick="addCustomTask(); closeAddTaskModal();"><i class="ti ti-plus" style="font-size:15px;"></i> Add task</button>
     </div>
   </div>
 </div>
@@ -3877,6 +3889,14 @@ function openTaskEdit(id) {
 function closeTaskEditModal() {
   document.getElementById('task-edit-modal-overlay').classList.remove('active');
   editingTaskId = null;
+}
+
+function openAddTaskModal() {
+  renderCustomTaskDayField();
+  document.getElementById('add-task-modal-overlay').classList.add('active');
+}
+function closeAddTaskModal() {
+  document.getElementById('add-task-modal-overlay').classList.remove('active');
 }
 
 function saveTaskEdit() {
