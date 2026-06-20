@@ -2462,6 +2462,17 @@
       </div>
       <div class="ai-hint">Select both exports together (Ctrl/Cmd-click to multi-select) — the file with "OPEN" in its name is always pasted second into the CMS Data tab, no matter which order you pick them in.</div>
 
+      <div class="card-title"><i class="ti ti-report-analytics" style="font-size:13px;"></i> KPI report (for Overall Summary)</div>
+      <div class="kpi-template-row">
+        <div class="kpi-template-info">
+          <div class="kpi-tpl-name">That day's generated KPI report</div>
+          <div class="kpi-tpl-status" id="nsla-kpi-status">No file loaded</div>
+        </div>
+        <input type="file" id="nsla-kpi-input" class="kpi-file-input" accept=".xlsx" onchange="nslaKpiFileSelected(this.files[0])">
+        <button class="kpi-file-btn" onclick="document.getElementById('nsla-kpi-input').click()">Choose file</button>
+      </div>
+      <div class="ai-hint">Pulls call totals and SLA % straight from the KPI report's "Report" tab into the NSLA template's Overall Summary box — no formulas, just the exact values.</div>
+
       <button class="generate-btn" id="nsla-generate-btn" style="margin-top:16px;" onclick="nslaGenerateReport()"><i class="ti ti-download" style="font-size:16px;"></i> Generate report</button>
       <div id="nsla-generate-status" style="font-size:12px; color:var(--text-3); text-align:center;"></div>
     </div>
@@ -6496,6 +6507,16 @@ function nslaMapColumns(rows, expectedHeaders) {
 }
 
 let _nslaFiles = [];
+let _nslaKpiFile = null;
+
+function nslaKpiFileSelected(file) {
+  _nslaKpiFile = file || null;
+  const statusEl = document.getElementById('nsla-kpi-status');
+  if (!statusEl) return;
+  if (!file) { statusEl.textContent = 'No file loaded'; statusEl.classList.remove('ready'); return; }
+  statusEl.textContent = file.name;
+  statusEl.classList.add('ready');
+}
 
 function nslaSaveTemplate(file) {
   if (!file) return;
@@ -6685,11 +6706,113 @@ function nslaFillCmsData(sheetXmlStr, tableXmlStr, dataRows) {
   };
 }
 
+// ===== NSLA "Overall Summary" — pulled straight from a generated KPI report =====
+// The NSLA template's Summary sheet has a fixed "Overall Summary" box (rows 4-8)
+// with labels in merged cells and a value cell right beside each one. Those
+// destination cells are always the same, since it's the user's own static
+// template. The KPI report's "Report" tab, on the other hand, has rows that
+// shift up/down depending on how many operators worked that day, so the source
+// side has to be found by searching for the label text rather than a fixed cell.
+const NSLA_SUMMARY_SHEET_FILE = 'xl/worksheets/sheet1.xml';
+
+// colIdx is 0-indexed (A=0, B=1, ... H=7). valueColOffset is relative to colIdx.
+// occurrence handles "Phone Stats" appearing twice (Fiserv HD section, then the
+// Merchant Services section further down).
+const NSLA_SUMMARY_LOOKUPS = [
+  { nslaCell: 'G6', label: 'Total Outbounds',           colIdx: 1, valueColOffset: 1,  occurrence: 1 },
+  { nslaCell: 'G7', label: 'Total Inbounds',             colIdx: 1, valueColOffset: 1,  occurrence: 1 },
+  { nslaCell: 'J7', label: 'Phone Stats',                colIdx: 1, valueColOffset: 2,  occurrence: 1 }, // Fiserv HD block
+  { nslaCell: 'J5', label: 'CMS Phone Support Created',  colIdx: 1, valueColOffset: 2,  occurrence: 1 },
+  { nslaCell: 'M7', label: 'Phone Stats',                colIdx: 1, valueColOffset: 2,  occurrence: 2 }, // Merchant Services block
+  { nslaCell: 'J6', label: 'Phone SLA',                  colIdx: 7, valueColOffset: -1, occurrence: 1 },
+  { nslaCell: 'M5', label: 'CMS Logged SLA',             colIdx: 7, valueColOffset: -1, occurrence: 1 },
+  { nslaCell: 'M6', label: 'Merchant Services SLA',      colIdx: 7, valueColOffset: -1, occurrence: 1 },
+];
+
+function findLabelValue(rows, colIdx, label, occurrence, valueColOffset) {
+  const target = label.trim().toLowerCase();
+  let seen = 0;
+  for (let r = 0; r < rows.length; r++) {
+    const cell = rows[r][colIdx];
+    if (typeof cell === 'string' && cell.trim().toLowerCase() === target) {
+      seen++;
+      if (seen === occurrence) {
+        const v = rows[r][colIdx + valueColOffset];
+        return (v === undefined || v === null || v === '') ? null : v;
+      }
+    }
+  }
+  return null;
+}
+
+async function nslaReadKpiSummary(file) {
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array', cellDates: true });
+  const sheetName = wb.SheetNames.find(n => n.trim().toLowerCase() === 'report') || wb.SheetNames[wb.SheetNames.length - 1];
+  const ws = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+
+  const values = {};
+  for (const lookup of NSLA_SUMMARY_LOOKUPS) {
+    values[lookup.nslaCell] = findLabelValue(rows, lookup.colIdx, lookup.label, lookup.occurrence, lookup.valueColOffset);
+  }
+  return values;
+}
+
+function nslaSetSummaryValues(sheetXmlStr, values) {
+  const parser = new DOMParser();
+  const sheetDoc = parser.parseFromString(sheetXmlStr, 'application/xml');
+  const sheetData = sheetDoc.getElementsByTagName('sheetData')[0];
+  const rowEls = {};
+  Array.from(sheetData.getElementsByTagName('row')).forEach(r => {
+    rowEls[parseInt(r.getAttribute('r'), 10)] = r;
+  });
+
+  for (const [ref, val] of Object.entries(values)) {
+    if (val === null || val === undefined) continue;
+    const m = ref.match(/^([A-Z]+)(\d+)$/);
+    const colNum = colNumFromRef(ref);
+    const rowNum = parseInt(m[2], 10);
+    let rowEl = rowEls[rowNum];
+    if (!rowEl) {
+      rowEl = sheetDoc.createElementNS(SSML_NS, 'row');
+      rowEl.setAttribute('r', String(rowNum));
+      insertRowSorted(sheetDoc, sheetData, rowEl, rowNum);
+      rowEls[rowNum] = rowEl;
+    }
+    const existing = Array.from(rowEl.getElementsByTagName('c')).find(c => c.getAttribute('r') === ref);
+    const existingStyle = existing ? existing.getAttribute('s') : null;
+    if (existing) rowEl.removeChild(existing);
+
+    const numVal = typeof val === 'number' ? val : parseFloat(val);
+    const newC = sheetDoc.createElementNS(SSML_NS, 'c');
+    newC.setAttribute('r', ref);
+    if (existingStyle) newC.setAttribute('s', existingStyle);
+    if (!isNaN(numVal)) {
+      const v = sheetDoc.createElementNS(SSML_NS, 'v');
+      v.textContent = String(numVal);
+      newC.appendChild(v);
+    } else {
+      newC.setAttribute('t', 'inlineStr');
+      const is = sheetDoc.createElementNS(SSML_NS, 'is');
+      const t = sheetDoc.createElementNS(SSML_NS, 't');
+      t.textContent = String(val);
+      is.appendChild(t);
+      newC.appendChild(is);
+    }
+    insertCellSorted(rowEl, newC, colNum);
+  }
+
+  const serializer = new XMLSerializer();
+  return serializer.serializeToString(sheetDoc);
+}
+
 async function nslaGenerateReport() {
   const statusEl = document.getElementById('nsla-generate-status');
   const tpl = nslaGetTemplate();
   if (!tpl) { alert('Please upload the NSLA report template first.'); return; }
   if (_nslaFiles.length !== 2) { alert('Please select both NSLA export files.'); return; }
+  if (!_nslaKpiFile) { alert('Please choose that day\'s KPI report file (for the Overall Summary box).'); return; }
 
   // The "OPEN reporting" file must always be pasted second, regardless of upload order
   const openFiles = _nslaFiles.filter(f => /open/i.test(f.name));
@@ -6721,6 +6844,11 @@ async function nslaGenerateReport() {
     const result = nslaFillCmsData(sheetXml, tableXml, allRows);
     zipData[NSLA_SHEET_FILE] = encoder.encode(result.sheetXml);
     zipData[NSLA_TABLE_FILE] = encoder.encode(result.tableXml);
+
+    statusEl.textContent = 'Reading KPI report...';
+    const kpiValues = await nslaReadKpiSummary(_nslaKpiFile);
+    const summaryXml = decoder.decode(zipData[NSLA_SUMMARY_SHEET_FILE]);
+    zipData[NSLA_SUMMARY_SHEET_FILE] = encoder.encode(nslaSetSummaryValues(summaryXml, kpiValues));
 
     const wbXml = decoder.decode(zipData['xl/workbook.xml']);
     zipData['xl/workbook.xml'] = encoder.encode(wbXml.replace(/<calcPr[^/]*\/>/, '<calcPr calcId="191028" fullCalcOnLoad="1"/>'));
@@ -8225,6 +8353,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.2.0', type: 'minor', date: '20 Jun 2026', title: 'NSLA Report: Overall Summary now pulled from the KPI report', changes: [
+    'Added a third input — that day\'s generated KPI report — which fills the Overall Summary box on the NSLA template\'s Summary tab',
+    'Pulls Total Inbounds/Outbounds, the Fiserv HD and Merchant Services phone stats totals, "PS Jobs Logged", and the three SLA % stats straight from the KPI report\'s Report tab, no formulas — exact values only',
+    'Finds each stat by its label text rather than a fixed cell, since the KPI report\'s row positions shift depending on how many operators worked that day',
+  ]},
   { ver: '4.1.3', type: 'patch', date: '20 Jun 2026', title: 'NSLA Report: fixed the browser freezing on generate', changes: [
     'Pasting thousands of rows directly into the template\'s XML was hitting an O(n²) DOM bottleneck — re-scanning the entire sheet to find each row\'s insertion point, every single row — which could lock up the tab for a long time on a real 31-day export ("unresponsive page")',
     'Fixed by appending new rows/cells directly instead of re-scanning, since they\'re always written in increasing order anyway — generating a ~5,000-row report now takes about a second instead of freezing',
