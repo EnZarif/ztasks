@@ -121,7 +121,7 @@
     --copper-glow-1: #e87f3e; --copper-glow-2: #f0b94a;
   }
   :root[data-theme="copper"] body { font-family: 'Space Grotesk', -apple-system, sans-serif; }
-  :root[data-theme="copper"] .hub-head h1,
+  :root[data-theme="copper"] .hub-head h1:not(#home-greeting),
   :root[data-theme="copper"] .app-card-title { font-family: 'Fraunces', serif; font-weight: 800; }
 
   /* ── THEME PICKER (settings) ── */
@@ -7505,6 +7505,9 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.29.5', type: 'patch', date: '20 Jun 2026', title: 'Greeting name keeps its original font', changes: [
+    'Fixed the Copper theme forcing the home greeting into the Fraunces serif — "Zarif" is italic, but back in the regular Space Grotesk font used everywhere else on the page',
+  ]},
   { ver: '3.29.4', type: 'patch', date: '20 Jun 2026', title: 'Logo is now a spinning 3D cube', changes: [
     'Replaced the flat checklist icon with a genuine rotating 3D cube — each face fills from pale gold to orange as it spins, with a thicker copper-brown outline',
     '"Zarif" in the home greeting is italic again',
