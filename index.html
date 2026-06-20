@@ -1294,6 +1294,21 @@
   .notes-record-actions .nra-wishlist:hover { background: var(--teal-bg); }
   .notes-record-actions .nra-task { border-color: var(--amber-text); color: var(--amber-text); }
   .notes-record-actions .nra-task:hover { background: rgba(239,168,0,0.1); }
+
+  /* PIXEL OFFICE */
+  .pixoff-wcard { border: 2.5px solid #1F8A6E; box-shadow: 5px 5px 0 rgba(31,138,110,0.4); }
+  .pixoff-wcard:hover { box-shadow: 7px 7px 0 rgba(31,138,110,0.4); }
+  .pixoff-banner { background: linear-gradient(135deg, #1F8A6E 0%, #2BB389 100%); }
+  .pixoff-card { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .pixoff-canvas { width: 100%; height: auto; aspect-ratio: 320/180; background: #14241d; border-radius: var(--radius); image-rendering: pixelated; }
+  .pixoff-list { display: flex; flex-direction: column; gap: 6px; }
+  .pixoff-agent-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+  .pixoff-agent-row .pixoff-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: #2BB389; }
+  .pixoff-agent-row .pixoff-agent-path { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .pixoff-agent-row .pixoff-agent-status { color: var(--text-3); flex-shrink: 0; }
+  .pixoff-hint { font-size: 11.5px; color: var(--text-3); display: none; }
+  .pixoff-hint.show { display: block; }
+  .pixoff-hint code { background: var(--surface2); padding: 1px 5px; border-radius: 5px; }
   .notes-record-actions .nra-task:disabled { opacity: 0.5; cursor: not-allowed; }
   /* Scratchpad → Task modal */
   .sp-task-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
@@ -1639,6 +1654,22 @@
             </span>
           </div>
           <div class="notes-records-list" id="notes-records-list"></div>
+        </div>
+      </div>
+
+      <!-- PIXEL OFFICE -->
+      <div class="widget-card pixoff-wcard">
+        <div class="wcard-banner pixoff-banner">
+          <i class="ti ti-device-gamepad-2"></i>
+          <div class="wcard-banner-text">
+            <div class="wcard-banner-title">Pixel Office</div>
+            <div class="wcard-banner-sub">Live Claude Code agents</div>
+          </div>
+        </div>
+        <div class="wcard-body pixoff-card">
+          <canvas id="pixoff-canvas" width="320" height="180" class="pixoff-canvas"></canvas>
+          <div class="pixoff-list" id="pixoff-list"></div>
+          <div class="pixoff-hint" id="pixoff-hint">No agents detected — run <code>start.bat</code> locally to track live Claude Code sessions.</div>
         </div>
       </div>
 
@@ -2924,6 +2955,108 @@ function dbSet(key, value) {
 function dbDel(key) {
   delete _db[key];
   _sb.from('hub_data').delete().eq('key', key).then(() => {});
+}
+
+// ===== PIXEL OFFICE =====
+// Character/desk/floor sprites from the "Pixel Agents" VS Code extension by
+// Pablo De Lucca (MIT License) — https://github.com/pablodelucca/pixel-agents
+const PIXOFF_FRESH_MS = 20 * 60 * 1000;
+const PIXOFF_STATUS_ICON = { typing: '📝', reading: '🔍', running: '💻', delegating: '🔀', waiting: '⏳', thinking: '💭', idle: '💤' };
+const PIXOFF_ASSETS = ['char_0','char_1','char_2','char_3','char_4','char_5','desk','pc','chair','floor'];
+let _pixoffImgs = {};
+let _pixoffImgsReady = false;
+let _pixoffAgents = [];
+
+function pixoffLoadImages() {
+  let remaining = PIXOFF_ASSETS.length;
+  PIXOFF_ASSETS.forEach(name => {
+    const img = new Image();
+    img.onload = () => { remaining--; if (remaining === 0) { _pixoffImgsReady = true; pixoffDraw(); } };
+    img.onerror = () => { remaining--; };
+    img.src = `assets/pixel-office/${name}.png`;
+    _pixoffImgs[name] = img;
+  });
+}
+
+async function pixoffLoad() {
+  const { data, error } = await _sb.from('pixel_agents').select('*');
+  if (error) { _pixoffAgents = []; pixoffDraw(); return; }
+  const now = Date.now();
+  _pixoffAgents = (data || []).filter(r => now - new Date(r.updated_at).getTime() < PIXOFF_FRESH_MS);
+  pixoffDraw();
+}
+
+function pixoffAgentLabel(r) {
+  if (!r.project_path) return r.session_id.slice(0, 8);
+  const parts = r.project_path.replace(/\\/g, '/').split('/');
+  return parts[parts.length - 1] || r.project_path;
+}
+
+function pixoffDraw() {
+  const canvas = document.getElementById('pixoff-canvas');
+  const listEl = document.getElementById('pixoff-list');
+  const hintEl = document.getElementById('pixoff-hint');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, W, H);
+
+  if (_pixoffImgsReady) {
+    const floor = _pixoffImgs.floor;
+    for (let y = 0; y < H; y += 16) {
+      for (let x = 0; x < W; x += 16) ctx.drawImage(floor, x, y, 16, 16);
+    }
+  }
+
+  if (hintEl) hintEl.classList.toggle('show', _pixoffAgents.length === 0);
+  if (listEl) {
+    listEl.innerHTML = _pixoffAgents.map(r => `
+      <div class="pixoff-agent-row">
+        <span class="pixoff-dot"></span>
+        <span class="pixoff-agent-path">${pixoffAgentLabel(r)}</span>
+        <span class="pixoff-agent-status">${PIXOFF_STATUS_ICON[r.status] || '•'} ${r.status}${r.last_tool ? ' · ' + r.last_tool : ''}</span>
+      </div>`).join('');
+  }
+
+  if (!_pixoffImgsReady) return;
+
+  const agents = _pixoffAgents.slice(0, 6);
+  const slotW = 64;
+  const startX = (W - slotW * agents.length) / 2;
+  const deskY = 96;
+
+  agents.forEach((r, i) => {
+    const x = startX + i * slotW + slotW / 2;
+    const desk = _pixoffImgs.desk, pc = _pixoffImgs.pc, chair = _pixoffImgs.chair;
+    const charImg = _pixoffImgs['char_' + ((r.character_index ?? 0) % 6)];
+
+    ctx.drawImage(chair, x - 8, deskY - 8, 16, 16);
+    ctx.drawImage(desk, x - 24, deskY, 48, 32);
+    ctx.drawImage(pc, x - 8, deskY - 16, 16, 32);
+    // First 16x16 frame of the sprite sheet as a static seated pose
+    ctx.drawImage(charImg, 0, 0, 16, 16, x - 16, deskY - 16, 32, 32);
+
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(PIXOFF_STATUS_ICON[r.status] || '•', x, deskY - 22);
+
+    ctx.font = '9px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText(pixoffAgentLabel(r).slice(0, 14), x, deskY + 44);
+  });
+}
+
+function initPixoff() {
+  pixoffLoadImages();
+  pixoffLoad();
+  setInterval(pixoffLoad, 5000);
+  try {
+    _sb.channel('pixel_agents_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pixel_agents' }, () => pixoffLoad())
+      .subscribe();
+  } catch (e) { console.warn('[pixoff] realtime subscribe failed, falling back to polling only', e); }
 }
 
 const TASKS = [
@@ -8904,6 +9037,7 @@ function initNotes() {
   tickMelbClock();
   setInterval(tickMelbClock, 1000);
   updateNotifPermStatus();
+  initPixoff();
 })();
 
 

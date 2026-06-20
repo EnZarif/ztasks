@@ -1,0 +1,12 @@
+{
+  "name": "central-hub-pixel-agents-watcher",
+  "private": true,
+  "version": "1.0.0",
+  "main": "watch.js",
+  "scripts": {
+    "start": "node watch.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}
