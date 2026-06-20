@@ -6476,6 +6476,25 @@ const NSLA_TABLE_FILE = 'xl/tables/table1.xml';
 const NSLA_COL_START = 6; // column F
 const NSLA_HEADERS = ['Job #','Contract','Priority Short Name','Fault Code','Model','Created At','Status','Technician','Allocated Tech Team','Location Name','Location State','Reported TGL','Zone','Closed Date','SLA Response String','SLA Response Met','SLA Response Required','SLA Response Elapsed','SLA Response Remaining','SLA Resolution String','SLA Resolution Met','SLA Resolution Required','SLA Resolution Elapsed','SLA Resolution Remaining','SLA Met (NTT Contract)'];
 
+// Unlike mapColumns() (used by KPI Report), this does NOT convert date-looking
+// text into JS Date objects. The template's own formulas (e.g. on "Created At")
+// expect that column to stay exactly as the CMS export has it — plain text — and
+// parse the date out of it themselves via LEFT()+DATEVALUE(). Converting it to a
+// real date type breaks that, since Excel's implicit number-to-text coercion
+// inside LEFT() doesn't use a date format. This is a true "Paste Values" copy:
+// whatever type SheetJS read from the source cell is written through unchanged.
+function nslaMapColumns(rows, expectedHeaders) {
+  if (!rows.length) return [];
+  const headerRow = rows[0].map(h => (h == null ? '' : String(h)).trim().toLowerCase());
+  const idxMap = expectedHeaders.map(h => headerRow.indexOf(h.trim().toLowerCase()));
+  const dataRows = rows.slice(1).filter(r => r.some(c => c !== null && c !== ''));
+  return dataRows.map(r => idxMap.map(idx => {
+    if (idx === -1) return null;
+    const raw = r[idx];
+    return raw === undefined ? null : raw;
+  }));
+}
+
 let _nslaFiles = [];
 
 function nslaSaveTemplate(file) {
@@ -6671,7 +6690,7 @@ async function nslaGenerateReport() {
     let allRows = [];
     for (const file of orderedFiles) {
       const rows = await readSheetFile(file);
-      allRows = allRows.concat(mapColumns(rows, NSLA_HEADERS));
+      allRows = allRows.concat(nslaMapColumns(rows, NSLA_HEADERS));
     }
 
     statusEl.textContent = 'Building report...';
@@ -8188,6 +8207,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.1.2', type: 'patch', date: '20 Jun 2026', title: 'NSLA Report: fixed Logged stats showing zero', changes: [
+    'The "Created At" column was being converted into a real date value instead of being kept as plain text — but the template\'s own formula for Logged date expects text (it parses the date out using LEFT()+DATEVALUE(), the same way it already does for Closed Date). That mismatch silently broke every "Logged" count on the Summary tab',
+    'Fixed by pasting every column exactly as it is in the source file, with no type conversion at all — a true "Paste Values" copy, matching Closed Date\'s already-correct behaviour',
+    'Verified by actually opening the generated report in Excel and forcing a recalculation, not just inspecting the file — Logged counts now show real numbers instead of zero across the board',
+  ]},
   { ver: '4.1.1', type: 'patch', date: '20 Jun 2026', title: 'NSLA Report: fixed missing formulas on pasted rows', changes: [
     'Columns A-E in the CMS Data tab are calculated formulas that Excel normally copies down automatically when you paste into the table through its UI — since the report is generated directly, that copy-down step wasn\'t happening, leaving every row past the template\'s original sample rows blank in those columns',
     'Fixed by copying the exact, unmodified formula from row 2 into every new row (only the row number changes) — same outcome as Excel\'s own paste behavior, the formula logic itself is never touched',
