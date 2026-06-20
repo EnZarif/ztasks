@@ -645,82 +645,31 @@
   #page-meetings .header h1 i, #page-meetings .card-title i { color: var(--green-text); }
   #page-kpi .header h1 i, #page-kpi .card-title i { color: var(--pink-text); }
   #page-wishlist .header h1 i, #page-wishlist .card-title i { color: var(--purple-text); }
-  #page-weekly-review .header h1 i, #page-weekly-review .card-title i { color: var(--purple-text); }
-  #page-end-of-day .header h1 i, #page-end-of-day .card-title i { color: var(--teal-text); }
+  #page-notes .header h1 i, #page-notes .card-title i { color: var(--pink-text); }
 
-  /* WEEKLY REVIEW */
-  .wr-week-banner { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--purple-bg); border: 1px solid rgba(127,119,221,0.25); border-radius: var(--radius); margin-bottom: 4px; }
-  .wr-week-banner-label { font-size: 13px; font-weight: 600; color: var(--purple-text); flex: 1; }
-  .wr-week-banner-sub { font-size: 11.5px; color: var(--text-3); }
-  .wr-week-days { display: flex; gap: 5px; }
-  .wr-day { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; background: var(--surface2); color: var(--text-3); border: 1px solid var(--border); }
-  .wr-day.past { background: var(--purple-bg); color: var(--purple-text); border-color: rgba(127,119,221,0.3); }
-  .wr-day.today { background: var(--purple-text); color: #fff; border-color: var(--purple-text); }
-  .wr-already-done { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--green-text); background: rgba(99,153,34,0.1); border: 1px solid rgba(99,153,34,0.2); border-radius: var(--radius); padding: 8px 12px; margin-bottom: 4px; }
-  .wr-section { display: flex; flex-direction: column; gap: 6px; }
-  .wr-label { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 7px; }
-  .wr-label i { font-size: 14px; }
-  .wr-label.wrl-green  { color: var(--green-text); }
-  .wr-label.wrl-coral  { color: var(--coral-text); }
-  .wr-label.wrl-blue   { color: var(--teal-text); }
-  .wr-label.wrl-purple { color: var(--purple-text); }
-  .wr-hint { font-size: 11px; color: var(--text-3); margin-top: 3px; }
-  .wr-textarea { width: 100%; min-height: 88px; resize: vertical; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius); padding: 11px 13px; font-size: 13.5px; line-height: 1.7; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
-  .wr-textarea:focus { border-color: var(--purple-text); }
-  .wr-textarea::placeholder { color: var(--text-3); }
-  .wr-textarea.wr-highlight { border-color: rgba(127,119,221,0.35); background: rgba(127,119,221,0.05); }
-  .wr-textarea.wr-highlight:focus { border-color: var(--purple-text); }
-  .wr-save-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); }
-  .wr-save-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 22px; border-radius: 10px; background: var(--purple-text); color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
-  .wr-save-btn:hover { opacity: 0.85; }
-  .wr-saved-msg { font-size: 12px; color: var(--purple-text); display: none; }
-  .wr-history-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .wr-history-meta { font-size: 11.5px; color: var(--text-3); }
-  .wr-streak { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--amber-text); background: var(--amber-bg); border-radius: 20px; padding: 2px 9px; }
-  .wr-history-list { display: flex; flex-direction: column; gap: 8px; }
-  .wr-entry { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.15s; }
-  .wr-entry:hover { border-color: var(--purple-text); }
-  .wr-entry-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; user-select: none; }
-  .wr-entry-week { font-size: 12.5px; font-weight: 600; color: var(--text); flex: 1; }
-  .wr-entry-saved { font-size: 11px; color: var(--text-3); }
-  .wr-entry-chev { font-size: 13px; color: var(--text-3); transition: transform 0.2s; }
-  .wr-entry.open .wr-entry-chev { transform: rotate(180deg); }
-  .wr-entry-body { padding: 0 14px; border-top: 0; display: none; flex-direction: column; gap: 10px; max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
-  .wr-entry-body.open { display: flex; padding: 12px 14px; border-top: 1px solid var(--border); max-height: 600px; }
-  .wr-entry-section { font-size: 13px; line-height: 1.65; color: var(--text-2); }
-  .wr-entry-section-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
-  .wr-entry-section-label.wrl-green  { color: var(--green-text); }
-  .wr-entry-section-label.wrl-coral  { color: var(--coral-text); }
-  .wr-entry-section-label.wrl-blue   { color: var(--teal-text); }
-  .wr-entry-section-label.wrl-purple { color: var(--purple-text); }
-  .wr-entry-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; flex-shrink: 0; }
-  .wr-entry-del:hover { color: var(--coral-text); background: var(--coral-bg); }
-
-  /* END OF DAY */
-  .eod-scratchpad { width: 100%; min-height: 180px; resize: vertical; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius); padding: 12px 14px; font-size: 13.5px; line-height: 1.65; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
-  .eod-scratchpad:focus { border-color: var(--teal); }
-  .eod-task-list { display: flex; flex-direction: column; gap: 6px; }
-  .eod-task-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface2); border-radius: 9px; border: 1px solid var(--border); }
-  .eod-task-cb { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border-md); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: transparent; transition: all 0.15s; }
-  .eod-task-cb.done { background: var(--green-text); border-color: var(--green-text); color: #fff; }
-  .eod-task-name { font-size: 13px; flex: 1; }
-  .eod-task-pri { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
-  .eod-task-pri.p-high   { background: var(--coral-bg);  color: var(--coral-text); }
-  .eod-task-pri.p-medium { background: var(--amber-bg);  color: var(--amber-text); }
-  .eod-task-pri.p-low    { background: var(--green-bg);  color: var(--green-text); }
-  .eod-summary-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius); padding: 11px 13px; font-size: 14px; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.15s; box-sizing: border-box; }
-  .eod-summary-input:focus { border-color: var(--teal); }
-  .eod-summary-input::placeholder { color: var(--text-3); }
-  .eod-wrap-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; border-radius: 10px; background: var(--teal-bg); color: var(--teal-text); border: 1.5px solid var(--teal); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
-  .eod-wrap-btn:hover { opacity: 0.82; }
-  .eod-log-list { display: flex; flex-direction: column; gap: 8px; }
-  .eod-log-entry { background: var(--surface); border: 1px solid var(--border-md); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
-  .eod-log-date { font-size: 12px; font-weight: 600; color: var(--teal-text); flex-shrink: 0; min-width: 80px; }
-  .eod-log-summary { font-size: 13px; color: var(--text); flex: 1; }
-  .eod-log-stats { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
-  .eod-log-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 3px; border-radius: 5px; }
-  .eod-log-del:hover { color: var(--coral-text); }
-  .eod-empty { font-size: 13px; color: var(--text-3); padding: 16px 0; text-align: center; }
+  /* DAY MODE */
+  .day-mode-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; font-size: 12.5px; }
+  .day-mode-banner i { font-size: 15px; flex-shrink: 0; }
+  .day-mode-banner.dmb-working { background: var(--teal-bg); border: 0.5px solid rgba(93,202,165,0.3); color: var(--teal-text); }
+  .day-mode-banner.dmb-off { background: var(--purple-bg); border: 0.5px solid rgba(127,119,221,0.3); color: var(--purple-text); }
+  .dmb-label { font-weight: 600; }
+  .dmb-reason { color: var(--text-3); }
+  .dmb-override-tag { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,0.1); }
+  .dmb-upcoming-toggle { display: flex; align-items: center; gap: 6px; margin-left: auto; cursor: pointer; font-size: 12px; color: var(--text-2); }
+  .dmb-settings-link { color: inherit; text-decoration: underline; opacity: 0.8; font-size: 11.5px; }
+  .dmb-settings-link:hover { opacity: 1; }
+  .daymode-status { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); }
+  .daymode-status i { font-size: 22px; flex-shrink: 0; }
+  .daymode-status.dm-working { background: var(--teal-bg); color: var(--teal-text); }
+  .daymode-status.dm-off { background: var(--purple-bg); color: var(--purple-text); }
+  .daymode-status-label { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .daymode-status-sub { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+  .daymode-toggle-pair { display: flex; gap: 6px; }
+  .daymode-opt { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border-md); background: var(--surface); color: var(--text-3); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .daymode-opt.active { font-weight: 600; border-color: var(--teal); background: var(--teal-bg); color: var(--teal-text); }
+  .custom-holiday-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; padding: 7px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; }
+  .custom-holiday-row button { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 2px; }
+  .custom-holiday-row button:hover { color: var(--coral-text); }
 
   /* PROJECTS */
   #page-projects .header h1 i { color: var(--amber-text); }
@@ -1670,41 +1619,6 @@
         </div>
       </div>
 
-      <!-- SCRATCH PAD -->
-      <div class="widget-card notes-wcard">
-        <div class="wcard-banner notes-banner">
-          <i class="ti ti-pencil"></i>
-          <div class="wcard-banner-text">
-            <div class="wcard-banner-title">Scratch Pad</div>
-            <div class="wcard-banner-sub">Ideas • brainstorms • anything</div>
-          </div>
-          <span class="notes-saved-badge" id="notes-saved-badge" style="margin-left:auto;"><i class="ti ti-check"></i> Saved</span>
-        </div>
-        <div class="wcard-body notes-card">
-          <textarea class="notes-textarea" id="notes-textarea" placeholder="Dump your thoughts here — ideas, brainstorms, things to figure out…" oninput="notesOnInput()"></textarea>
-          <div class="notes-actions">
-            <button class="notes-ai-btn" id="notes-ai-btn" onclick="notesElaborate()"><i class="ti ti-sparkles"></i> Elaborate</button>
-            <button class="notes-save-btn" onclick="notesSaveRecord()"><i class="ti ti-device-floppy"></i> Save record</button>
-            <span class="notes-char-count" id="notes-char-count">0 chars</span>
-          </div>
-          <div class="notes-ai-result" id="notes-ai-result"></div>
-          <div class="notes-ai-result-actions" id="notes-ai-result-actions" style="display:none">
-            <button onclick="notesInsertResult()"><i class="ti ti-corner-down-left"></i> Insert</button>
-            <button onclick="notesCopyResult()"><i class="ti ti-copy"></i> Copy</button>
-            <button onclick="notesDismissResult()"><i class="ti ti-x"></i> Dismiss</button>
-          </div>
-          <hr class="notes-divider">
-          <div class="notes-records-head">
-            <span>Saved records</span>
-            <span style="display:flex;align-items:center;gap:8px;margin-left:auto;">
-              <span id="notes-record-count" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);font-size:11px;"></span>
-              <button id="notes-sort-btn" onclick="notesToggleSort()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--border-md);background:var(--surface);color:var(--text-3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;"><i class="ti ti-arrow-down" id="notes-sort-icon"></i><span id="notes-sort-label">Newest</span></button>
-            </span>
-          </div>
-          <div class="notes-records-list" id="notes-records-list"></div>
-        </div>
-      </div>
-
       <!-- PIXEL OFFICE -->
       <div class="widget-card pixoff-wcard">
         <div class="wcard-banner pixoff-banner">
@@ -1859,97 +1773,38 @@
     </div>
   </div>
 
-  <!-- WEEKLY REVIEW PAGE -->
-  <div class="page" id="page-weekly-review">
+  <!-- PERSONAL SCRATCHPAD PAGE -->
+  <div class="page" id="page-notes">
     <div class="header">
       <div>
-        <h1><i class="ti ti-calendar-stats"></i> Weekly Review</h1>
-        <p>Reflect on the week — what worked, what didn't, and what's next</p>
+        <h1><i class="ti ti-pencil" style="color:var(--pink-text);"></i> Scratchpad</h1>
+        <p>Grocery lists, errands, people to call — jot it down, then turn it into a personal task.</p>
       </div>
     </div>
-    <div class="split-grid" style="align-items:start;">
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div id="wr-week-banner"></div>
-        <div class="card">
-          <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> This week's review</div>
-          <div id="wr-already-done-banner"></div>
-          <div style="display:flex;flex-direction:column;gap:18px;margin-top:4px;">
-            <div class="wr-section">
-              <div class="wr-label wrl-green"><i class="ti ti-thumb-up"></i> What went well?</div>
-              <div class="wr-hint">Name specific wins — a task nailed, a conversation that landed, a process that clicked.</div>
-              <textarea class="wr-textarea" id="wr-well" placeholder="e.g. Ran the stand-up smoothly, closed 3 escalations, got positive feedback from the team…"></textarea>
-            </div>
-            <div class="wr-section">
-              <div class="wr-label wrl-coral"><i class="ti ti-refresh-alert"></i> What could be better?</div>
-              <div class="wr-hint">Be honest — what slipped, what slowed you down, what would you do differently?</div>
-              <textarea class="wr-textarea" id="wr-better" placeholder="e.g. Delayed the weekly report, didn't follow up on Jack's ticket, lost track of the DMG queue…"></textarea>
-            </div>
-            <div class="wr-section">
-              <div class="wr-label wrl-blue"><i class="ti ti-target"></i> Next week's main focus</div>
-              <div class="wr-hint">Pick one or two things. Not a to-do list — the needle-movers.</div>
-              <textarea class="wr-textarea wr-highlight" id="wr-focus" placeholder="e.g. Get the ANZ project to delivered status, run a 1:1 with each TL…" style="min-height:72px;"></textarea>
-            </div>
-            <div class="wr-section">
-              <div class="wr-label wrl-purple"><i class="ti ti-rocket"></i> Career action this week</div>
-              <div class="wr-hint">One concrete step toward your next role — learning, visibility, or relationship.</div>
-              <textarea class="wr-textarea wr-highlight" id="wr-career" placeholder="e.g. Book 30 min with manager to discuss promotion path, finish leadership module 3…" style="min-height:72px;"></textarea>
-            </div>
-            <div class="wr-save-row">
-              <button class="wr-save-btn" onclick="saveWeeklyReview()"><i class="ti ti-device-floppy"></i> Save review</button>
-              <span class="wr-saved-msg" id="wr-saved-msg"><i class="ti ti-check"></i> Saved for this week</span>
-            </div>
-          </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> Scratch Pad <span class="notes-saved-badge" id="notes-saved-badge" style="margin-left:auto;"><i class="ti ti-check"></i> Saved</span></div>
+      <div class="notes-card">
+        <textarea class="notes-textarea" id="notes-textarea" placeholder="Dump your thoughts here — grocery list, things to do, people to call…" oninput="notesOnInput()"></textarea>
+        <div class="notes-actions">
+          <button class="notes-ai-btn" id="notes-ai-btn" onclick="notesElaborate()"><i class="ti ti-sparkles"></i> Elaborate</button>
+          <button class="notes-save-btn" onclick="notesSaveRecord()"><i class="ti ti-device-floppy"></i> Save record</button>
+          <span class="notes-char-count" id="notes-char-count">0 chars</span>
         </div>
-      </div>
-      <div>
-        <div class="card">
-          <div class="wr-history-head">
-            <div class="card-title" style="margin:0"><i class="ti ti-history" style="font-size:13px"></i> Past reviews</div>
-            <span id="wr-streak-badge"></span>
-          </div>
-          <div class="wr-history-list" id="wr-history-list"><div class="eod-empty">No reviews saved yet.</div></div>
+        <div class="notes-ai-result" id="notes-ai-result"></div>
+        <div class="notes-ai-result-actions" id="notes-ai-result-actions" style="display:none">
+          <button onclick="notesInsertResult()"><i class="ti ti-corner-down-left"></i> Insert</button>
+          <button onclick="notesCopyResult()"><i class="ti ti-copy"></i> Copy</button>
+          <button onclick="notesDismissResult()"><i class="ti ti-x"></i> Dismiss</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- END OF DAY PAGE -->
-  <div class="page" id="page-end-of-day">
-    <div class="header">
-      <div>
-        <h1><i class="ti ti-moon"></i> End of Day</h1>
-        <p>Close the loop — clear your scratchpad, check open tasks, wrap up</p>
-      </div>
-    </div>
-    <div class="split-grid" style="align-items:start;">
-      <div>
-        <div class="card">
-          <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> Scratchpad records</div>
-          <div style="font-size:12px;color:var(--text-3);margin-bottom:12px;">Everything still sitting in your scratchpad — review, convert to a task, or head over to clear it.</div>
-          <div id="eod-notes-list"><div class="eod-empty">No scratchpad records.</div></div>
-          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-            <button class="wr-save-btn" style="background:var(--surface2);color:var(--text-2);border-color:var(--border-md);" onclick="showPage('notes')"><i class="ti ti-external-link"></i> Open scratchpad</button>
-          </div>
+        <hr class="notes-divider">
+        <div class="notes-records-head">
+          <span>Saved records</span>
+          <span style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+            <span id="notes-record-count" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);font-size:11px;"></span>
+            <button id="notes-sort-btn" onclick="notesToggleSort()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--border-md);background:var(--surface);color:var(--text-3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;"><i class="ti ti-arrow-down" id="notes-sort-icon"></i><span id="notes-sort-label">Newest</span></button>
+          </span>
         </div>
-      </div>
-      <div>
-        <div class="card">
-          <div class="card-title"><i class="ti ti-list-check" style="font-size:13px"></i> Open tasks today</div>
-          <div class="eod-task-list" id="eod-task-list"><div class="eod-empty">All done — nothing open.</div></div>
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <div class="card-title"><i class="ti ti-moon" style="font-size:13px"></i> Wrap up</div>
-          <div style="font-size:12px;color:var(--text-3);margin-bottom:10px;">One sentence summarising today.</div>
-          <input class="eod-summary-input" id="eod-summary" placeholder="Today I…" />
-          <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
-            <button class="eod-wrap-btn" onclick="eodCloseDay()"><i class="ti ti-check"></i> Close the day</button>
-            <span class="wr-saved-msg" id="eod-saved-msg"><i class="ti ti-check"></i> Logged</span>
-          </div>
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <div class="card-title"><i class="ti ti-history" style="font-size:13px"></i> Daily log</div>
-          <div class="eod-log-list" id="eod-log-list"><div class="eod-empty">No entries yet.</div></div>
-        </div>
+        <div class="notes-records-list" id="notes-records-list"></div>
       </div>
     </div>
   </div>
@@ -2002,6 +1857,8 @@
       <i class="ti ti-calendar-event"></i>
       <span id="banner-text"></span>
     </div>
+
+    <div id="day-mode-banner" class="day-mode-banner"></div>
 
     <div class="hub-filter-bar" id="task-hub-filter-bar">
       <span class="hub-filter-label"><i class="ti ti-filter" style="font-size:12px;margin-right:2px"></i>Hub</span>
@@ -2558,6 +2415,41 @@
     </div>
 
     <div class="card settings-section">
+      <div class="card-title s-toggle" onclick="toggleSettingsSection('s-daymode')">
+        <i class="ti ti-calendar-event"></i> Day mode
+        <i class="ti ti-chevron-down s-chev"></i>
+      </div>
+      <div class="s-body" id="s-daymode">
+        <div id="daymode-status"></div>
+        <div class="settings-row" style="margin-top:12px;">
+          <div class="settings-row-info">
+            <div class="settings-row-label">Override today</div>
+            <div class="settings-row-desc">Working on a weekend, or taking a day off mid-week? Flip it for today — resets automatically tomorrow.</div>
+          </div>
+          <div class="settings-row-ctrl">
+            <div class="daymode-toggle-pair">
+              <button class="daymode-opt" data-mode="working" onclick="setDayOverride('working')"><i class="ti ti-briefcase"></i> Working day</button>
+              <button class="daymode-opt" data-mode="off" onclick="setDayOverride('off')"><i class="ti ti-beach"></i> Day off</button>
+            </div>
+          </div>
+        </div>
+        <div class="ai-hint">Auto-detected from the day of the week and the Victoria (Australia) public holiday calendar. On a day off, the Task Manager hides Helpdesk/Projects tasks and shows Personal tasks only — toggle "Show upcoming work week" there to peek at work tasks anyway.</div>
+        <div class="settings-row" style="margin-top:14px;flex-direction:column;align-items:flex-start;gap:10px;">
+          <div class="settings-row-info">
+            <div class="settings-row-label">Extra non-working days</div>
+            <div class="settings-row-desc">For anything the auto calendar might miss — an RDO, AFL Grand Final Friday, etc.</div>
+          </div>
+          <div style="display:flex;gap:8px;width:100%;flex-wrap:wrap;">
+            <input type="date" class="settings-input" id="custom-holiday-date" style="flex:1;min-width:140px;">
+            <input type="text" class="settings-input" id="custom-holiday-name" placeholder="Name (optional)" style="flex:1;min-width:140px;">
+            <button class="settings-save-btn" onclick="addCustomHoliday()"><i class="ti ti-plus"></i> Add</button>
+          </div>
+          <div id="custom-holiday-list" style="width:100%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card settings-section">
       <div class="card-title s-toggle" onclick="toggleSettingsSection('s-appearance')">
         <i class="ti ti-layout"></i> Appearance
         <i class="ti ti-chevron-down s-chev"></i>
@@ -2807,13 +2699,19 @@
       </div>
       <div style="flex:1">
         <label>Frequency</label>
-        <select id="spt-freq">
+        <select id="spt-freq" onchange="renderSptDayField()">
           <option value="once">Once (today)</option>
+          <option value="date">On a date</option>
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
           <option value="untildone">Until done</option>
         </select>
       </div>
+    </div>
+    <div id="spt-day-wrap" style="display:none"></div>
+    <div>
+      <label>Due by time <span style="font-weight:400;color:var(--text-3);">(optional)</span></label>
+      <div id="spt-time-holder"></div>
     </div>
     <div>
       <label>Notes / context</label>
@@ -4212,8 +4110,7 @@ const PAGES = {
   standup:   { title:'Stand up',      icon:'ti-presentation',     color:'c-pink',   desc:'Draft and elaborate your daily stand up talking points.' },
   wishlist:       { title:'Wishlist',        icon:'ti-sparkles',        color:'c-purple', desc:'Ideas and future features for this project.' },
   insights:       { title:'Insights',        icon:'ti-chart-pie',       color:'c-green',  desc:'At-a-glance productivity dashboard: completions, streak, meetings & AI usage.' },
-  'weekly-review':{ title:'Weekly Review',   icon:'ti-calendar-stats',  color:'c-purple', desc:'Reflect on the week — wins, lessons, next focus, and one career action.' },
-  'end-of-day':   { title:'End of Day',      icon:'ti-moon',            color:'c-teal',   desc:'Close the loop — process your scratchpad, review open tasks, log your day.' },
+  notes:          { title:'Scratchpad',      icon:'ti-pencil',          color:'c-pink',   desc:'Grocery lists, errands, calls — jot it down and turn it into a personal task.' },
 };
 const HUBS = ['helpdesk','projects','personal'];
 const HUB_META = {
@@ -4224,7 +4121,7 @@ const HUB_META = {
 const DEFAULT_HUB_LAYOUT = {
   helpdesk: ['kpi','meetings','message','templates','standup'],
   projects: ['meetings'],
-  personal: ['wishlist','insights','weekly-review','end-of-day'],
+  personal: ['wishlist','insights','notes'],
 };
 let hubLayout = loadHubLayout(); // will be reloaded after dbLoad
 function loadHubLayout() {
@@ -4232,6 +4129,8 @@ function loadHubLayout() {
   const layout = {};
   HUBS.forEach(h => {
     const list = Array.isArray(saved[h]) ? saved[h].filter(p => PAGES[p]) : DEFAULT_HUB_LAYOUT[h].slice();
+    // Migration: existing saved layouts predate the Scratchpad page — add it to Personal once.
+    if (h === 'personal' && !list.includes('notes')) list.push('notes');
     layout[h] = list;
   });
   return layout;
@@ -4324,9 +4223,7 @@ function showPage(p, hub) {
   if (p === 'home' && typeof renderHomeDashboard === 'function') renderHomeDashboard();
   if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
   if (p === 'insights' && typeof renderInsights === 'function') renderInsights();
-  if (p === 'end-of-day' && typeof initEndOfDay === 'function') initEndOfDay();
   if (p === 'settings' && typeof updateNotifPermStatus === 'function') updateNotifPermStatus();
-  if (p === 'weekly-review' && typeof renderWeeklyReview === 'function') renderWeeklyReview();
   window.scrollTo(0, 0);
 }
 
@@ -4546,7 +4443,7 @@ function taskHTML(t, showFreqPill) {
   const reminderPill = t.reminderTime
     ? `<span class="time-pill" title="Reminder set"><i class="ti ti-bell"></i>${fmtTime(t.reminderTime)}</span>`
     : '';
-  const click = t.id === 1 ? `showPage('message')` : t.id === 8 ? `showPage('calldata')` : t.id === 3 ? `showPage('awjobs')` : t.id === 7 ? `showPage('standup')` : t.id === 18 ? `showPage('end-of-day')` : `toggle('${t.id}')`;
+  const click = t.id === 1 ? `showPage('message')` : t.id === 8 ? `showPage('calldata')` : t.id === 3 ? `showPage('awjobs')` : t.id === 7 ? `showPage('standup')` : `toggle('${t.id}')`;
   const delBtn = t.custom ? `<button class="task-del-btn" onclick="event.stopPropagation(); deleteCustomTask('${t.id}')"><i class="ti ti-trash"></i></button>` : '';
   const aiBtn = `<button class="task-ai-btn" title="Ask AI about this task" onclick="event.stopPropagation(); openAiModal('task','${t.id}')"><i class="ti ti-sparkles"></i></button>`;
   const editBtn = `<button class="task-edit-btn" onclick="event.stopPropagation(); openTaskEdit('${t.id}')"><i class="ti ti-pencil"></i></button>`;
@@ -8829,23 +8726,42 @@ function notesAddToWishlist(id) {
 
 let _spTaskRecordId = null;
 
+let _spTaskParsedDate = '', _spTaskParsedTime = '';
+
+function renderSptDayField() {
+  const freq = document.getElementById('spt-freq').value;
+  const wrap = document.getElementById('spt-day-wrap');
+  if (freq === 'date') {
+    wrap.style.display = 'block';
+    wrap.innerHTML = `<label>Due date</label>${makeDatePicker('spt-date', _spTaskParsedDate || todayInputDate(), null, 'Pick a date')}`;
+  } else {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+  }
+}
+
 async function notesConvertToTask(id) {
   const r = _notesRecords.find(x => x.id === id);
   if (!r) return;
   const btn = document.getElementById('nra-task-' + id);
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> Thinking…'; }
+  _spTaskParsedDate = ''; _spTaskParsedTime = '';
   try {
     const raw = await geminiCall(
-      `You are a personal task assistant. The user has a scratchpad note and wants to convert it into a structured task.\n\nNote:\n"""${r.content}"""\n\nReturn ONLY valid JSON (no markdown, no commentary) in this exact shape:\n{"name":"<concise task title, max 80 chars>","priority":"HIGH"|"MEDIUM"|"LOW","freq":"once"|"daily"|"weekly"|"untildone","note":"<1-2 sentence elaboration of what needs to be done>"}`
+      `You are a personal task assistant. Today's date is ${todayInputDate()} (${DAY_NAMES[now.getDay()]}). The user has a scratchpad note and wants to convert it into a structured personal task.\n\nNote:\n"""${r.content}"""\n\nIf the note mentions or implies a specific day (e.g. "tomorrow", "next Friday", "the 20th") resolve it to an absolute date using today's date above. If it mentions a time (e.g. "3pm", "at 9"), extract that too. If nothing is mentioned, leave date/time empty.\n\nReturn ONLY valid JSON (no markdown, no commentary) in this exact shape:\n{"name":"<concise task title, max 80 chars>","priority":"HIGH"|"MEDIUM"|"LOW","freq":"once"|"date"|"daily"|"weekly"|"untildone","date":"<YYYY-MM-DD or empty string>","time":"<HH:MM 24-hour or empty string>","note":"<1-2 sentence elaboration of what needs to be done>"}`
     );
     let parsed;
     try { parsed = JSON.parse(raw.trim()); } catch { const m = raw.match(/\{[\s\S]*\}/); parsed = m ? JSON.parse(m[0]) : null; }
     if (!parsed || !parsed.name) throw new Error('bad_parse');
     _spTaskRecordId = id;
+    _spTaskParsedDate = /^\d{4}-\d{2}-\d{2}$/.test(parsed.date || '') ? parsed.date : '';
+    _spTaskParsedTime = /^\d{1,2}:\d{2}$/.test(parsed.time || '') ? parsed.time : '';
     document.getElementById('spt-name').value = parsed.name || '';
     document.getElementById('spt-priority').value = ['HIGH','MEDIUM','LOW'].includes(parsed.priority) ? parsed.priority : 'MEDIUM';
-    document.getElementById('spt-freq').value = ['once','daily','weekly','untildone'].includes(parsed.freq) ? parsed.freq : 'once';
+    document.getElementById('spt-freq').value = ['once','date','daily','weekly','untildone'].includes(parsed.freq) ? parsed.freq : (_spTaskParsedDate ? 'date' : 'once');
     document.getElementById('spt-note').value = parsed.note || '';
+    renderSptDayField();
+    document.getElementById('spt-time-holder').innerHTML = timeField('spt-time', _spTaskParsedTime);
     document.getElementById('sp-task-modal-overlay').classList.add('active');
   } catch(e) {
     // No key or parse fail — open modal with just the title prefilled
@@ -8854,6 +8770,8 @@ async function notesConvertToTask(id) {
     document.getElementById('spt-priority').value = 'MEDIUM';
     document.getElementById('spt-freq').value = 'once';
     document.getElementById('spt-note').value = r.content.slice(0, 300);
+    renderSptDayField();
+    document.getElementById('spt-time-holder').innerHTML = timeField('spt-time', '');
     document.getElementById('sp-task-modal-overlay').classList.add('active');
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-sparkles"></i> Task (AI)'; }
@@ -8871,8 +8789,15 @@ function spTaskModalConfirm() {
   const freq = document.getElementById('spt-freq').value;
   const priority = document.getElementById('spt-priority').value;
   const note = document.getElementById('spt-note').value.trim();
-  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note, custom: true, hub: 'helpdesk', time: '' };
-  if (freq === 'once' || freq === 'date') task.date = todayInputDate();
+  const timeEl = document.getElementById('spt-time');
+  const time = timeEl && timeEl.value ? timeEl.value : '';
+  // Scratchpad-converted tasks always go to Personal, regardless of what they're about
+  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note, custom: true, hub: 'personal', time };
+  if (freq === 'once') task.date = todayInputDate();
+  else if (freq === 'date') {
+    const dEl = document.getElementById('spt-date');
+    task.date = (dEl && dEl.value) ? dEl.value : todayInputDate();
+  }
   customTasks.push(task);
   saveCustomTasks();
   if (typeof renderTasks === 'function') renderTasks();
@@ -8936,222 +8861,187 @@ function notesDismissResult() {
   _notesAiResult = '';
 }
 
-// ===== WEEKLY REVIEW =====
-let _wrReviews = [];
-function loadWrReviews() { _wrReviews = dbGet('zarif_weekly_reviews') || []; }
-function saveWrReviews() { dbSet('zarif_weekly_reviews', _wrReviews); }
-
-function getWeekLabel() {
-  const d = new Date();
-  const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-  const fmt = x => `${x.getDate()} ${MON_NAMES[x.getMonth()]}`;
-  return `Week of ${fmt(mon)} – ${fmt(sun)}`;
-}
-
-function saveWeeklyReview() {
-  const well   = (document.getElementById('wr-well')   || {}).value || '';
-  const better = (document.getElementById('wr-better') || {}).value || '';
-  const focus  = (document.getElementById('wr-focus')  || {}).value || '';
-  const career = (document.getElementById('wr-career') || {}).value || '';
-  if (!well && !better && !focus && !career) return;
-  _wrReviews.unshift({ id: Date.now(), weekLabel: getWeekLabel(), savedAt: new Date().toISOString(), well, better, focus, career });
-  saveWrReviews();
-  ['wr-well','wr-better','wr-focus','wr-career'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  const msg = document.getElementById('wr-saved-msg');
-  if (msg) { msg.style.display = 'inline-flex'; setTimeout(() => { msg.style.display = 'none'; }, 2500); }
-  renderWeeklyReview();
-}
-
-function deleteWeeklyReview(id) {
-  _wrReviews = _wrReviews.filter(r => r.id !== id);
-  saveWrReviews();
-  renderWeeklyReview();
-}
-
-function toggleWrEntry(id) {
-  const body = document.getElementById('wre-body-' + id);
-  const entry = document.getElementById('wre-' + id);
-  if (body) body.classList.toggle('open');
-  if (entry) entry.classList.toggle('open');
-}
-
-function renderWeeklyReview() {
-  // --- week progress banner ---
-  const bannerEl = document.getElementById('wr-week-banner');
-  if (bannerEl) {
-    const dow = now.getDay(); // 0=Sun,1=Mon…5=Fri,6=Sat
-    const days = ['M','T','W','T','F'];
-    // Mon=1…Fri=5; map to index 0-4
-    const todayIdx = dow >= 1 && dow <= 5 ? dow - 1 : (dow === 6 ? 5 : 5);
-    const dayPills = days.map((d, i) => {
-      const cls = i < todayIdx ? 'past' : i === todayIdx && dow >= 1 && dow <= 5 ? 'today' : '';
-      return `<div class="wr-day ${cls}">${d}</div>`;
-    }).join('');
-    const weekLabel = getWeekLabel();
-    bannerEl.innerHTML = `<div class="wr-week-banner">
-      <div>
-        <div class="wr-week-banner-label"><i class="ti ti-calendar-week" style="margin-right:6px"></i>${weekLabel}</div>
-        <div class="wr-week-banner-sub">${dow === 0 || dow === 6 ? 'Weekend — great time to reflect before Monday' : dow === 5 ? 'Friday — wrap up the week' : 'Review at end of day Friday for best results'}</div>
-      </div>
-      <div class="wr-week-days">${dayPills}</div>
-    </div>`;
+// ===== DAY MODE (working day vs day off — VIC, Australia) =====
+// Public holidays are computed where the rule is unambiguous (Easter via Computus,
+// nth-weekday-of-month rules, and the standard weekend-substitute rules for fixed
+// dates). The AFL Grand Final Friday isn't included since its date depends on the
+// season fixture each year — add it via "Extra non-working days" in Settings.
+function nthWeekdayOfMonth(year, month, weekday, n) {
+  const d = new Date(year, month, 1);
+  let count = 0;
+  while (true) {
+    if (d.getDay() === weekday) { count++; if (count === n) return new Date(d); }
+    d.setDate(d.getDate() + 1);
   }
+}
+function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate() + n); return d; }
+function shiftIfWeekend(date) {
+  const dow = date.getDay();
+  if (dow === 6) return addDays(date, 2); // Sat -> Mon
+  if (dow === 0) return addDays(date, 1); // Sun -> Mon
+  return date;
+}
+function computeEasterSunday(year) {
+  const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+  const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+const _vicHolidayCache = {};
+function getVicPublicHolidays(year) {
+  if (_vicHolidayCache[year]) return _vicHolidayCache[year];
+  const list = [];
+  const push = (date, name) => list.push({ date: ymd(date), name });
+  push(shiftIfWeekend(new Date(year, 0, 1)), "New Year's Day");
+  push(shiftIfWeekend(new Date(year, 0, 26)), 'Australia Day');
+  push(nthWeekdayOfMonth(year, 2, 1, 2), 'Labour Day');
+  const easter = computeEasterSunday(year);
+  push(addDays(easter, -2), 'Good Friday');
+  push(addDays(easter, -1), 'Easter Saturday');
+  push(addDays(easter, 1), 'Easter Monday');
+  push(new Date(year, 3, 25), 'Anzac Day'); // VIC: no weekend substitute
+  push(nthWeekdayOfMonth(year, 5, 1, 2), "King's Birthday");
+  push(nthWeekdayOfMonth(year, 10, 2, 1), 'Melbourne Cup Day'); // metro Melbourne
+  const xmas = new Date(year, 11, 25), boxing = new Date(year, 11, 26);
+  const xDow = xmas.getDay(), bDow = boxing.getDay();
+  if (xDow === 6 && bDow === 0) { push(new Date(year, 11, 27), 'Christmas Day (in lieu)'); push(new Date(year, 11, 28), 'Boxing Day (in lieu)'); }
+  else if (xDow === 0 && bDow === 1) { push(new Date(year, 11, 27), 'Christmas Day (in lieu)'); push(boxing, 'Boxing Day'); }
+  else if (xDow === 5 && bDow === 6) { push(xmas, 'Christmas Day'); push(new Date(year, 11, 28), 'Boxing Day (in lieu)'); }
+  else { push(xmas, 'Christmas Day'); push(boxing, 'Boxing Day'); }
+  _vicHolidayCache[year] = list;
+  return list;
+}
+function getCustomHolidays() { return dbGet('zarif_custom_holidays') || []; }
+function saveCustomHolidays(list) { dbSet('zarif_custom_holidays', list); }
+function vicHolidayName(dateStr) {
+  const year = parseInt(dateStr.slice(0, 4), 10);
+  const hit = getVicPublicHolidays(year).find(h => h.date === dateStr);
+  if (hit) return hit.name;
+  const custom = getCustomHolidays().find(h => h.date === dateStr);
+  return custom ? (custom.name || 'Day off') : null;
+}
+function parseYmdLocal(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function getAutoDayMode(dateStr) {
+  const dow = parseYmdLocal(dateStr).getDay();
+  if (dow === 0 || dow === 6) return 'off';
+  return vicHolidayName(dateStr) ? 'off' : 'working';
+}
+function getDayOverrides() { return dbGet('zarif_day_overrides') || {}; }
+function saveDayOverrides(o) { dbSet('zarif_day_overrides', o); }
+function isDayModeOverridden(dateStr) { return !!getDayOverrides()[dateStr]; }
+function getDayMode(dateStr) { return getDayOverrides()[dateStr] || getAutoDayMode(dateStr); }
+function getTodayDayMode() { return getDayMode(todayInputDate()); }
 
-  // --- already done this week banner ---
-  const alreadyEl = document.getElementById('wr-already-done-banner');
-  if (alreadyEl) {
-    const thisWeek = getWeekLabel();
-    const done = _wrReviews.find(r => r.weekLabel === thisWeek);
-    alreadyEl.innerHTML = done
-      ? `<div class="wr-already-done"><i class="ti ti-circle-check"></i> You've already reviewed this week — saved ${new Date(done.savedAt).toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})}. Saving again will add a new entry.</div>`
-      : '';
+let showUpcomingWorkWeek = false;
+let _dayModeApplied = false;
+
+function applyDayModeDefaults(force) {
+  const mode = getTodayDayMode();
+  if (force || !_dayModeApplied) {
+    if (mode === 'off') { taskHubFilter = showUpcomingWorkWeek ? 'all' : 'personal'; }
+    else { taskHubFilter = 'all'; showUpcomingWorkWeek = false; }
+    document.querySelectorAll('.hub-pill').forEach(el => el.classList.toggle('active', el.dataset.hub === taskHubFilter));
   }
-
-  // --- streak badge ---
-  const streakEl = document.getElementById('wr-streak-badge');
-  if (streakEl && _wrReviews.length > 0) {
-    streakEl.innerHTML = `<span class="wr-streak"><i class="ti ti-flame"></i> ${_wrReviews.length} review${_wrReviews.length !== 1 ? 's' : ''}</span>`;
-  } else if (streakEl) { streakEl.innerHTML = ''; }
-
-  // --- history list ---
-  const el = document.getElementById('wr-history-list');
-  if (!el) return;
-  if (!_wrReviews.length) { el.innerHTML = '<div class="eod-empty">No reviews saved yet — fill in the form and hit Save.</div>'; return; }
-  el.innerHTML = _wrReviews.map(r => {
-    const saved = new Date(r.savedAt).toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short', year:'2-digit' });
-    const sections = [
-      { label:'What went well',  val: r.well,   cls:'wrl-green' },
-      { label:'Could be better', val: r.better, cls:'wrl-coral' },
-      { label:'Next week focus', val: r.focus,  cls:'wrl-blue' },
-      { label:'Career action',   val: r.career, cls:'wrl-purple' },
-    ].filter(s => s.val);
-    return `<div class="wr-entry" id="wre-${r.id}">
-      <div class="wr-entry-head" onclick="toggleWrEntry(${r.id})">
-        <div class="wr-entry-week">${esc(r.weekLabel)}</div>
-        <div class="wr-entry-saved">${saved}</div>
-        <button class="wr-entry-del" onclick="event.stopPropagation();deleteWeeklyReview(${r.id})" title="Delete"><i class="ti ti-trash"></i></button>
-        <i class="ti ti-chevron-down wr-entry-chev"></i>
-      </div>
-      <div class="wr-entry-body" id="wre-body-${r.id}">
-        ${sections.map(s => `<div class="wr-entry-section"><div class="wr-entry-section-label ${s.cls}">${s.label}</div>${esc(s.val)}</div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  _dayModeApplied = true;
 }
 
-// ===== END OF DAY =====
-let _eodLog = [];
-function loadEodLog() { _eodLog = dbGet('zarif_eod_log') || []; }
-function saveEodLog() { dbSet('zarif_eod_log', _eodLog); }
-
-function renderEodNotesList() {
-  const el = document.getElementById('eod-notes-list');
-  if (!el) return;
-  if (!_notesRecords.length) { el.innerHTML = '<div class="eod-empty">No scratchpad records.</div>'; return; }
-  el.innerHTML = _notesRecords.map(r => {
-    const preview = r.content && r.content.length > r.title.length
-      ? r.content.slice(r.title.length).trim().slice(0, 120)
-      : '';
-    return `<div class="eod-log-entry" style="flex-direction:column;align-items:flex-start;gap:4px;">
-      <div style="display:flex;align-items:center;gap:8px;width:100%;">
-        <span style="font-size:13px;font-weight:500;color:var(--text);flex:1;">${esc(r.title || 'Untitled')}</span>
-        <span style="font-size:10px;color:var(--text-3);">${r.createdAt ? fmtTs(r.createdAt) : ''}</span>
-        <button class="eod-log-del" onclick="showPage('notes')" title="Go to scratchpad"><i class="ti ti-arrow-up-right"></i></button>
-      </div>
-      ${preview ? `<div style="font-size:12px;color:var(--text-3);line-height:1.5;">${esc(preview)}${r.content.length > 120 ? '…' : ''}</div>` : ''}
-    </div>`;
-  }).join('');
+function toggleUpcomingWorkWeek() {
+  showUpcomingWorkWeek = !showUpcomingWorkWeek;
+  setTaskHubFilter(showUpcomingWorkWeek ? 'all' : 'personal');
+  renderDayModeBanner();
 }
 
-function initEndOfDay() {
-  loadEodLog();
-  renderEodNotesList();
-  renderEodTasks();
-  renderEodLog();
-}
-
-function eodSyncNotes() {
-  const ta = document.getElementById('eod-scratchpad');
-  if (!ta) return;
-  dbSet('zarif_notes', ta.value);
-  const mainTa = document.getElementById('notes-textarea');
-  if (mainTa) { mainTa.value = ta.value; notesOnInput(); }
-}
-
-function eodClearScratchpad() {
-  if (!confirm('Clear the scratchpad?')) return;
-  const ta = document.getElementById('eod-scratchpad');
-  if (ta) ta.value = '';
-  dbSet('zarif_notes', '');
-  const mainTa = document.getElementById('notes-textarea');
-  if (mainTa) { mainTa.value = ''; notesOnInput(); }
-}
-
-function renderEodTasks() {
-  const el = document.getElementById('eod-task-list');
-  if (!el) return;
-  const open = getTodayTasks().filter(t => !isDone(t.id));
-  if (!open.length) { el.innerHTML = '<div class="eod-empty">All done — nothing open. ✓</div>'; return; }
-  el.innerHTML = open.map(t => {
-    const priCls = t.priority === 'HIGH' ? 'p-high' : t.priority === 'MEDIUM' ? 'p-medium' : 'p-low';
-    const priLbl = t.priority[0] + t.priority.slice(1).toLowerCase();
-    return `<div class="eod-task-item" id="eod-ti-${t.id}">
-      <div class="eod-task-cb" onclick="eodToggleTask('${t.id}')"><i class="ti ti-check" style="font-size:12px"></i></div>
-      <span class="eod-task-name">${esc(t.name)}</span>
-      <span class="eod-task-pri ${priCls}">${priLbl}</span>
-    </div>`;
-  }).join('');
-}
-
-function eodToggleTask(id) {
-  toggle(id);
-  const item = document.getElementById('eod-ti-' + id);
-  if (item) {
-    const cb = item.querySelector('.eod-task-cb');
-    if (isDone(id)) { item.style.opacity = '0.4'; if (cb) cb.classList.add('done'); }
-    else { item.style.opacity = '1'; if (cb) cb.classList.remove('done'); }
-  }
+function setDayOverride(mode) {
+  const today = todayInputDate();
+  const auto = getAutoDayMode(today);
+  const overrides = getDayOverrides();
+  if (mode === auto) delete overrides[today]; else overrides[today] = mode;
+  saveDayOverrides(overrides);
+  applyDayModeDefaults(true);
+  renderDayModeBanner();
+  renderSettingsDayMode();
   renderTasks();
 }
 
-function eodCloseDay() {
-  const summary = (document.getElementById('eod-summary') || {}).value || '';
-  const todayTasks = getTodayTasks();
-  const done = todayTasks.filter(t => isDone(t.id)).length;
-  const total = todayTasks.length;
-  _eodLog.unshift({ id: Date.now(), date: todayInputDate(), summary, done, total, savedAt: new Date().toISOString() });
-  saveEodLog();
-  const inp = document.getElementById('eod-summary');
-  if (inp) inp.value = '';
-  const msg = document.getElementById('eod-saved-msg');
-  if (msg) { msg.style.display = 'inline-flex'; setTimeout(() => { msg.style.display = 'none'; }, 2500); }
-  renderEodLog();
+function openSettingsSection(id) {
+  const body = document.getElementById(id);
+  if (!body) return;
+  body.style.display = 'block';
+  const toggleEl = body.previousElementSibling;
+  if (toggleEl) toggleEl.classList.add('open');
 }
 
-function deleteEodEntry(id) {
-  _eodLog = _eodLog.filter(e => e.id !== id);
-  saveEodLog();
-  renderEodLog();
-}
-
-function renderEodLog() {
-  const el = document.getElementById('eod-log-list');
+function renderDayModeBanner() {
+  const el = document.getElementById('day-mode-banner');
   if (!el) return;
-  if (!_eodLog.length) { el.innerHTML = '<div class="eod-empty">No entries yet.</div>'; return; }
-  el.innerHTML = _eodLog.slice(0, 14).map(e => {
-    const [y,m,d] = e.date.split('-').map(Number);
-    const label = `${d} ${MON_NAMES[m-1]}`;
-    return `<div class="eod-log-entry">
-      <div>
-        <div class="eod-log-date">${label}</div>
-        ${e.savedAt ? `<div style="font-size:10px;color:var(--text-3);">${fmtTs(e.savedAt)}</div>` : ''}
-      </div>
-      <div class="eod-log-summary">${e.summary ? esc(e.summary) : '<span style="color:var(--text-3);font-style:italic">No summary</span>'}</div>
-      <div class="eod-log-stats">${e.done}/${e.total} tasks</div>
-      <button class="eod-log-del" onclick="deleteEodEntry(${e.id})"><i class="ti ti-x"></i></button>
-    </div>`;
-  }).join('');
+  const today = todayInputDate();
+  const mode = getDayMode(today);
+  const overridden = isDayModeOverridden(today);
+  const holidayName = vicHolidayName(today);
+  const dow = parseYmdLocal(today).getDay();
+  const reason = holidayName || (dow === 0 || dow === 6 ? DAY_NAMES[dow] : '');
+  el.className = 'day-mode-banner ' + (mode === 'working' ? 'dmb-working' : 'dmb-off');
+  el.innerHTML = `<i class="ti ${mode === 'working' ? 'ti-briefcase' : 'ti-beach'}"></i>
+    <span class="dmb-label">${mode === 'working' ? 'Working day' : 'Day off'}</span>
+    ${reason ? `<span class="dmb-reason">${esc(reason)}</span>` : ''}
+    ${overridden ? `<span class="dmb-override-tag">manual override</span>` : ''}
+    ${mode === 'off' ? `<label class="dmb-upcoming-toggle"><input type="checkbox" ${showUpcomingWorkWeek ? 'checked' : ''} onchange="toggleUpcomingWorkWeek()"> Show upcoming work week</label>` : ''}
+    <a class="dmb-settings-link" href="#" onclick="event.preventDefault();showPage('settings');openSettingsSection('s-daymode');">Override</a>`;
+}
+
+function renderCustomHolidayList() {
+  const el = document.getElementById('custom-holiday-list');
+  if (!el) return;
+  const list = getCustomHolidays().slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (!list.length) { el.innerHTML = '<div class="ai-hint" style="margin-top:6px;">No extra dates added.</div>'; return; }
+  el.innerHTML = list.map(h => `<div class="custom-holiday-row">
+    <span>${fmtShortDate(h.date)}</span>
+    <span style="flex:1;color:var(--text-3);">${esc(h.name || '')}</span>
+    <button onclick="removeCustomHoliday('${h.date}')" title="Remove"><i class="ti ti-x"></i></button>
+  </div>`).join('');
+}
+function addCustomHoliday() {
+  const dateEl = document.getElementById('custom-holiday-date');
+  const nameEl = document.getElementById('custom-holiday-name');
+  const date = dateEl.value;
+  if (!date) return;
+  const list = getCustomHolidays().filter(h => h.date !== date);
+  list.push({ date, name: nameEl.value.trim() || 'Day off' });
+  saveCustomHolidays(list);
+  dateEl.value = ''; nameEl.value = '';
+  renderSettingsDayMode();
+  renderDayModeBanner();
+  renderTasks();
+}
+function removeCustomHoliday(date) {
+  saveCustomHolidays(getCustomHolidays().filter(h => h.date !== date));
+  renderSettingsDayMode();
+  renderDayModeBanner();
+  renderTasks();
+}
+
+function renderSettingsDayMode() {
+  const statusEl = document.getElementById('daymode-status');
+  if (!statusEl) return;
+  const today = todayInputDate();
+  const mode = getDayMode(today);
+  const auto = getAutoDayMode(today);
+  const overridden = isDayModeOverridden(today);
+  const holidayName = vicHolidayName(today);
+  const dow = parseYmdLocal(today).getDay();
+  const reason = holidayName || ((dow === 0 || dow === 6) ? DAY_NAMES[dow] : 'Weekday');
+  statusEl.innerHTML = `<div class="daymode-status ${mode === 'working' ? 'dm-working' : 'dm-off'}">
+    <i class="ti ${mode === 'working' ? 'ti-briefcase' : 'ti-beach'}"></i>
+    <div>
+      <div class="daymode-status-label">${mode === 'working' ? 'Working day' : 'Day off'}${overridden ? ' (manual override)' : ''}</div>
+      <div class="daymode-status-sub">${esc(reason)}${overridden ? ` · auto-detected as ${auto === 'working' ? 'a working day' : 'a day off'}` : ''}</div>
+    </div>
+  </div>`;
+  document.querySelectorAll('.daymode-opt').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  renderCustomHolidayList();
 }
 
 function initNotes() {
@@ -9218,6 +9108,9 @@ function initNotes() {
   renderHubs();
   pomoRender();
   renderBreakTable();
+  applyDayModeDefaults();
+  renderDayModeBanner();
+  renderSettingsDayMode();
   renderTasks();
   renderKbFact();
   startKbRotation();
@@ -9227,8 +9120,6 @@ function initNotes() {
   renderMeetings();
   initNotes();
   renderWishlist();
-  loadWrReviews(); renderWeeklyReview();
-  loadEodLog(); renderEodLog();
   renderProjects();
   renderHomeDashboard();
   const mdh = document.getElementById('mtg-date-holder');
