@@ -1619,6 +1619,41 @@
         </div>
       </div>
 
+      <!-- SCRATCH PAD (misc — everything) -->
+      <div class="widget-card notes-wcard">
+        <div class="wcard-banner notes-banner">
+          <i class="ti ti-pencil"></i>
+          <div class="wcard-banner-text">
+            <div class="wcard-banner-title">Scratch Pad</div>
+            <div class="wcard-banner-sub">Ideas • brainstorms • anything</div>
+          </div>
+          <span class="notes-saved-badge" id="notes-saved-badge" style="margin-left:auto;"><i class="ti ti-check"></i> Saved</span>
+        </div>
+        <div class="wcard-body notes-card">
+          <textarea class="notes-textarea" id="notes-textarea" placeholder="Dump your thoughts here — ideas, brainstorms, things to figure out…" oninput="notesOnInput()"></textarea>
+          <div class="notes-actions">
+            <button class="notes-ai-btn" id="notes-ai-btn" onclick="notesElaborate()"><i class="ti ti-sparkles"></i> Elaborate</button>
+            <button class="notes-save-btn" onclick="notesSaveRecord()"><i class="ti ti-device-floppy"></i> Save record</button>
+            <span class="notes-char-count" id="notes-char-count">0 chars</span>
+          </div>
+          <div class="notes-ai-result" id="notes-ai-result"></div>
+          <div class="notes-ai-result-actions" id="notes-ai-result-actions" style="display:none">
+            <button onclick="notesInsertResult()"><i class="ti ti-corner-down-left"></i> Insert</button>
+            <button onclick="notesCopyResult()"><i class="ti ti-copy"></i> Copy</button>
+            <button onclick="notesDismissResult()"><i class="ti ti-x"></i> Dismiss</button>
+          </div>
+          <hr class="notes-divider">
+          <div class="notes-records-head">
+            <span>Saved records</span>
+            <span style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+              <span id="notes-record-count" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);font-size:11px;"></span>
+              <button id="notes-sort-btn" onclick="notesToggleSort()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--border-md);background:var(--surface);color:var(--text-3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;"><i class="ti ti-arrow-down" id="notes-sort-icon"></i><span id="notes-sort-label">Newest</span></button>
+            </span>
+          </div>
+          <div class="notes-records-list" id="notes-records-list"></div>
+        </div>
+      </div>
+
       <!-- PIXEL OFFICE -->
       <div class="widget-card pixoff-wcard">
         <div class="wcard-banner pixoff-banner">
@@ -1773,38 +1808,38 @@
     </div>
   </div>
 
-  <!-- PERSONAL SCRATCHPAD PAGE -->
+  <!-- PERSONAL NOTES PAGE (separate from the misc Scratch Pad widget) -->
   <div class="page" id="page-notes">
     <div class="header">
       <div>
-        <h1><i class="ti ti-pencil" style="color:var(--pink-text);"></i> Scratchpad</h1>
+        <h1><i class="ti ti-pencil" style="color:var(--pink-text);"></i> Personal Notes</h1>
         <p>Grocery lists, errands, people to call — jot it down, then turn it into a personal task.</p>
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> Scratch Pad <span class="notes-saved-badge" id="notes-saved-badge" style="margin-left:auto;"><i class="ti ti-check"></i> Saved</span></div>
+      <div class="card-title"><i class="ti ti-pencil" style="font-size:13px"></i> Personal Notes <span class="notes-saved-badge" id="pnotes-saved-badge" style="margin-left:auto;"><i class="ti ti-check"></i> Saved</span></div>
       <div class="notes-card">
-        <textarea class="notes-textarea" id="notes-textarea" placeholder="Dump your thoughts here — grocery list, things to do, people to call…" oninput="notesOnInput()"></textarea>
+        <textarea class="notes-textarea" id="pnotes-textarea" placeholder="Dump your thoughts here — grocery list, things to do, people to call…" oninput="pnotesOnInput()"></textarea>
         <div class="notes-actions">
-          <button class="notes-ai-btn" id="notes-ai-btn" onclick="notesElaborate()"><i class="ti ti-sparkles"></i> Elaborate</button>
-          <button class="notes-save-btn" onclick="notesSaveRecord()"><i class="ti ti-device-floppy"></i> Save record</button>
-          <span class="notes-char-count" id="notes-char-count">0 chars</span>
+          <button class="notes-ai-btn" id="pnotes-ai-btn" onclick="pnotesElaborate()"><i class="ti ti-sparkles"></i> Elaborate</button>
+          <button class="notes-save-btn" onclick="pnotesSaveRecord()"><i class="ti ti-device-floppy"></i> Save record</button>
+          <span class="notes-char-count" id="pnotes-char-count">0 chars</span>
         </div>
-        <div class="notes-ai-result" id="notes-ai-result"></div>
-        <div class="notes-ai-result-actions" id="notes-ai-result-actions" style="display:none">
-          <button onclick="notesInsertResult()"><i class="ti ti-corner-down-left"></i> Insert</button>
-          <button onclick="notesCopyResult()"><i class="ti ti-copy"></i> Copy</button>
-          <button onclick="notesDismissResult()"><i class="ti ti-x"></i> Dismiss</button>
+        <div class="notes-ai-result" id="pnotes-ai-result"></div>
+        <div class="notes-ai-result-actions" id="pnotes-ai-result-actions" style="display:none">
+          <button onclick="pnotesInsertResult()"><i class="ti ti-corner-down-left"></i> Insert</button>
+          <button onclick="pnotesCopyResult()"><i class="ti ti-copy"></i> Copy</button>
+          <button onclick="pnotesDismissResult()"><i class="ti ti-x"></i> Dismiss</button>
         </div>
         <hr class="notes-divider">
         <div class="notes-records-head">
           <span>Saved records</span>
           <span style="display:flex;align-items:center;gap:8px;margin-left:auto;">
-            <span id="notes-record-count" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);font-size:11px;"></span>
-            <button id="notes-sort-btn" onclick="notesToggleSort()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--border-md);background:var(--surface);color:var(--text-3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;"><i class="ti ti-arrow-down" id="notes-sort-icon"></i><span id="notes-sort-label">Newest</span></button>
+            <span id="pnotes-record-count" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);font-size:11px;"></span>
+            <button id="pnotes-sort-btn" onclick="pnotesToggleSort()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--border-md);background:var(--surface);color:var(--text-3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;"><i class="ti ti-arrow-down" id="pnotes-sort-icon"></i><span id="pnotes-sort-label">Newest</span></button>
           </span>
         </div>
-        <div class="notes-records-list" id="notes-records-list"></div>
+        <div class="notes-records-list" id="pnotes-records-list"></div>
       </div>
     </div>
   </div>
@@ -2680,7 +2715,7 @@
   </div>
 </div>
 
-<!-- Scratchpad → Task modal -->
+<!-- Scratch Pad widget → Task modal (misc, hub defaults to Helpdesk) -->
 <div class="sp-task-modal-overlay" id="sp-task-modal-overlay" onclick="if(event.target===this)spTaskModalClose()">
   <div class="sp-task-modal">
     <div class="sp-task-modal-title"><i class="ti ti-sparkles" style="color:var(--amber-text)"></i> Convert to Task</div>
@@ -2699,19 +2734,13 @@
       </div>
       <div style="flex:1">
         <label>Frequency</label>
-        <select id="spt-freq" onchange="renderSptDayField()">
+        <select id="spt-freq">
           <option value="once">Once (today)</option>
-          <option value="date">On a date</option>
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
           <option value="untildone">Until done</option>
         </select>
       </div>
-    </div>
-    <div id="spt-day-wrap" style="display:none"></div>
-    <div>
-      <label>Due by time <span style="font-weight:400;color:var(--text-3);">(optional)</span></label>
-      <div id="spt-time-holder"></div>
     </div>
     <div>
       <label>Notes / context</label>
@@ -2720,6 +2749,50 @@
     <div class="sp-task-modal-actions">
       <button class="btn-cancel" onclick="spTaskModalClose()">Cancel</button>
       <button class="btn-add" onclick="spTaskModalConfirm()"><i class="ti ti-plus"></i> Add task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Personal Notes → Task modal (always categorised as Personal, with AI date/time extraction) -->
+<div class="sp-task-modal-overlay" id="pnt-task-modal-overlay" onclick="if(event.target===this)pntTaskModalClose()">
+  <div class="sp-task-modal">
+    <div class="sp-task-modal-title"><i class="ti ti-sparkles" style="color:var(--amber-text)"></i> Convert to Personal Task</div>
+    <div>
+      <label>Task name</label>
+      <input type="text" id="pnt-name" placeholder="Task name…">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1">
+        <label>Priority</label>
+        <select id="pnt-priority">
+          <option value="HIGH">High</option>
+          <option value="MEDIUM" selected>Medium</option>
+          <option value="LOW">Low</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label>Frequency</label>
+        <select id="pnt-freq" onchange="renderPntDayField()">
+          <option value="once">Once (today)</option>
+          <option value="date">On a date</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="untildone">Until done</option>
+        </select>
+      </div>
+    </div>
+    <div id="pnt-day-wrap" style="display:none"></div>
+    <div>
+      <label>Due by time <span style="font-weight:400;color:var(--text-3);">(optional)</span></label>
+      <div id="pnt-time-holder"></div>
+    </div>
+    <div>
+      <label>Notes / context</label>
+      <textarea id="pnt-note" placeholder="Additional details…"></textarea>
+    </div>
+    <div class="sp-task-modal-actions">
+      <button class="btn-cancel" onclick="pntTaskModalClose()">Cancel</button>
+      <button class="btn-add" onclick="pntTaskModalConfirm()"><i class="ti ti-plus"></i> Add personal task</button>
     </div>
   </div>
 </div>
@@ -4110,7 +4183,7 @@ const PAGES = {
   standup:   { title:'Stand up',      icon:'ti-presentation',     color:'c-pink',   desc:'Draft and elaborate your daily stand up talking points.' },
   wishlist:       { title:'Wishlist',        icon:'ti-sparkles',        color:'c-purple', desc:'Ideas and future features for this project.' },
   insights:       { title:'Insights',        icon:'ti-chart-pie',       color:'c-green',  desc:'At-a-glance productivity dashboard: completions, streak, meetings & AI usage.' },
-  notes:          { title:'Scratchpad',      icon:'ti-pencil',          color:'c-pink',   desc:'Grocery lists, errands, calls — jot it down and turn it into a personal task.' },
+  notes:          { title:'Personal Notes',   icon:'ti-pencil',          color:'c-pink',   desc:'Grocery lists, errands, calls — jot it down and turn it into a personal task. Separate from the Scratch Pad widget.' },
 };
 const HUBS = ['helpdesk','projects','personal'];
 const HUB_META = {
@@ -8726,42 +8799,23 @@ function notesAddToWishlist(id) {
 
 let _spTaskRecordId = null;
 
-let _spTaskParsedDate = '', _spTaskParsedTime = '';
-
-function renderSptDayField() {
-  const freq = document.getElementById('spt-freq').value;
-  const wrap = document.getElementById('spt-day-wrap');
-  if (freq === 'date') {
-    wrap.style.display = 'block';
-    wrap.innerHTML = `<label>Due date</label>${makeDatePicker('spt-date', _spTaskParsedDate || todayInputDate(), null, 'Pick a date')}`;
-  } else {
-    wrap.style.display = 'none';
-    wrap.innerHTML = '';
-  }
-}
-
 async function notesConvertToTask(id) {
   const r = _notesRecords.find(x => x.id === id);
   if (!r) return;
   const btn = document.getElementById('nra-task-' + id);
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> Thinking…'; }
-  _spTaskParsedDate = ''; _spTaskParsedTime = '';
   try {
     const raw = await geminiCall(
-      `You are a personal task assistant. Today's date is ${todayInputDate()} (${DAY_NAMES[now.getDay()]}). The user has a scratchpad note and wants to convert it into a structured personal task.\n\nNote:\n"""${r.content}"""\n\nIf the note mentions or implies a specific day (e.g. "tomorrow", "next Friday", "the 20th") resolve it to an absolute date using today's date above. If it mentions a time (e.g. "3pm", "at 9"), extract that too. If nothing is mentioned, leave date/time empty.\n\nReturn ONLY valid JSON (no markdown, no commentary) in this exact shape:\n{"name":"<concise task title, max 80 chars>","priority":"HIGH"|"MEDIUM"|"LOW","freq":"once"|"date"|"daily"|"weekly"|"untildone","date":"<YYYY-MM-DD or empty string>","time":"<HH:MM 24-hour or empty string>","note":"<1-2 sentence elaboration of what needs to be done>"}`
+      `You are a helpful work assistant. The user has a scratchpad note and wants to convert it into a structured task.\n\nNote:\n"""${r.content}"""\n\nReturn ONLY valid JSON (no markdown, no commentary) in this exact shape:\n{"name":"<concise task title, max 80 chars>","priority":"HIGH"|"MEDIUM"|"LOW","freq":"once"|"daily"|"weekly"|"untildone","note":"<1-2 sentence elaboration of what needs to be done>"}`
     );
     let parsed;
     try { parsed = JSON.parse(raw.trim()); } catch { const m = raw.match(/\{[\s\S]*\}/); parsed = m ? JSON.parse(m[0]) : null; }
     if (!parsed || !parsed.name) throw new Error('bad_parse');
     _spTaskRecordId = id;
-    _spTaskParsedDate = /^\d{4}-\d{2}-\d{2}$/.test(parsed.date || '') ? parsed.date : '';
-    _spTaskParsedTime = /^\d{1,2}:\d{2}$/.test(parsed.time || '') ? parsed.time : '';
     document.getElementById('spt-name').value = parsed.name || '';
     document.getElementById('spt-priority').value = ['HIGH','MEDIUM','LOW'].includes(parsed.priority) ? parsed.priority : 'MEDIUM';
-    document.getElementById('spt-freq').value = ['once','date','daily','weekly','untildone'].includes(parsed.freq) ? parsed.freq : (_spTaskParsedDate ? 'date' : 'once');
+    document.getElementById('spt-freq').value = ['once','daily','weekly','untildone'].includes(parsed.freq) ? parsed.freq : 'once';
     document.getElementById('spt-note').value = parsed.note || '';
-    renderSptDayField();
-    document.getElementById('spt-time-holder').innerHTML = timeField('spt-time', _spTaskParsedTime);
     document.getElementById('sp-task-modal-overlay').classList.add('active');
   } catch(e) {
     // No key or parse fail — open modal with just the title prefilled
@@ -8770,8 +8824,6 @@ async function notesConvertToTask(id) {
     document.getElementById('spt-priority').value = 'MEDIUM';
     document.getElementById('spt-freq').value = 'once';
     document.getElementById('spt-note').value = r.content.slice(0, 300);
-    renderSptDayField();
-    document.getElementById('spt-time-holder').innerHTML = timeField('spt-time', '');
     document.getElementById('sp-task-modal-overlay').classList.add('active');
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-sparkles"></i> Task (AI)'; }
@@ -8789,15 +8841,8 @@ function spTaskModalConfirm() {
   const freq = document.getElementById('spt-freq').value;
   const priority = document.getElementById('spt-priority').value;
   const note = document.getElementById('spt-note').value.trim();
-  const timeEl = document.getElementById('spt-time');
-  const time = timeEl && timeEl.value ? timeEl.value : '';
-  // Scratchpad-converted tasks always go to Personal, regardless of what they're about
-  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note, custom: true, hub: 'personal', time };
+  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note, custom: true, hub: 'helpdesk', time: '' };
   if (freq === 'once') task.date = todayInputDate();
-  else if (freq === 'date') {
-    const dEl = document.getElementById('spt-date');
-    task.date = (dEl && dEl.value) ? dEl.value : todayInputDate();
-  }
   customTasks.push(task);
   saveCustomTasks();
   if (typeof renderTasks === 'function') renderTasks();
@@ -8859,6 +8904,266 @@ function notesDismissResult() {
   document.getElementById('notes-ai-result').classList.remove('visible');
   document.getElementById('notes-ai-result-actions').style.display = 'none';
   _notesAiResult = '';
+}
+
+// ===== PERSONAL NOTES (separate entity from the misc Scratch Pad widget) =====
+let _pNotesTimer = null;
+let _pNotesAiResult = '';
+let _pNotesRecords = [];
+let _pNotesEditingId = null;
+let _pNotesSortNewest = true;
+
+function pnotesToggleSort() {
+  _pNotesSortNewest = !_pNotesSortNewest;
+  document.getElementById('pnotes-sort-label').textContent = _pNotesSortNewest ? 'Newest' : 'Oldest';
+  document.getElementById('pnotes-sort-icon').className = _pNotesSortNewest ? 'ti ti-arrow-down' : 'ti ti-arrow-up';
+  renderPNotesRecords();
+}
+
+function pnotesOnInput() {
+  const ta = document.getElementById('pnotes-textarea');
+  const cc = document.getElementById('pnotes-char-count');
+  if (cc) cc.textContent = ta.value.length + ' chars';
+  if (!ta.value.trim() && _pNotesEditingId !== null) {
+    _pNotesEditingId = null;
+    const saveBtn = document.querySelector('#page-notes .notes-save-btn');
+    if (saveBtn) saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> Save record';
+  }
+  clearTimeout(_pNotesTimer);
+  _pNotesTimer = setTimeout(() => {
+    dbSet('zarif_personal_notes', ta.value);
+    const badge = document.getElementById('pnotes-saved-badge');
+    if (badge) { badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 1800); }
+  }, 600);
+}
+
+function pnotesSaveRecord() {
+  const ta = document.getElementById('pnotes-textarea');
+  const content = ta.value.trim();
+  if (!content) return;
+  const firstLine = content.split('\n')[0].slice(0, 60) || 'Note';
+  if (_pNotesEditingId !== null) {
+    const idx = _pNotesRecords.findIndex(x => x.id === _pNotesEditingId);
+    if (idx !== -1) {
+      _pNotesRecords[idx] = { ..._pNotesRecords[idx], title: firstLine, content, updatedAt: new Date().toISOString() };
+    }
+  } else {
+    _pNotesRecords.unshift({ id: Date.now(), title: firstLine, content, createdAt: new Date().toISOString() });
+  }
+  _pNotesEditingId = null;
+  dbSet('zarif_personal_notes_records', _pNotesRecords);
+  ta.value = '';
+  dbSet('zarif_personal_notes', '');
+  pnotesOnInput();
+  renderPNotesRecords();
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i class="ti ti-check"></i> Saved!';
+  setTimeout(() => btn.innerHTML = orig, 1500);
+}
+
+function renderPNotesRecords() {
+  const list = document.getElementById('pnotes-records-list');
+  const countEl = document.getElementById('pnotes-record-count');
+  if (!list) return;
+  if (countEl) countEl.textContent = _pNotesRecords.length ? `${_pNotesRecords.length} saved` : '';
+  const sorted = _pNotesSortNewest ? [..._pNotesRecords] : [..._pNotesRecords].reverse();
+  if (!sorted.length) {
+    list.innerHTML = '<div class="notes-empty">No saved records yet — write something and hit Save record.</div>';
+    return;
+  }
+  list.innerHTML = sorted.map((r) => {
+    const dateStr = fmtTs(r.createdAt) + (r.updatedAt ? ' · edited ' + fmtTs(r.updatedAt) : '');
+    const preview = r.content.replace(/\n/g,' ').slice(0, 80);
+    return `<div class="notes-record" id="pnrec-${r.id}">
+      <div class="notes-record-header" onclick="pnotesToggleRecord(${r.id})">
+        <div class="notes-record-title">${esc(r.title)}</div>
+        <div class="notes-record-date">${dateStr}</div>
+      </div>
+      <div class="notes-record-preview" id="pnrec-prev-${r.id}">${esc(preview)}${r.content.length > 80 ? '…' : ''}</div>
+      <div class="notes-record-body" id="pnrec-body-${r.id}">${esc(r.content)}
+        <div class="notes-record-actions">
+          <button onclick="pnotesRestoreRecord(${r.id})"><i class="ti ti-corner-up-left"></i> Restore</button>
+          <button class="nra-task" id="pnra-task-${r.id}" onclick="pnotesConvertToTask(${r.id})"><i class="ti ti-sparkles"></i> Task (AI)</button>
+          <button onclick="pnotesDeleteRecord(${r.id})" style="color:var(--coral-text);border-color:var(--coral-text);margin-left:auto;"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pnotesToggleRecord(id) {
+  const body = document.getElementById('pnrec-body-' + id);
+  const prev = document.getElementById('pnrec-prev-' + id);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (prev) prev.style.display = open ? 'none' : '';
+}
+
+function pnotesRestoreRecord(id) {
+  const r = _pNotesRecords.find(x => x.id === id);
+  if (!r) return;
+  const ta = document.getElementById('pnotes-textarea');
+  if (ta.value.trim() && _pNotesEditingId !== id && !confirm('Replace current draft with this record?')) return;
+  ta.value = r.content;
+  _pNotesEditingId = id;
+  pnotesOnInput();
+  const saveBtn = document.querySelector('#page-notes .notes-save-btn');
+  if (saveBtn) { saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> Update record'; }
+  window.scrollTo(0, 0);
+}
+
+function pnotesDeleteRecord(id) {
+  if (!confirm('Delete this record? This cannot be undone.')) return;
+  _pNotesRecords = _pNotesRecords.filter(x => x.id !== id);
+  dbSet('zarif_personal_notes_records', _pNotesRecords);
+  renderPNotesRecords();
+}
+
+let _pntTaskRecordId = null;
+let _pntParsedDate = '', _pntParsedTime = '';
+
+function renderPntDayField() {
+  const freq = document.getElementById('pnt-freq').value;
+  const wrap = document.getElementById('pnt-day-wrap');
+  if (freq === 'date') {
+    wrap.style.display = 'block';
+    wrap.innerHTML = `<label>Due date</label>${makeDatePicker('pnt-date', _pntParsedDate || todayInputDate(), null, 'Pick a date')}`;
+  } else {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+  }
+}
+
+async function pnotesConvertToTask(id) {
+  const r = _pNotesRecords.find(x => x.id === id);
+  if (!r) return;
+  const btn = document.getElementById('pnra-task-' + id);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> Thinking…'; }
+  _pntParsedDate = ''; _pntParsedTime = '';
+  try {
+    const raw = await geminiCall(
+      `You are a personal task assistant. Today's date is ${todayInputDate()} (${DAY_NAMES[now.getDay()]}). The user has a personal note (e.g. a grocery list item, errand, or person to call) and wants to convert it into a structured personal task.\n\nNote:\n"""${r.content}"""\n\nIf the note mentions or implies a specific day (e.g. "tomorrow", "next Friday", "the 20th") resolve it to an absolute date using today's date above. If it mentions a time (e.g. "3pm", "at 9"), extract that too. If nothing is mentioned, leave date/time empty.\n\nReturn ONLY valid JSON (no markdown, no commentary) in this exact shape:\n{"name":"<concise task title, max 80 chars>","priority":"HIGH"|"MEDIUM"|"LOW","freq":"once"|"date"|"daily"|"weekly"|"untildone","date":"<YYYY-MM-DD or empty string>","time":"<HH:MM 24-hour or empty string>","note":"<1-2 sentence elaboration of what needs to be done>"}`
+    );
+    let parsed;
+    try { parsed = JSON.parse(raw.trim()); } catch { const m = raw.match(/\{[\s\S]*\}/); parsed = m ? JSON.parse(m[0]) : null; }
+    if (!parsed || !parsed.name) throw new Error('bad_parse');
+    _pntTaskRecordId = id;
+    _pntParsedDate = /^\d{4}-\d{2}-\d{2}$/.test(parsed.date || '') ? parsed.date : '';
+    _pntParsedTime = /^\d{1,2}:\d{2}$/.test(parsed.time || '') ? parsed.time : '';
+    document.getElementById('pnt-name').value = parsed.name || '';
+    document.getElementById('pnt-priority').value = ['HIGH','MEDIUM','LOW'].includes(parsed.priority) ? parsed.priority : 'MEDIUM';
+    document.getElementById('pnt-freq').value = ['once','date','daily','weekly','untildone'].includes(parsed.freq) ? parsed.freq : (_pntParsedDate ? 'date' : 'once');
+    document.getElementById('pnt-note').value = parsed.note || '';
+    renderPntDayField();
+    document.getElementById('pnt-time-holder').innerHTML = timeField('pnt-time', _pntParsedTime);
+    document.getElementById('pnt-task-modal-overlay').classList.add('active');
+  } catch(e) {
+    // No key or parse fail — open modal with just the title prefilled
+    _pntTaskRecordId = id;
+    document.getElementById('pnt-name').value = r.title.slice(0, 80);
+    document.getElementById('pnt-priority').value = 'MEDIUM';
+    document.getElementById('pnt-freq').value = 'once';
+    document.getElementById('pnt-note').value = r.content.slice(0, 300);
+    renderPntDayField();
+    document.getElementById('pnt-time-holder').innerHTML = timeField('pnt-time', '');
+    document.getElementById('pnt-task-modal-overlay').classList.add('active');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-sparkles"></i> Task (AI)'; }
+  }
+}
+
+function pntTaskModalClose() {
+  document.getElementById('pnt-task-modal-overlay').classList.remove('active');
+  _pntTaskRecordId = null;
+}
+
+function pntTaskModalConfirm() {
+  const name = document.getElementById('pnt-name').value.trim();
+  if (!name) { document.getElementById('pnt-name').focus(); return; }
+  const freq = document.getElementById('pnt-freq').value;
+  const priority = document.getElementById('pnt-priority').value;
+  const note = document.getElementById('pnt-note').value.trim();
+  const timeEl = document.getElementById('pnt-time');
+  const time = timeEl && timeEl.value ? timeEl.value : '';
+  // Personal Notes conversions always go to the Personal hub, regardless of content
+  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note, custom: true, hub: 'personal', time };
+  if (freq === 'once') task.date = todayInputDate();
+  else if (freq === 'date') {
+    const dEl = document.getElementById('pnt-date');
+    task.date = (dEl && dEl.value) ? dEl.value : todayInputDate();
+  }
+  customTasks.push(task);
+  saveCustomTasks();
+  if (typeof renderTasks === 'function') renderTasks();
+  pntTaskModalClose();
+  if (_pntTaskRecordId !== null) {
+    const btn = document.getElementById('pnra-task-' + _pntTaskRecordId);
+    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="ti ti-check"></i> Added!'; setTimeout(() => { btn.innerHTML = orig; }, 1800); }
+  }
+}
+
+async function pnotesElaborate() {
+  const ta = document.getElementById('pnotes-textarea');
+  const notes = ta.value.trim();
+  if (!notes) return;
+  const btn = document.getElementById('pnotes-ai-btn');
+  const resultEl = document.getElementById('pnotes-ai-result');
+  const actionsEl = document.getElementById('pnotes-ai-result-actions');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> Thinking…';
+  resultEl.classList.remove('visible');
+  actionsEl.style.display = 'none';
+  try {
+    const result = await geminiCall(
+      `You are a helpful personal assistant. The user has jotted down a personal note below (grocery list, errand, reminder, etc). Expand on it — add useful detail, suggest anything they might be missing, and keep it practical and concise.\n\nNote:\n${notes}`
+    );
+    _pNotesAiResult = result;
+    resultEl.textContent = result;
+    resultEl.classList.add('visible');
+    actionsEl.style.display = 'flex';
+  } catch(e) {
+    resultEl.textContent = e.message === 'NO_KEY' ? 'No Groq API key set — go to Settings to add your key.' : 'Error: ' + (e.detail || e.message);
+    resultEl.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-sparkles"></i> Elaborate';
+  }
+}
+
+function pnotesInsertResult() {
+  if (!_pNotesAiResult) return;
+  const ta = document.getElementById('pnotes-textarea');
+  ta.value = ta.value.trim() + '\n\n--- AI ---\n' + _pNotesAiResult;
+  pnotesOnInput();
+  pnotesDismissResult();
+}
+
+function pnotesCopyResult() {
+  if (!_pNotesAiResult) return;
+  navigator.clipboard.writeText(_pNotesAiResult).then(() => {
+    const btn = event.currentTarget;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i> Copied';
+    setTimeout(() => btn.innerHTML = orig, 1500);
+  });
+}
+
+function pnotesDismissResult() {
+  document.getElementById('pnotes-ai-result').classList.remove('visible');
+  document.getElementById('pnotes-ai-result-actions').style.display = 'none';
+  _pNotesAiResult = '';
+}
+
+function initPNotes() {
+  const ta = document.getElementById('pnotes-textarea');
+  if (!ta) return;
+  const saved = dbGet('zarif_personal_notes') || '';
+  ta.value = saved;
+  const cc = document.getElementById('pnotes-char-count');
+  if (cc) cc.textContent = saved.length + ' chars';
+  _pNotesRecords = dbGet('zarif_personal_notes_records') || [];
+  renderPNotesRecords();
 }
 
 // ===== DAY MODE (working day vs day off — VIC, Australia) =====
@@ -9119,6 +9424,7 @@ function initNotes() {
   renderNumbers();
   renderMeetings();
   initNotes();
+  initPNotes();
   renderWishlist();
   renderProjects();
   renderHomeDashboard();
@@ -9243,6 +9549,11 @@ closeAiModal = function() {
 const _origSpTaskModalClose = spTaskModalClose;
 spTaskModalClose = function() {
   motionModalClose('sp-task-modal-overlay', () => _origSpTaskModalClose.apply(this, arguments));
+};
+
+const _origPntTaskModalClose = pntTaskModalClose;
+pntTaskModalClose = function() {
+  motionModalClose('pnt-task-modal-overlay', () => _origPntTaskModalClose.apply(this, arguments));
 };
 
 const _origCloseProjModal = closeProjModal;
