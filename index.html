@@ -107,7 +107,7 @@
   }
   /* ── COPPER: warm charcoal + copper/gold, serif display ── */
   :root[data-theme="copper"] {
-    --bg: #16100c; --surface: #1e1611; --surface2: rgba(232,127,62,0.07);
+    --bg: #0a0705; --surface: #1e1611; --surface2: rgba(232,127,62,0.07);
     --border: rgba(232,127,62,0.1); --border-md: rgba(232,127,62,0.22);
     --text: #f3e8da; --text-2: rgba(243,232,218,0.55); --text-3: rgba(243,232,218,0.3);
     --teal: #e87f3e; --teal-bg: rgba(232,127,62,0.14); --teal-text: #f0b94a;
@@ -314,7 +314,6 @@
 
   /* HUB / LANDING */
   #page-home { position: relative; padding: 4px 0 0; margin-top: -2rem; }
-  :root[data-theme="copper"] #page-home { background: #0a0705; }
   .hub-head { margin-bottom: 1.6rem; position: relative; z-index: 1; }
   .hub-back { font-size: 12px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; padding: 0; margin-bottom: 10px; transition: color 0.15s; }
   .hub-back:hover { color: var(--text-2); }
@@ -361,7 +360,7 @@
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-desc,
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-meta { color: #1c0f06; }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-icon { background: rgba(28,15,6,0.18); color: #1c0f06; }
-  .home-hero-ghost-ring { position: absolute; bottom: -16px; right: -16px; width: 130px; height: 130px; border-radius: 50%; pointer-events: none; opacity: 0.18; background: conic-gradient(#1c0f06 0%, transparent 0); -webkit-mask: radial-gradient(circle, transparent 68%, black 70%); mask: radial-gradient(circle, transparent 68%, black 70%); }
+  .home-hero-ghost-ring { position: absolute; bottom: 18px; right: 18px; width: 110px; height: 110px; border-radius: 50%; pointer-events: none; opacity: 0.32; background: conic-gradient(#1c0f06 0%, transparent 0); -webkit-mask: radial-gradient(circle, transparent 62%, black 65%); mask: radial-gradient(circle, transparent 62%, black 65%); }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(4) { grid-column: span 2; }
 
   /* DASHBOARD */
@@ -7521,6 +7520,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.29.8', type: 'patch', date: '20 Jun 2026', title: 'Fix background seam and invisible ghost ring', changes: [
+    'Fixed a lighter border/seam around the page edges — the darker background is now the Copper theme\'s actual base color instead of a separate overlay, so there\'s no mismatch',
+    'Fixed the hero card\'s ghost ring being almost entirely clipped off the edge of the card — it now sits fully inside, with higher contrast so the fill is actually visible',
+  ]},
   { ver: '3.29.7', type: 'minor', date: '20 Jun 2026', title: 'Darker home background, live ghost ring, leaner back buttons', changes: [
     'Home background is darker (between the two darker options shown) so the particles stand out more',
     'Replaced the decorative "01" on the Task Manager hero card with a faint ring that animates up to today\'s real completion percentage',
