@@ -664,6 +664,7 @@
   #page-templates .header h1 i, #page-templates .card-title i { color: var(--coral-text); }
   #page-meetings .header h1 i, #page-meetings .card-title i { color: var(--green-text); }
   #page-kpi .header h1 i, #page-kpi .card-title i { color: var(--pink-text); }
+  #page-nsla .header h1 i, #page-nsla .card-title i { color: var(--teal-text); }
   #page-wishlist .header h1 i, #page-wishlist .card-title i { color: var(--purple-text); }
   #page-notes .header h1 i, #page-notes .card-title i { color: var(--pink-text); }
 
@@ -1135,6 +1136,7 @@
   .kpi-template-info { font-size: 13px; }
   .kpi-template-info .kpi-tpl-name { font-weight: 500; color: var(--text); }
   .kpi-template-info .kpi-tpl-status { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .kpi-template-info .kpi-tpl-status.ready { color: var(--teal); }
   .kpi-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
   .kpi-modal-overlay.active { display: flex; }
   .kpi-modal { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.35); }
@@ -2426,6 +2428,42 @@
         <button class="kpi-file-btn" onclick="document.getElementById('kpi-ops-input').click()">Upload report</button>
       </div>
       <div id="kpi-ops-list"></div>
+    </div>
+  </div>
+
+  <!-- NSLA REPORT PAGE -->
+  <div class="page" id="page-nsla">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-shield-check"></i> NSLA Report</h1>
+        <p>Generate the NSLA report from your CMS data exports</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-file-spreadsheet" style="font-size:13px;"></i> Report template</div>
+      <div class="kpi-template-row">
+        <div class="kpi-template-info">
+          <div class="kpi-tpl-name">NSLA Report template</div>
+          <div class="kpi-tpl-status" id="nsla-tpl-status">No template loaded</div>
+        </div>
+        <input type="file" id="nsla-template-input" class="kpi-file-input" accept=".xlsx" onchange="nslaSaveTemplate(this.files[0])">
+        <button class="kpi-file-btn" onclick="document.getElementById('nsla-template-input').click()">Upload template</button>
+      </div>
+
+      <div class="card-title"><i class="ti ti-upload" style="font-size:13px;"></i> CMS data exports</div>
+      <div class="kpi-template-row">
+        <div class="kpi-template-info">
+          <div class="kpi-tpl-name">Both NSLA export files</div>
+          <div class="kpi-tpl-status" id="nsla-files-status">No files loaded</div>
+        </div>
+        <input type="file" id="nsla-files-input" class="kpi-file-input" accept=".xlsx,.xls,.csv" multiple onchange="nslaFilesSelected(this.files)">
+        <button class="kpi-file-btn" onclick="document.getElementById('nsla-files-input').click()">Choose files</button>
+      </div>
+      <div class="ai-hint">Select both exports together (Ctrl/Cmd-click to multi-select) — the file with "OPEN" in its name is always pasted second into the CMS Data tab, no matter which order you pick them in.</div>
+
+      <button class="generate-btn" id="nsla-generate-btn" style="margin-top:16px;" onclick="nslaGenerateReport()"><i class="ti ti-download" style="font-size:16px;"></i> Generate report</button>
+      <div id="nsla-generate-status" style="font-size:12px; color:var(--text-3); text-align:center;"></div>
     </div>
   </div>
 
@@ -4238,6 +4276,7 @@ const HUB_PAGES = ['home','helpdesk','projects','personal'];
 const PAGES = {
   tasks:     { title:'Tasks',         icon:'ti-checklist',        color:'c-teal',   desc:'Your daily task dashboard with streaks and progress.' },
   kpi:       { title:'KPI Report',    icon:'ti-report-analytics', color:'c-amber',  desc:'Generate the daily Helpdesk Metrics report from your exports.' },
+  nsla:      { title:'NSLA Report',   icon:'ti-shield-check',     color:'c-teal',   desc:'Generate the NSLA report from your CMS data exports.' },
   meetings:  { title:'Meetings',      icon:'ti-notes',            color:'c-green',  desc:'Meeting minutes, agendas and attendees.' },
   message:   { title:'Daily Message', icon:'ti-message-2',        color:'c-purple', desc:'Generate your morning Teams message and break schedule.' },
   templates: { title:'Templates',     icon:'ti-template',         color:'c-coral',  desc:'Reusable message templates and common numbers.' },
@@ -4253,7 +4292,7 @@ const HUB_META = {
   personal: { title:'Personal',            icon:'ti-user-heart' },
 };
 const DEFAULT_HUB_LAYOUT = {
-  helpdesk: ['kpi','meetings','message','templates','standup'],
+  helpdesk: ['kpi','nsla','meetings','message','templates','standup'],
   projects: ['meetings'],
   personal: ['wishlist','insights','notes'],
 };
@@ -4265,6 +4304,8 @@ function loadHubLayout() {
     const list = Array.isArray(saved[h]) ? saved[h].filter(p => PAGES[p]) : DEFAULT_HUB_LAYOUT[h].slice();
     // Migration: existing saved layouts predate the Scratchpad page — add it to Personal once.
     if (h === 'personal' && !list.includes('notes')) list.push('notes');
+    // Migration: existing saved layouts predate the NSLA Report page — add it to Helpdesk once.
+    if (h === 'helpdesk' && !list.includes('nsla')) list.push('nsla');
     layout[h] = list;
   });
   return layout;
@@ -6422,6 +6463,118 @@ async function kpiGenerateReport() {
 
 renderKpiPage();
 
+// ===== NSLA REPORT =====
+// Template structure (NSLA Report v24 HB Template.xlsx): the "CMS Data" sheet is
+// internally xl/worksheets/sheet4.xml with table xl/tables/table1.xml (tbl.CMSData).
+// Columns A-E are Excel Table calculated columns (formulas) that Excel auto-fills
+// for any row within the table's range — only raw columns F:AD need writing.
+// If the template is ever re-saved by Excel these internal paths could shift; if a
+// future template upload produces wrong results, re-check via the sheet's _rels file.
+const NSLA_TEMPLATE_KEY = 'zarif_nsla_template';
+const NSLA_SHEET_FILE = 'xl/worksheets/sheet4.xml';
+const NSLA_TABLE_FILE = 'xl/tables/table1.xml';
+const NSLA_COL_START = 6; // column F
+const NSLA_HEADERS = ['Job #','Contract','Priority Short Name','Fault Code','Model','Created At','Status','Technician','Allocated Tech Team','Location Name','Location State','Reported TGL','Zone','Closed Date','SLA Response String','SLA Response Met','SLA Response Required','SLA Response Elapsed','SLA Response Remaining','SLA Resolution String','SLA Resolution Met','SLA Resolution Required','SLA Resolution Elapsed','SLA Resolution Remaining','SLA Met (NTT Contract)'];
+
+let _nslaFiles = [];
+
+function nslaSaveTemplate(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    dbSet(NSLA_TEMPLATE_KEY, { name: file.name, data: arrayBufferToBase64(reader.result) });
+    renderNslaPage();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function nslaGetTemplate() {
+  return dbGet(NSLA_TEMPLATE_KEY) || null;
+}
+
+function nslaFilesSelected(fileList) {
+  _nslaFiles = Array.from(fileList || []);
+  const statusEl = document.getElementById('nsla-files-status');
+  if (!statusEl) return;
+  if (!_nslaFiles.length) {
+    statusEl.textContent = 'No files loaded';
+    statusEl.classList.remove('ready');
+    return;
+  }
+  statusEl.textContent = _nslaFiles.map(f => f.name).join(', ');
+  statusEl.classList.add('ready');
+}
+
+function renderNslaPage() {
+  const tpl = nslaGetTemplate();
+  const statusEl = document.getElementById('nsla-tpl-status');
+  if (statusEl) statusEl.textContent = tpl ? `Loaded: ${tpl.name}` : 'No template loaded';
+}
+
+async function nslaGenerateReport() {
+  const statusEl = document.getElementById('nsla-generate-status');
+  const tpl = nslaGetTemplate();
+  if (!tpl) { alert('Please upload the NSLA report template first.'); return; }
+  if (_nslaFiles.length !== 2) { alert('Please select both NSLA export files.'); return; }
+
+  // The "OPEN reporting" file must always be pasted second, regardless of upload order
+  const openFiles = _nslaFiles.filter(f => /open/i.test(f.name));
+  const otherFiles = _nslaFiles.filter(f => !/open/i.test(f.name));
+  if (openFiles.length !== 1 || otherFiles.length !== 1) {
+    alert('Could not tell the two files apart — make sure exactly one filename contains "OPEN" (the OPEN reporting export) and the other doesn\'t.');
+    return;
+  }
+  const orderedFiles = [otherFiles[0], openFiles[0]];
+
+  const btn = document.getElementById('nsla-generate-btn');
+  btn.disabled = true;
+  statusEl.textContent = 'Reading data files...';
+
+  try {
+    let allRows = [];
+    for (const file of orderedFiles) {
+      const rows = await readSheetFile(file);
+      allRows = allRows.concat(mapColumns(rows, NSLA_HEADERS));
+    }
+
+    statusEl.textContent = 'Building report...';
+    const zipData = fflate.unzipSync(base64ToUint8Array(tpl.data));
+    const decoder = new TextDecoder('utf-8');
+    const encoder = new TextEncoder();
+
+    const sheetXml = decoder.decode(zipData[NSLA_SHEET_FILE]);
+    const tableXml = decoder.decode(zipData[NSLA_TABLE_FILE]);
+    const result = fillSheetTable(sheetXml, tableXml, NSLA_COL_START, allRows);
+    zipData[NSLA_SHEET_FILE] = encoder.encode(result.sheetXml);
+    zipData[NSLA_TABLE_FILE] = encoder.encode(result.tableXml);
+
+    const wbXml = decoder.decode(zipData['xl/workbook.xml']);
+    zipData['xl/workbook.xml'] = encoder.encode(wbXml.replace(/<calcPr[^/]*\/>/, '<calcPr calcId="191028" fullCalcOnLoad="1"/>'));
+
+    const out = fflate.zipSync(zipData, { level: 6 });
+    const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    a.download = `NSLA Report ${dd}.${mm}.${yyyy}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+    statusEl.textContent = 'Report generated. Remember to refresh the pivot table in Excel.';
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+renderNslaPage();
+
 // ===== OPERATOR KPI EMAILS =====
 const KPI_OPS_COLUMNS = [
   { header: 'CMS Name',                                  headBg: '#4472C4', headColor: '#FFFFFF', headBold: true,  cellBg: '#DAE3F3', cellColor: '#000000' },
@@ -7898,6 +8051,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.1.0', type: 'minor', date: '20 Jun 2026', title: 'New tool: NSLA Report', changes: [
+    'Added NSLA Report to the Helpdesk hub, working like KPI Report — upload the NSLA template once, then the two CMS data exports, and download the populated report',
+    'The "OPEN reporting" export is always pasted second into the CMS Data tab, regardless of which order you pick the two files in — the tool detects it by filename and reorders automatically',
+    'Filename comes out as "NSLA Report dd.mm.yyyy.xlsx" using yesterday\'s date',
+  ]},
   { ver: '4.0.0', type: 'major', date: '20 Jun 2026', title: 'Sign-in required — your data is now private', changes: [
     'Added a login screen (email + password via Supabase Auth) in front of the whole app — your tasks, notes and everything else are no longer fetched at all until you sign in',
     'New Settings → Account section shows who you\'re signed in as, with a Sign out button',
@@ -9511,6 +9669,8 @@ async function initApp() {
   applyDayModeDefaults();
   renderDayModeBanner();
   renderSettingsDayMode();
+  renderKpiPage();
+  renderNslaPage();
   renderTasks();
   renderKbFact();
   startKbRotation();
