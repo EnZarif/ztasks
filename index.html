@@ -121,7 +121,7 @@
     --copper-glow-1: #e87f3e; --copper-glow-2: #f0b94a;
   }
   :root[data-theme="copper"] body { font-family: 'Space Grotesk', -apple-system, sans-serif; }
-  :root[data-theme="copper"] .hub-head h1:not(#home-greeting),
+  :root[data-theme="copper"] .hub-head h1,
   :root[data-theme="copper"] .app-card-title { font-family: 'Fraunces', serif; font-weight: 800; }
 
   /* ── THEME PICKER (settings) ── */
@@ -320,8 +320,8 @@
   .hub-back i { font-size: 14px; }
   .hub-head h1 { font-size: 22px; font-weight: 500; letter-spacing: -0.2px; display: flex; align-items: center; gap: 10px; }
   .hub-head p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
-  #home-greeting { font-size: 34px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.15; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-  .home-greeting-name { color: #e87f3e; font-size: 48px; font-weight: 700; font-style: italic; }
+  #home-greeting { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+  .home-greeting-name { color: #e87f3e; font-size: 48px; font-weight: 800; font-style: italic; letter-spacing: -1px; }
   #home-date { font-size: 14px; color: color-mix(in srgb, var(--amber-text) 55%, var(--text-2)); margin-top: 6px; }
   .hub-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
   .app-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: border-color 0.15s, transform 0.15s ease, background 0.15s; display: flex; flex-direction: column; gap: 12px; min-height: 150px; animation: taskSlideIn 0.4s cubic-bezier(.2,.85,.25,1) both; }
@@ -4263,7 +4263,7 @@ function renderHomeDashboard() {
     const h = now.getHours();
     const part = h < 5 ? 'night' : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
     const s = esc((dbGet('zarif_settings') || {}).displayName || 'Zarif');
-    greetEl.innerHTML = `<span class="home-greeting-word">Good ${part},</span> <span class="home-greeting-name">${s}</span>`;
+    greetEl.innerHTML = `<span class="home-greeting-word">Good ${part},</span> <span class="home-greeting-name">${s}.</span>`;
   }
   if (dateEl) {
     const dStr = now.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -7505,6 +7505,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.29.6', type: 'patch', date: '20 Jun 2026', title: 'Greeting goes back to bold Fraunces', changes: [
+    'Reverted the last change — the greeting is back in the bold Fraunces serif, just like before',
+    'Added a trailing period after your name, matching the approved reference image',
+  ]},
   { ver: '3.29.5', type: 'patch', date: '20 Jun 2026', title: 'Greeting name keeps its original font', changes: [
     'Fixed the Copper theme forcing the home greeting into the Fraunces serif — "Zarif" is italic, but back in the regular Space Grotesk font used everywhere else on the page',
   ]},
