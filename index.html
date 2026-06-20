@@ -360,7 +360,9 @@
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-desc,
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-meta { color: #1c0f06; }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(1) .app-card-icon { background: rgba(28,15,6,0.18); color: #1c0f06; }
-  .home-hero-ghost-ring { position: absolute; bottom: 18px; right: 18px; width: 110px; height: 110px; border-radius: 50%; pointer-events: none; opacity: 0.32; background: conic-gradient(#1c0f06 0%, transparent 0); -webkit-mask: radial-gradient(circle, transparent 62%, black 65%); mask: radial-gradient(circle, transparent 62%, black 65%); }
+  .home-hero-ghost-wrap { position: absolute; bottom: 18px; right: 18px; width: 110px; height: 110px; pointer-events: none; }
+  .home-hero-ghost-ring { position: absolute; inset: 0; border-radius: 50%; opacity: 0.4; background: conic-gradient(#1c0f06 0%, rgba(28,15,6,0.2) 0); -webkit-mask: radial-gradient(circle, transparent 60%, black 64%); mask: radial-gradient(circle, transparent 60%, black 64%); }
+  .home-hero-ghost-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: #1c0f06; opacity: 0.5; }
   :root[data-theme="copper"] .hub-grid .app-card:nth-child(4) { grid-column: span 2; }
 
   /* DASHBOARD */
@@ -1525,7 +1527,10 @@
     </div>
     <div class="hub-grid">
       <div class="app-card" id="home-card-tasks" onclick="showPage('tasks')">
-        <div class="home-hero-ghost-ring" id="home-hero-ghost-ring"></div>
+        <div class="home-hero-ghost-wrap">
+          <div class="home-hero-ghost-ring" id="home-hero-ghost-ring"></div>
+          <div class="home-hero-ghost-pct" id="home-hero-ghost-pct">0%</div>
+        </div>
         <div class="app-card-icon c-teal"><i class="ti ti-checklist"></i></div>
         <div class="app-card-title">Task Manager</div>
         <div class="app-card-desc">Your daily task dashboard with streaks and progress.</div>
@@ -4267,13 +4272,14 @@ function renderHomeDashboard() {
   }
   const todayTasks = getTodayTasks();
   const donePct = todayTasks.length ? Math.round(todayTasks.filter(t => isDone(t.id)).length / todayTasks.length * 100) : 0;
-  animateGhostRing(document.getElementById('home-hero-ghost-ring'), donePct);
+  animateGhostRing(document.getElementById('home-hero-ghost-ring'), document.getElementById('home-hero-ghost-pct'), donePct);
 }
 
-function animateGhostRing(el, targetPct) {
+function animateGhostRing(el, pctEl, targetPct) {
   if (!el) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    el.style.background = `conic-gradient(#1c0f06 ${targetPct}%, transparent 0)`;
+    el.style.background = `conic-gradient(#1c0f06 ${targetPct}%, rgba(28,15,6,0.2) 0)`;
+    if (pctEl) pctEl.textContent = targetPct + '%';
     return;
   }
   const start = performance.now();
@@ -4281,7 +4287,9 @@ function animateGhostRing(el, targetPct) {
   function step(now) {
     const t = Math.min(1, (now - start) / duration);
     const eased = 1 - Math.pow(1 - t, 3);
-    el.style.background = `conic-gradient(#1c0f06 ${eased * targetPct}%, transparent 0)`;
+    const pct = eased * targetPct;
+    el.style.background = `conic-gradient(#1c0f06 ${pct}%, rgba(28,15,6,0.2) 0)`;
+    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
     if (t < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -7520,6 +7528,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '3.29.9', type: 'minor', date: '20 Jun 2026', title: 'Ghost ring is now a real donut with a % label', changes: [
+    'The hero card ring now shows a faint track for the remaining percentage, not just the filled arc, so it reads as an actual progress ring',
+    'Added a live percentage number centered in the ring',
+  ]},
   { ver: '3.29.8', type: 'patch', date: '20 Jun 2026', title: 'Fix background seam and invisible ghost ring', changes: [
     'Fixed a lighter border/seam around the page edges — the darker background is now the Copper theme\'s actual base color instead of a separate overlay, so there\'s no mismatch',
     'Fixed the hero card\'s ghost ring being almost entirely clipped off the edge of the card — it now sits fully inside, with higher contrast so the fill is actually visible',
