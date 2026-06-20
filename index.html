@@ -2962,7 +2962,8 @@ function dbDel(key) {
 // Pablo De Lucca (MIT License) — https://github.com/pablodelucca/pixel-agents
 const PIXOFF_FRESH_MS = 20 * 60 * 1000;
 const PIXOFF_STATUS_ICON = { typing: '📝', reading: '🔍', running: '💻', delegating: '🔀', waiting: '⏳', thinking: '💭', idle: '💤' };
-const PIXOFF_ASSETS = ['char_0','char_1','char_2','char_3','char_4','char_5','desk','pc','chair','floor'];
+const PIXOFF_ASSETS = ['char_5','desk','pc','chair','floor','wall'];
+const PIXOFF_WALL_H = 48;
 let _pixoffImgs = {};
 let _pixoffImgsReady = false;
 let _pixoffAgents = [];
@@ -3004,9 +3005,10 @@ function pixoffDraw() {
   ctx.clearRect(0, 0, W, H);
 
   if (_pixoffImgsReady) {
-    const floor = _pixoffImgs.floor;
-    for (let y = 0; y < H; y += 16) {
-      for (let x = 0; x < W; x += 16) ctx.drawImage(floor, x, y, 16, 16);
+    const wall = _pixoffImgs.wall, floor = _pixoffImgs.floor;
+    for (let x = 0; x < W; x += 16) {
+      for (let y = 0; y < PIXOFF_WALL_H; y += 16) ctx.drawImage(wall, x, y, 16, 16);
+      for (let y = PIXOFF_WALL_H; y < H; y += 16) ctx.drawImage(floor, x, y, 16, 16);
     }
   }
 
@@ -3030,7 +3032,7 @@ function pixoffDraw() {
   agents.forEach((r, i) => {
     const x = startX + i * slotW + slotW / 2;
     const desk = _pixoffImgs.desk, pc = _pixoffImgs.pc, chair = _pixoffImgs.chair;
-    const charImg = _pixoffImgs['char_' + ((r.character_index ?? 0) % 6)];
+    const charImg = _pixoffImgs.char_5;
 
     ctx.drawImage(chair, x - 8, deskY - 8, 16, 16);
     ctx.drawImage(desk, x - 24, deskY, 48, 32);

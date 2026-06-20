@@ -18,14 +18,8 @@ const STALE_AFTER_MS = 15 * 60 * 1000;
 const READ_TOOLS = new Set(['Read', 'Glob', 'Grep']);
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'NotebookEdit']);
 
-// sessionId -> { offset, status, lastTool, lastChangeTs, projectPath, characterIndex }
+// sessionId -> { offset, status, lastTool, lastChangeTs, projectPath }
 const sessions = new Map();
-
-function hashToCharacterIndex(sessionId) {
-  let h = 0;
-  for (let i = 0; i < sessionId.length; i++) h = (h * 31 + sessionId.charCodeAt(i)) >>> 0;
-  return h % 6;
-}
 
 function findJsonlFiles() {
   const out = [];
@@ -123,7 +117,6 @@ function processFile(filePath, sessionId) {
     lastTool,
     lastChangeTs,
     projectPath,
-    characterIndex: prev?.characterIndex ?? hashToCharacterIndex(sessionId),
   });
 }
 
@@ -149,7 +142,6 @@ async function syncToSupabase() {
       project_path: s.projectPath ?? null,
       status: s.status,
       last_tool: s.lastTool,
-      character_index: s.characterIndex,
       updated_at: new Date().toISOString(),
     });
     if (error) console.error('[pixel-agents] upsert error for', sessionId, error.message);
