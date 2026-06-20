@@ -648,6 +648,10 @@
   #page-notes .header h1 i, #page-notes .card-title i { color: var(--pink-text); }
 
   /* DAY MODE */
+  .home-daymode-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-left: 6px; vertical-align: middle; }
+  .home-daymode-pill i { font-size: 12px; }
+  .home-daymode-pill.hdm-working { background: var(--teal-bg); color: var(--teal-text); }
+  .home-daymode-pill.hdm-off { background: var(--purple-bg); color: var(--purple-text); }
   .day-mode-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; font-size: 12.5px; }
   .day-mode-banner i { font-size: 15px; flex-shrink: 0; }
   .day-mode-banner.dmb-working { background: var(--teal-bg); border: 0.5px solid rgba(93,202,165,0.3); color: var(--teal-text); }
@@ -1563,7 +1567,7 @@
       <div class="app-card" id="home-card-personal" onclick="showPage('personal')">
         <div class="app-card-icon c-pink"><i class="ti ti-user-heart"></i></div>
         <div class="app-card-title">Personal</div>
-        <div class="app-card-desc">Wishlist, insights, weekly review and end-of-day log.</div>
+        <div class="app-card-desc">Wishlist, insights and your personal notes.</div>
         <div class="app-card-meta"><i class="ti ti-arrow-right"></i>Open</div>
       </div>
     </div>
@@ -4574,7 +4578,9 @@ function renderHomeDashboard() {
   if (dateEl) {
     const dStr = now.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
     const undone = getTodayTasks().filter(t => !isDone(t.id));
-    dateEl.textContent = `${dStr} — ${undone.length} due today`;
+    const mode = typeof getTodayDayMode === 'function' ? getTodayDayMode() : 'working';
+    const pill = `<span class="home-daymode-pill ${mode === 'working' ? 'hdm-working' : 'hdm-off'}"><i class="ti ${mode === 'working' ? 'ti-briefcase' : 'ti-beach'}"></i>${mode === 'working' ? 'Working day' : 'Day off'}</span>`;
+    dateEl.innerHTML = `${dStr} — ${undone.length} due today ${pill}`;
   }
   const todayTasks = getTodayTasks();
   const donePct = todayTasks.length ? Math.round(todayTasks.filter(t => isDone(t.id)).length / todayTasks.length * 100) : 0;
