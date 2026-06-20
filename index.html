@@ -405,7 +405,13 @@
   .dash-upcoming { margin-top: 14px; padding: 9px 13px; background: var(--blue-bg); border: 0.5px solid rgba(55,138,221,0.22); border-radius: var(--radius); font-size: 12px; color: var(--blue-text); display: flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color 0.15s; }
   .dash-upcoming:hover { border-color: rgba(55,138,221,0.5); }
   .dash-upcoming i { font-size: 14px; flex-shrink: 0; }
-  .dash-upcoming .du-next { color: var(--text-3); margin-left: auto; white-space: nowrap; }
+  .dash-upcoming .du-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dash-upcoming .du-next { color: var(--text-3); margin-left: auto; flex-shrink: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 50%; }
+  @media (max-width: 560px) {
+    .dash-upcoming { flex-wrap: wrap; row-gap: 3px; }
+    .dash-upcoming .du-label { flex: 1 1 auto; }
+    .dash-upcoming .du-next { flex: 1 1 100%; max-width: 100%; margin-left: 22px; }
+  }
 
   /* UP NEXT RAIL */
   .up-next-rail { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 10px; margin-bottom: 4px; }
@@ -606,6 +612,7 @@
 
   /* KNOWLEDGE BASE SIDEBAR */
   .tasks-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; align-items: start; }
+  .tasks-main, .tasks-sidebar { min-width: 0; }
   @media (max-width: 900px) { .tasks-layout { grid-template-columns: 1fr; } }
   .tasks-sidebar { position: sticky; top: 20px; }
   .kb-card { min-height: 150px; display: flex; flex-direction: column; }
@@ -4575,8 +4582,11 @@ function ensureHomeParticles() {
     p.style.width = s + 'px';
     p.style.height = s + 'px';
     p.style.left = (5 + Math.random() * 90) + '%';
-    p.style.animationDuration = (9 + Math.random() * 14) + 's';
-    p.style.animationDelay = (Math.random() * 16) + 's';
+    const dur = 9 + Math.random() * 14;
+    p.style.animationDuration = dur + 's';
+    // Negative delay starts each particle already partway through its rise
+    // (instead of waiting at the bottom), so the screen fills instantly on load.
+    p.style.animationDelay = '-' + (Math.random() * dur) + 's';
     wrap.appendChild(p);
   }
 }
@@ -4652,7 +4662,7 @@ function renderTasks() {
       .sort((a,b) => a.date.localeCompare(b.date));
     if (upcoming.length) {
       const n = upcoming.length;
-      upEl.innerHTML = `<i class="ti ti-calendar-up"></i><span>${n} task${n!==1?'s':''} due in the next 7 days</span>` +
+      upEl.innerHTML = `<i class="ti ti-calendar-up"></i><span class="du-label">${n} task${n!==1?'s':''} due in the next 7 days</span>` +
         `<span class="du-next">next: ${esc(upcoming[0].name)} · ${fmtShortDate(upcoming[0].date)}</span>`;
       upEl.style.display = 'flex';
     } else {
