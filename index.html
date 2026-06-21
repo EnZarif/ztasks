@@ -172,9 +172,13 @@
   .nav-btn[data-page="helpdesk"] i { background: color-mix(in srgb, var(--amber-text) 40%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="projects"] i { background: color-mix(in srgb, var(--amber-text) 28%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="personal"] i { background: color-mix(in srgb, var(--amber-text) 18%, transparent); color: var(--amber-text); }
-  /* settings keeps a neutral identity (it's a utility action, not a hub) but the gear spins to life on hover */
+  /* settings keeps a neutral icon identity (it's a utility action, not a hub) */
   .nav-btn[data-page="settings"] i { background: var(--surface2); color: var(--text-2); }
-  .nav-btn[data-page="settings"]:hover i { background: var(--border-md); color: var(--text); transform: rotate(60deg); }
+  .nav-btn[data-page="settings"]:hover i { background: var(--border-md); color: var(--text); }
+  /* Widgets + Settings: white label instead of dull grey, turning into the accent colour (text + overlay) on press for tactile feedback */
+  .nav-btn[data-page="widgets"], .nav-btn[data-page="settings"] { color: var(--text); }
+  .nav-btn[data-page="widgets"]:active, .nav-btn[data-page="settings"]:active { color: var(--teal); background: var(--teal-bg); }
+  .nav-btn[data-page="widgets"]:active i, .nav-btn[data-page="settings"]:active i { box-shadow: 0 0 0 2px color-mix(in srgb, var(--teal) 50%, transparent) inset; }
   /* active: tinted pill + left accent bar (gold, uniform) */
   .nav-btn.active { color: var(--text); font-weight: 500; }
   .nav-btn[data-page="home"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
@@ -8372,6 +8376,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.6.2', type: 'patch', date: '21 Jun 2026', title: 'Widgets/Settings: white label, accent-blue press, no more spinning gear', changes: [
+    'Removed the spinning gear animation from Settings — kept everything about the Theme button exactly as is',
+    'Widgets and Settings labels are now white instead of dull grey by default',
+    'Pressing either one now turns the label and the background overlay a matching accent blue, for clear tactile feedback when clicked',
+  ]},
   { ver: '4.6.1', type: 'minor', date: '21 Jun 2026', title: 'Illustrated top nav bar: Widgets, Settings, Theme', changes: [
     'The "Theme" button now shows a real multi-colour rainbow swatch icon (pulled from the app\'s own theme accent colours) instead of a flat grey palette icon — it spins and glows on hover, since it\'s literally the colour-theme picker',
     'The "Settings" gear icon now spins on hover instead of just sitting there',
