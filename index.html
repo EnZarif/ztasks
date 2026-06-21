@@ -379,6 +379,10 @@
   @media (prefers-reduced-motion: reduce) { .app-card { animation: none; } }
   /* Home cards sit over the drifting particles — let them show through */
   #page-home .app-card { background: color-mix(in srgb, var(--surface) 75%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  /* The hero tile (nth-child(1)) has its own opaque gradient and doesn't need the particle-blur —
+     leaving backdrop-filter on caused a visible compositing-layer seam near its absolutely
+     positioned ghost-ring child, cutting a faint horizontal line across the card. */
+  #page-home .hub-grid .app-card:nth-child(1) { backdrop-filter: none; -webkit-backdrop-filter: none; }
 
   /* ── Home dashboard: ambient particles (all themes) ── */
   .home-particles { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -540,7 +544,7 @@
   .hub-pill.active.hp-all      { border-color: var(--teal); background: var(--teal-bg); color: var(--teal-text); }
   .hub-pill.active.hp-helpdesk { border-color: #378ADD; background: rgba(55,138,221,0.12); color: #378ADD; }
   .hub-pill.active.hp-projects { border-color: #EF9F27; background: rgba(239,159,39,0.12); color: #EF9F27; }
-  .hub-pill.active.hp-personal { border-color: #7F77DD; background: rgba(127,119,221,0.12); color: #7F77DD; }
+  .hub-pill.active.hp-personal { border-color: var(--pink-text); background: var(--pink-bg); color: var(--pink-text); }
   /* hub badge on each task row */
   .task-hub-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; flex-shrink: 0; }
   .thb-helpdesk { background: rgba(55,138,221,0.12); color: #378ADD; }
@@ -8373,6 +8377,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.7.1', type: 'patch', date: '21 Jun 2026', title: 'Hero card seam fix + Personal filter pill colour', changes: [
+    'Fixed a faint horizontal line cutting across the bottom of the Home page\'s hero card (Task Manager) — it was inheriting a backdrop-filter blur meant for the smaller translucent cards, which clashed with its own gradient and absolutely-positioned progress ring',
+    'The "Personal" filter pill on the Task Manager page now uses the same pink/red colour as the Personal hub\'s own header icon, instead of an unrelated hardcoded purple',
+  ]},
   { ver: '4.7.0', type: 'minor', date: '21 Jun 2026', title: 'Bigger hero card + bento layout now applies to every theme', changes: [
     'The Home/Helpdesk/Personal hub pages\' big "hero" first card (the bigger tile with a gradient background, e.g. Task Manager on Home) was previously a Copper/navy-only effect — it\'s now generated from whichever theme is active, using that theme\'s own accent colour instead of a hardcoded navy blue',
     'Ambient background particles were already showing on every theme (no change there) — this was specifically about the hero card layout/colour',
