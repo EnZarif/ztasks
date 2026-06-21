@@ -280,6 +280,17 @@
     .nav-btn { padding: 10px 10px; font-size: 14.5px; }
     .nav-sublink { padding: 8px 8px; font-size: 13.5px; }
   }
+
+  /* iPad portrait (Mini/Air/standard ~768-834px) keeps the desktop top bar (not the phone hamburger
+     drawer — there's room for it), but the full clock+date card made the bar overflow and silently
+     scroll "Widgets" off to the side. Drop the clock here; the device already shows its own clock. */
+  @media (max-width: 900px) and (min-width: 761px) {
+    /* qualified with both classes so this out-ranks the later, equally-specific .clock-card rule
+       (display: inline-flex) further down the stylesheet — a single-class selector can't beat it
+       on source order alone */
+    .clock-card.nav-clock { display: none; }
+  }
+
   .page { display: none; }
   .page.active { display: block; }
 
@@ -1452,6 +1463,19 @@
     .tasks-sidebar { position: static; }
     /* Hero stat cards shrink to fit, no horizontal overflow */
     .statcard { min-width: 0; }
+  }
+
+  /* Bigger tap targets on any touch input (iPad as well as phone), not just narrow screens — these
+     task-row icon buttons were as small as 15-23px, well under Apple's ~44pt touch-target guidance.
+     Reuses the same enlarged values as the phone-width block above, just driven by input type
+     instead of width, so a touch-based iPad in landscape/portrait gets them too. Placed after the
+     base .task-del-btn etc. rules earlier in the stylesheet — equal-specificity selectors are won
+     by source order, so this has to come later to actually take effect regardless of media match. */
+  @media (pointer: coarse) {
+    .cb { width: 24px; height: 24px; border-radius: 7px; }
+    .cb i { font-size: 14px; }
+    .task-ai-btn, .task-edit-btn, .task-del-btn, .task-move-btn { padding: 7px; font-size: 17px; }
+    .task-move-btn { font-size: 15px; }
   }
 
   /* ═══ INSIGHTS / DASHBOARD ═══ */
@@ -8377,6 +8401,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.8.0', type: 'minor', date: '21 Jun 2026', title: 'iPad optimisation', changes: [
+    'Fixed the top nav bar silently overflowing on iPad portrait (768-834px) — the full clock+date card squeezed "Widgets" down to a sliver and triggered a horizontal scrollbar. The clock now hides specifically in that width range; the desktop top bar (not the phone hamburger drawer) is kept since there\'s enough room for it otherwise',
+    'Task-row icon buttons (checkbox, edit, AI, move up/down, delete) were as small as 15-23px — well under Apple\'s ~44pt touch-target guidance. They now use the same bigger sizing already used on phones, driven by `@media (pointer: coarse)` so it correctly applies on any touch device (iPad in portrait or landscape) rather than just narrow phone screens',
+    'Verified iPad portrait (768×1024) and landscape (1024×768) across Home, Tasks, KPI Report, Personal Notes, and the Add Task modal — single/two-column layouts, modals, and hub filter pills all already adapted correctly via existing breakpoints once the nav overflow was fixed',
+    'iPhone and desktop layouts are unchanged — both fixes are scoped specifically to the 761-900px tablet range (nav) and coarse-pointer touch input (tap targets)',
+  ]},
   { ver: '4.7.1', type: 'patch', date: '21 Jun 2026', title: 'Hero card seam fix + Personal filter pill colour', changes: [
     'Fixed a faint horizontal line cutting across the bottom of the Home page\'s hero card (Task Manager) — it was inheriting a backdrop-filter blur meant for the smaller translucent cards, which clashed with its own gradient and absolutely-positioned progress ring',
     'The "Personal" filter pill on the Task Manager page now uses the same pink/red colour as the Personal hub\'s own header icon, instead of an unrelated hardcoded purple',
