@@ -158,19 +158,23 @@
   @media (prefers-reduced-motion: reduce) { .nav-cube { animation: none; } .nav-cube-face { animation: none; background: #cfe3f7; } }
   .nav-links { display: flex; flex-direction: row; align-items: center; gap: 3px; flex: 1; min-width: 0; overflow-x: auto; overflow-y: visible; scrollbar-width: thin; }
   .nav-section-label { display: none; }
-  .nav-btn { padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; text-align: left; white-space: nowrap; flex-shrink: 0; }
-  .nav-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
-  .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .nav-btn { padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: color 0.15s, background 0.15s, transform 0.15s; text-align: left; white-space: nowrap; flex-shrink: 0; }
+  .nav-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s cubic-bezier(.2,.8,.2,1), background 0.2s, color 0.2s, box-shadow 0.2s; }
+  .nav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); transform: translateY(-1px); }
+  .nav-btn:active { transform: scale(0.96); }
   /* per-hub icon tiles: monochrome gold, opacity-tiered */
   .nav-btn[data-page="home"] i { background: color-mix(in srgb, var(--amber-text) 85%, transparent); color: var(--hero-bg); }
   .nav-btn[data-page="tasks"] i { background: color-mix(in srgb, var(--amber-text) 68%, transparent); color: var(--hero-bg); }
   .nav-btn[data-page="tasks"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
   .nav-btn[data-page="widgets"] i { background: color-mix(in srgb, var(--amber-text) 52%, transparent); color: var(--hero-bg); }
   .nav-btn[data-page="widgets"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="widgets"]:hover i { box-shadow: 0 0 12px color-mix(in srgb, var(--amber-text) 55%, transparent); transform: scale(1.08); }
   .nav-btn[data-page="helpdesk"] i { background: color-mix(in srgb, var(--amber-text) 40%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="projects"] i { background: color-mix(in srgb, var(--amber-text) 28%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="personal"] i { background: color-mix(in srgb, var(--amber-text) 18%, transparent); color: var(--amber-text); }
+  /* settings keeps a neutral identity (it's a utility action, not a hub) but the gear spins to life on hover */
   .nav-btn[data-page="settings"] i { background: var(--surface2); color: var(--text-2); }
+  .nav-btn[data-page="settings"]:hover i { background: var(--border-md); color: var(--text); transform: rotate(60deg); }
   /* active: tinted pill + left accent bar (gold, uniform) */
   .nav-btn.active { color: var(--text); font-weight: 500; }
   .nav-btn[data-page="home"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
@@ -183,10 +187,12 @@
   .nav-clock .clock-card-time-val { font-size: 18px; }
   .nav-clock .clock-card-divider { height: 26px; }
   .nav-clock .clock-card-ico { width: 28px; height: 28px; font-size: 15px; }
-  .theme-toggle-btn { padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: all 0.15s; white-space: nowrap; }
-  .theme-toggle-btn i { font-size: 18px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--surface2); color: var(--text-2); }
-  .theme-toggle-btn:hover { color: var(--text); }
-  .theme-toggle-btn:hover i { background: var(--border-md); }
+  /* "Theme" gets an actual illustrated colour-wheel swatch instead of a flat grey icon, since it literally picks the app's colour theme */
+  .theme-toggle-btn { padding: 8px 10px; font-size: 14px; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: color 0.15s, transform 0.15s; white-space: nowrap; }
+  .theme-toggle-btn i { font-size: 16px; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); background: conic-gradient(from 0deg, var(--teal-text), var(--coral-text), var(--green-text), var(--purple-text), var(--pink-text), var(--teal-text)); transition: transform 0.5s cubic-bezier(.2,.8,.2,1), box-shadow 0.2s; }
+  .theme-toggle-btn:hover { color: var(--text); transform: translateY(-1px); }
+  .theme-toggle-btn:hover i { transform: rotate(160deg); box-shadow: 0 0 14px color-mix(in srgb, var(--teal-text) 50%, transparent); }
+  .theme-toggle-btn:active { transform: scale(0.96); }
   body.compact-mode .task { padding: 7px 10px; }
   body.compact-mode .task-hero { padding: 14px; }
 
@@ -233,8 +239,10 @@
            background: var(--surface); border-bottom: 0.5px solid var(--border); z-index: 60; }
     .mobile-menu-btn, .mobile-theme-btn { background: var(--surface2); border: none; color: var(--text);
            width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center;
-           font-size: 21px; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
-    .mobile-menu-btn:active, .mobile-theme-btn:active { background: var(--border-md); }
+           font-size: 21px; cursor: pointer; flex-shrink: 0; transition: background 0.15s, transform 0.15s; }
+    .mobile-menu-btn:active, .mobile-theme-btn:active { background: var(--border-md); transform: scale(0.92); }
+    .mobile-theme-btn { background: conic-gradient(from 0deg, var(--teal-text), var(--coral-text), var(--green-text), var(--purple-text), var(--pink-text), var(--teal-text)); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); font-size: 18px; }
+    .mobile-theme-btn:active { background: conic-gradient(from 0deg, var(--teal-text), var(--coral-text), var(--green-text), var(--purple-text), var(--pink-text), var(--teal-text)); transform: scale(0.92) rotate(60deg); }
     .mobile-theme-btn { margin-left: auto; }
     .mobile-topbar-logo { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--text); min-width: 0; }
     .mobile-topbar-logo span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -8364,6 +8372,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.6.1', type: 'minor', date: '21 Jun 2026', title: 'Illustrated top nav bar: Widgets, Settings, Theme', changes: [
+    'The "Theme" button now shows a real multi-colour rainbow swatch icon (pulled from the app\'s own theme accent colours) instead of a flat grey palette icon — it spins and glows on hover, since it\'s literally the colour-theme picker',
+    'The "Settings" gear icon now spins on hover instead of just sitting there',
+    'The "Widgets" icon now lifts and glows on hover/press instead of only a flat background change',
+    'Added consistent press/tap scale-down feedback across Widgets, Settings and Theme (desktop and mobile)',
+  ]},
   { ver: '4.6.0', type: 'minor', date: '21 Jun 2026', title: 'Illustrated tab bar on the Tasks page', changes: [
     'Today / Daily / Weekly / Monthly / By date / All / Calendar now each carry their own accent colour (teal, coral, purple, pink, green, blue, amber) instead of one flat grey style for every tab',
     'Hovering a tab now previews its colour on the icon and tints the background before you click; the active tab\'s icon sits in a small glowing colour badge instead of plain text',
