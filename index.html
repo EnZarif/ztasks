@@ -1288,9 +1288,14 @@
   .notes-textarea:focus { border-color: #EFA800; }
   .notes-textarea::placeholder { color: var(--text-3); }
   .notes-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
-  .notes-ai-btn { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 13px; font-weight: 600; border: 1.5px solid #C98A00; border-radius: var(--radius); background: rgba(239,168,0,0.1); color: var(--amber-text); cursor: pointer; font-family: inherit; transition: all 0.15s; }
-  .notes-ai-btn:hover { background: #EFA800; color: #000; }
+  /* AI "Elaborate" buttons get a deliberate signature gradient halo, independent of the active theme's accent tokens — fixes the old amber-border/theme-text-color mismatch and reads as a distinct AI affordance rather than a plain bordered pill */
+  .notes-ai-btn { position: relative; isolation: isolate; display: flex; align-items: center; gap: 7px; padding: 7px 16px; font-size: 13px; font-weight: 600; border: 1px solid var(--border-md); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-family: inherit; transition: transform 0.15s, background 0.15s, border-color 0.15s; }
+  .notes-ai-btn::before { content: ''; position: absolute; inset: -7px; border-radius: 999px; z-index: -1; background: conic-gradient(from 180deg, #8B7CF6, #4AA8E8, #ED93B1, #8B7CF6); filter: blur(10px); opacity: 0.45; transition: opacity 0.25s, filter 0.25s; }
+  .notes-ai-btn:hover { background: var(--surface2); border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+  .notes-ai-btn:hover::before { opacity: 0.75; filter: blur(13px); }
+  .notes-ai-btn i { font-size: 14px; background: linear-gradient(135deg, #B8A6FF, #8FD0FF, #FFB3D1); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .notes-ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .notes-ai-btn:disabled::before { opacity: 0.18; }
   .notes-save-btn { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border-md); border-radius: var(--radius); background: var(--surface2); color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
   .notes-save-btn:hover { border-color: #EFA800; color: var(--amber-text); }
   .notes-char-count { font-size: 12px; color: var(--text-3); margin-left: auto; }
@@ -8332,6 +8337,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.4.0', type: 'minor', date: '21 Jun 2026', title: 'Redesigned the "Elaborate" AI button', changes: [
+    'Replaced the plain amber-bordered pill with a dark pill that has a soft, animated purple/blue/pink gradient halo glow behind it and a gradient-filled sparkle icon',
+    'Fixes a theme bug where the Copper/navy theme showed blue text inside a hardcoded gold border — the new style is a deliberate signature look that no longer depends on per-theme accent tokens, so it now looks identical in every theme',
+    'Applies everywhere the Elaborate button appears: Scratch Pad widget and all three Personal Notes sections',
+  ]},
   { ver: '4.3.1', type: 'patch', date: '21 Jun 2026', title: 'Personal Notes sections laid out in columns', changes: [
     'The To-Do, Grocery and Misc sections now sit side-by-side in a 3-column grid instead of stacking full-width, so each one reads narrower and the page makes better use of wide screens',
     'Responsive down to 2 columns on medium screens and 1 column on narrow/mobile widths',
