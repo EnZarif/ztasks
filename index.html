@@ -667,6 +667,10 @@
   #page-nsla .header h1 i, #page-nsla .card-title i { color: var(--teal-text); }
   #page-wishlist .header h1 i, #page-wishlist .card-title i { color: var(--purple-text); }
   #page-notes .header h1 i, #page-notes .card-title i { color: var(--pink-text); }
+  .pnotes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+  .pnotes-grid .card { margin-bottom: 0; }
+  @media (max-width: 1100px) { .pnotes-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px) { .pnotes-grid { grid-template-columns: 1fr; } }
 
   /* DAY MODE */
   .home-daymode-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-left: 6px; vertical-align: middle; }
@@ -1860,7 +1864,7 @@
         <p>Grocery lists, errands, people to call — jot it down, then turn it into a personal task.</p>
       </div>
     </div>
-    <div id="pnotes-sections"></div>
+    <div id="pnotes-sections" class="pnotes-grid"></div>
   </div>
 
   <!-- TASKS PAGE -->
@@ -8328,6 +8332,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.3.1', type: 'patch', date: '21 Jun 2026', title: 'Personal Notes sections laid out in columns', changes: [
+    'The To-Do, Grocery and Misc sections now sit side-by-side in a 3-column grid instead of stacking full-width, so each one reads narrower and the page makes better use of wide screens',
+    'Responsive down to 2 columns on medium screens and 1 column on narrow/mobile widths',
+  ]},
   { ver: '4.3.0', type: 'minor', date: '21 Jun 2026', title: 'Personal Notes split into To-Do, Grocery and Misc sections', changes: [
     'The single Personal Notes pile is now three separate sections — To-Do List, Grocery List, and Misc — each with its own draft box, AI Elaborate, save/restore/delete records, and "Task (AI)" conversion',
     'Existing saved notes and drafts are automatically migrated into the new Misc section the first time you open the page, so nothing is lost',
