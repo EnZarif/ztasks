@@ -5598,7 +5598,7 @@ function normaliseTimeColumns(headers, rows) {
 // pastes into Outlook as a picture instead of an editable table.
 function buildCsvTableCanvas(headers, rows) {
   const dpr = 2; // upscale for a crisp paste regardless of display
-  const padX = 5, rowH = 19, fontSize = 12, font = `${fontSize}px Calibri, Arial, sans-serif`;
+  const padX = 5, rowH = 19, fontSize = 11, font = `${fontSize}px "Aptos Narrow", Calibri, Arial, sans-serif`;
   const measure = document.createElement('canvas').getContext('2d');
   measure.font = font;
   const numericCols = headers.map((_, i) => isNumericCol(headers, rows, i));
@@ -8684,6 +8684,9 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.11.2', type: 'patch', date: '23 Jun 2026', title: 'Call data image font — Aptos Narrow, 11pt', changes: [
+    'Switched the call data report image font to Aptos Narrow at 11pt (falls back to Calibri/Arial if Aptos Narrow isn\'t installed)',
+  ]},
   { ver: '4.11.1', type: 'patch', date: '23 Jun 2026', title: 'Tightened up the call data image', changes: [
     'Trimmed the cell padding and row height on the call data report image — columns no longer have excess empty space around the text',
   ]},
