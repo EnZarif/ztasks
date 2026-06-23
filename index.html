@@ -1093,11 +1093,6 @@
   .csv-upload-btn { font-size: 12px; font-weight: 500; color: var(--blue-text); background: var(--blue-bg); border: 0.5px solid var(--blue-text); border-radius: var(--radius); padding: 8px 14px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
   .csv-upload-btn:hover { background: var(--blue-text); color: #000; }
   .csv-preview-wrap { margin-top: 14px; }
-  .csv-preview-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .csv-preview-table th, .csv-preview-table td { border: 1px solid var(--border-md); padding: 6px 10px; }
-  .csv-preview-table th { background: var(--surface2); color: var(--text); text-align: left; font-weight: 600; }
-  .csv-preview-table td { color: var(--text-2); }
-  .csv-preview-table td.csv-num { text-align: right; }
   .csv-preview-actions { display: flex; gap: 8px; margin-top: 10px; }
   .csv-clear-btn { font-size: 12px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; padding: 8px 4px; }
   .csv-clear-btn:hover { color: var(--text); }
@@ -5598,26 +5593,55 @@ function normaliseTimeColumns(headers, rows) {
   });
 }
 
-function buildCsvTableHtml(headers, rows) {
+// Renders the table to a canvas (plain Excel-paste look: white bg, thin black
+// grid, numeric columns right-aligned) so it can be copied as a real image —
+// pastes into Outlook as a picture instead of an editable table.
+function buildCsvTableCanvas(headers, rows) {
+  const dpr = 2; // upscale for a crisp paste regardless of display
+  const padX = 10, rowH = 26, fontSize = 13, font = `${fontSize}px Calibri, Arial, sans-serif`;
+  const measure = document.createElement('canvas').getContext('2d');
+  measure.font = font;
   const numericCols = headers.map((_, i) => isNumericCol(headers, rows, i));
-  const headHtml = headers.map(h => `<td><strong>${esc(h)}</strong></td>`).join('');
-  const bodyHtml = rows.map(r => `<tr>${r.map((cell, i) =>
-    `<td${numericCols[i] ? ' align="right"' : ''}>${esc(cell)}</td>`).join('')}</tr>`).join('');
-  return `<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
-    <tr>${headHtml}</tr>
-    ${bodyHtml}
-  </table>`;
+  const allRows = [headers, ...rows];
+  const colWidths = headers.map((_, i) =>
+    Math.ceil(Math.max(...allRows.map(r => measure.measureText(String(r[i] ?? '')).width))) + padX * 2);
+  const totalW = colWidths.reduce((a, b) => a + b, 0);
+  const totalH = rowH * allRows.length;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = totalW * dpr;
+  canvas.height = totalH * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, totalW, totalH);
+  ctx.font = font;
+  ctx.textBaseline = 'middle';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 1;
+
+  let y = 0;
+  allRows.forEach(row => {
+    let x = 0;
+    row.forEach((cellRaw, i) => {
+      const w = colWidths[i];
+      ctx.strokeRect(x + 0.5, y + 0.5, w, rowH);
+      ctx.fillStyle = '#000';
+      ctx.textAlign = numericCols[i] ? 'right' : 'left';
+      ctx.fillText(String(cellRaw ?? ''), numericCols[i] ? x + w - padX : x + padX, y + rowH / 2 + 1);
+      x += w;
+    });
+    y += rowH;
+  });
+  return canvas;
 }
 
 function renderCsvPreview(key, headers, rows) {
-  const numericCols = headers.map((_, i) => isNumericCol(headers, rows, i));
-  const head = headers.map(h => `<th>${esc(h)}</th>`).join('');
-  const body = rows.map(r => `<tr>${r.map((cell, i) =>
-    `<td class="${numericCols[i] ? 'csv-num' : ''}">${esc(cell)}</td>`).join('')}</tr>`).join('');
+  const canvas = buildCsvTableCanvas(headers, rows);
   document.getElementById(`${key}-csv-preview`).innerHTML = `
-    <table class="csv-preview-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+    <img src="${canvas.toDataURL('image/png')}" style="max-width:100%; border-radius:6px; border:0.5px solid var(--border-md); display:block;">
     <div class="csv-preview-actions">
-      <button class="copy-btn" id="${key}-csv-copy-btn" onclick="copyCsvTable('${key}')" style="margin-top:0;flex:1;"><i class="ti ti-copy" style="font-size:15px;"></i> Copy table</button>
+      <button class="copy-btn" id="${key}-csv-copy-btn" onclick="copyCsvImage('${key}')" style="margin-top:0;flex:1;"><i class="ti ti-copy" style="font-size:15px;"></i> Copy image</button>
       <button class="csv-clear-btn" onclick="clearCsvTable('${key}')"><i class="ti ti-x"></i> Clear</button>
     </div>`;
 }
@@ -5641,29 +5665,33 @@ function clearCsvTable(key) {
   document.getElementById(`${key}-csv-input`).value = '';
 }
 
-function copyCsvTable(key) {
+function copyCsvImage(key) {
   const data = callDataCsv[key];
   if (!data) return;
-  const html = buildCsvTableHtml(data.headers, data.rows);
-  const text = [data.headers.join('\t'), ...data.rows.map(r => r.join('\t'))].join('\n');
+  const canvas = buildCsvTableCanvas(data.headers, data.rows);
   const btn = document.getElementById(`${key}-csv-copy-btn`);
   const finish = () => {
     btn.innerHTML = '<i class="ti ti-check" style="font-size:15px;"></i> Copied!';
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.innerHTML = '<i class="ti ti-copy" style="font-size:15px;"></i> Copy table';
+      btn.innerHTML = '<i class="ti ti-copy" style="font-size:15px;"></i> Copy image';
       btn.classList.remove('copied');
     }, 2000);
   };
-  if (window.ClipboardItem) {
-    const item = new ClipboardItem({
-      'text/html': new Blob([html], {type: 'text/html'}),
-      'text/plain': new Blob([text], {type: 'text/plain'}),
-    });
-    navigator.clipboard.write([item]).then(finish, () => navigator.clipboard.writeText(text).then(finish));
-  } else {
-    navigator.clipboard.writeText(text).then(finish);
-  }
+  canvas.toBlob(blob => {
+    if (window.ClipboardItem) {
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(finish, () => downloadCsvImage(canvas, key));
+    } else {
+      downloadCsvImage(canvas, key);
+    }
+  }, 'image/png');
+}
+
+function downloadCsvImage(canvas, key) {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = `${key}-call-data.png`;
+  a.click();
 }
 
 ['wpay', 'dmg'].forEach(key => {
@@ -8656,6 +8684,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.11.0', type: 'minor', date: '23 Jun 2026', title: 'Call data report now copies as an image, not a table', changes: [
+    'The Wpay/DMG call data upload now renders the parsed report as a plain bordered image (same look as an Excel paste) instead of an HTML table',
+    '"Copy image" copies an actual picture to the clipboard — pastes into Outlook as a static image rather than an editable table',
+  ]},
   { ver: '4.10.1', type: 'patch', date: '23 Jun 2026', title: 'DMG call data: handle time formatting and the email sub-row', changes: [
     'The DMG report\'s "Average handle time" and "Maximum queued time" columns come through in raw seconds — they\'re now auto-converted to mm:ss to match how you format them by hand',
     'The "datamesh@..." email sub-row has those same two time values blanked out, matching the version you actually send',
