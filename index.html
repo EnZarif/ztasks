@@ -7055,9 +7055,9 @@ const NSLA_SUMMARY_LOOKUPS = [
   { nslaCell: 'J7', label: 'Phone Stats',                colIdx: 1, valueColOffset: 2,  occurrence: 1 }, // Fiserv HD block
   { nslaCell: 'J5', label: 'CMS Phone Support Created',  colIdx: 1, valueColOffset: 2,  occurrence: 1 },
   { nslaCell: 'M7', label: 'Phone Stats',                colIdx: 1, valueColOffset: 2,  occurrence: 2 }, // Merchant Services block
-  { nslaCell: 'J6', label: 'Phone SLA',                  colIdx: 7, valueColOffset: -1, occurrence: 1 },
-  { nslaCell: 'M5', label: 'CMS Logged SLA',             colIdx: 7, valueColOffset: -1, occurrence: 1 },
-  { nslaCell: 'M6', label: 'Merchant Services SLA',      colIdx: 7, valueColOffset: -1, occurrence: 1 },
+  { nslaCell: 'J6', label: 'Phone SLA',                  colIdx: 7, valueColOffset: -1, occurrence: 1, percent: true },
+  { nslaCell: 'M5', label: 'CMS Logged SLA',             colIdx: 7, valueColOffset: -1, occurrence: 1, percent: true },
+  { nslaCell: 'M6', label: 'Merchant Services SLA',      colIdx: 7, valueColOffset: -1, occurrence: 1, percent: true },
 ];
 
 function findLabelValue(rows, colIdx, label, occurrence, valueColOffset) {
@@ -7085,7 +7085,13 @@ async function nslaReadKpiSummary(file) {
 
   const values = {};
   for (const lookup of NSLA_SUMMARY_LOOKUPS) {
-    values[lookup.nslaCell] = findLabelValue(rows, lookup.colIdx, lookup.label, lookup.occurrence, lookup.valueColOffset);
+    let v = findLabelValue(rows, lookup.colIdx, lookup.label, lookup.occurrence, lookup.valueColOffset);
+    // The KPI report displays these SLA %s rounded to 1 decimal place (e.g. "52.6%"), but the
+    // underlying cell holds full floating-point precision (e.g. 0.526315789...). Copying that raw
+    // value straight into the NSLA template's 2-decimal % format produced "52.63%" instead of
+    // "52.60%" — round to the same 1-decimal-place precision the KPI report actually shows.
+    if (lookup.percent && typeof v === 'number') v = Math.round(v * 1000) / 1000;
+    values[lookup.nslaCell] = v;
   }
   return values;
 }
@@ -8684,6 +8690,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.11.3', type: 'patch', date: '23 Jun 2026', title: 'NSLA Report: fixed Overall Summary % values gaining extra decimals', changes: [
+    'The KPI report displays its SLA %s rounded to 1 decimal place (e.g. "52.6%"), but the underlying value has full floating-point precision — copying it straight across showed as "52.63%" in the NSLA template instead of "52.60%"',
+    'The Overall Summary\'s % values (Inbound ASA%, % Calls to Jobs, Inbd FIS MS ASA%) are now rounded to the same 1-decimal precision the KPI report actually shows before being written into the NSLA report',
+  ]},
   { ver: '4.11.2', type: 'patch', date: '23 Jun 2026', title: 'Call data image font — Aptos Narrow, 11pt', changes: [
     'Switched the call data report image font to Aptos Narrow at 11pt (falls back to Calibri/Arial if Aptos Narrow isn\'t installed)',
   ]},
