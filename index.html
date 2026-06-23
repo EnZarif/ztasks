@@ -145,17 +145,22 @@
   .nav-logo-btn:hover { opacity: 0.8; }
   .nav-wordmark { font-family: 'Fraunces', serif; font-weight: 800; font-size: 30px; color: var(--text); }
   .nav-wordmark-dot { color: #4a9ee8; }
-  .nav-cube { width: 28px; height: 28px; position: relative; transform-style: preserve-3d; animation: navCubeSpin 6s linear infinite; }
-  .nav-cube-face { position: absolute; width: 28px; height: 28px; box-sizing: border-box; border: 3px solid #14253a; background: #cfe3f7; animation: navCubeFill 3s ease-in-out infinite; }
+  /* Typed <color> custom properties so the gradient colour itself can be animated smoothly —
+     a plain `filter` would force this element's transform-style:preserve-3d to flatten per spec,
+     collapsing the cube into a flat rotating rectangle. */
+  @property --nc-c1 { syntax: '<color>'; inherits: true; initial-value: #378ADD; }
+  @property --nc-c2 { syntax: '<color>'; inherits: true; initial-value: #7F77DD; }
+  .nav-cube { width: 28px; height: 28px; position: relative; transform-style: preserve-3d; --nc-c1:#378ADD; --nc-c2:#7F77DD; animation: navCubeSpin 9s linear infinite, navCubeColor 8s ease-in-out infinite; }
+  .nav-cube-face { position: absolute; width: 28px; height: 28px; box-sizing: border-box; border: 1px solid rgba(175,169,236,0.4); background: linear-gradient(155deg, color-mix(in srgb, var(--nc-c1) 32%, transparent), color-mix(in srgb, var(--nc-c2) 32%, transparent)); box-shadow: inset 0 0 6px rgba(255,255,255,0.1); }
   .nav-cube-front { transform: translateZ(14px); }
-  .nav-cube-back { transform: rotateY(180deg) translateZ(14px); animation-delay: 0.5s; }
-  .nav-cube-right { transform: rotateY(90deg) translateZ(14px); animation-delay: 0.25s; }
-  .nav-cube-left { transform: rotateY(-90deg) translateZ(14px); animation-delay: 0.75s; }
-  .nav-cube-top { transform: rotateX(90deg) translateZ(14px); animation-delay: 0.1s; }
-  .nav-cube-bottom { transform: rotateX(-90deg) translateZ(14px); animation-delay: 0.6s; }
-  @keyframes navCubeSpin { from { transform: rotateX(-18deg) rotateY(0deg); } to { transform: rotateX(-18deg) rotateY(360deg); } }
-  @keyframes navCubeFill { 0%, 60% { background: #cfe3f7; } 85%, 100% { background: #4a9ee8; } }
-  @media (prefers-reduced-motion: reduce) { .nav-cube { animation: none; } .nav-cube-face { animation: none; background: #cfe3f7; } }
+  .nav-cube-back { transform: rotateY(180deg) translateZ(14px); }
+  .nav-cube-right { transform: rotateY(90deg) translateZ(14px); }
+  .nav-cube-left { transform: rotateY(-90deg) translateZ(14px); }
+  .nav-cube-top { transform: rotateX(90deg) translateZ(14px); }
+  .nav-cube-bottom { transform: rotateX(-90deg) translateZ(14px); }
+  @keyframes navCubeSpin { from { transform: rotateX(-12deg) rotateY(0deg); } to { transform: rotateX(-12deg) rotateY(360deg); } }
+  @keyframes navCubeColor { 0%, 100% { --nc-c1:#378ADD; --nc-c2:#7F77DD; } 50% { --nc-c1:#7F77DD; --nc-c2:#ED93B1; } }
+  @media (prefers-reduced-motion: reduce) { .nav-cube { animation: none; } }
   .nav-links { display: flex; flex-direction: row; align-items: center; gap: 3px; flex: 1; min-width: 0; overflow-x: auto; overflow-y: visible; scrollbar-width: thin; }
   .nav-section-label { display: none; }
   .nav-btn { padding: 8px 10px; font-size: 14px; font-weight: 400; border: none; background: transparent; cursor: pointer; border-radius: 10px; color: var(--text-2); font-family: inherit; display: flex; align-items: center; gap: 11px; transition: color 0.15s, background 0.15s, transform 0.15s; text-align: left; white-space: nowrap; flex-shrink: 0; }
@@ -8690,6 +8695,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.12.0', type: 'minor', date: '23 Jun 2026', title: 'New nav logo icon — translucent glass cube with a colour shift', changes: [
+    'Replaced the flat-fill rotating cube (nav, sign-in screen, mobile top bar) with a translucent glass cube — colour gently breathes between teal/periwinkle and violet/pink as it spins',
+    'Same 3D CSS transform approach as before, just refined material/colour — no extra performance cost',
+  ]},
   { ver: '4.11.3', type: 'patch', date: '23 Jun 2026', title: 'NSLA Report: fixed Overall Summary % values gaining extra decimals', changes: [
     'The KPI report displays its SLA %s rounded to 1 decimal place (e.g. "52.6%"), but the underlying value has full floating-point precision — copying it straight across showed as "52.63%" in the NSLA template instead of "52.60%"',
     'The Overall Summary\'s % values (Inbound ASA%, % Calls to Jobs, Inbd FIS MS ASA%) are now rounded to the same 1-decimal precision the KPI report actually shows before being written into the NSLA report',
