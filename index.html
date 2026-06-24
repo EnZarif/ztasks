@@ -21,6 +21,14 @@
   ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); border-radius: 99px; border: 1px solid transparent; background-clip: padding-box; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); background-clip: padding-box; }
   * { scrollbar-width: thin; scrollbar-color: rgba(128,128,128,0.25) transparent; }
+  /* type="search" is used instead of type="text" on filter boxes specifically because browsers/
+     password managers exempt search inputs from address & saved-credential autofill — these rules
+     just strip the native magnifier/clear-button chrome so they still look like normal text inputs. */
+  input[type="search"] { -webkit-appearance: none; appearance: none; }
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration { display: none; }
   :root {
     --bg: #111315; --surface: #161a1d; --surface2: rgba(255,255,255,0.05);
     --border: rgba(255,255,255,0.06); --border-md: rgba(255,255,255,0.11);
@@ -1938,7 +1946,7 @@
           <option value="open">Open</option>
           <option value="done">Shipped</option>
         </select>
-        <input type="text" id="wl-search" placeholder="Search…" autocomplete="off" oninput="renderWishlist()">
+        <input type="search" id="wl-search" placeholder="Search…" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" oninput="renderWishlist()">
       </div>
       <div class="wl-list" id="wl-list"></div>
     </div>
@@ -2325,7 +2333,7 @@
         <div class="card">
           <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Saved templates</div>
           <div class="add-point-row" style="margin-bottom:14px;">
-            <input type="text" id="tpl-search" placeholder="Search templates by name..." autocomplete="off" oninput="renderTemplates()">
+            <input type="search" id="tpl-search" placeholder="Search templates by name..." autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" oninput="renderTemplates()">
           </div>
           <div id="templates-list"></div>
         </div>
@@ -2357,7 +2365,7 @@
         <div class="card">
           <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Saved numbers</div>
           <div class="add-point-row" style="margin-bottom:14px;">
-            <input type="text" id="num-search" placeholder="Search numbers by name..." autocomplete="off" oninput="renderNumbers()">
+            <input type="search" id="num-search" placeholder="Search numbers by name..." autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" oninput="renderNumbers()">
           </div>
           <div id="numbers-list"></div>
         </div>
@@ -2468,7 +2476,7 @@
           <option value="DMG">DMG</option>
           <option value="Misc">Misc / Ad hoc</option>
         </select>
-        <input type="text" id="mtg-search" placeholder="Search notes..." autocomplete="off" oninput="renderMeetings()">
+        <input type="search" id="mtg-search" placeholder="Search notes..." autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" oninput="renderMeetings()">
       </div>
       <div id="meetings-list"></div>
     </div>
@@ -8695,6 +8703,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.12.2', type: 'patch', date: '25 Jun 2026', title: 'Search boxes still got autofilled — stronger fix', changes: [
+    'autocomplete="off" alone wasn\'t enough — Chrome/password-manager autofill often ignores it outright on plain text inputs',
+    'Switched the Meetings/Templates/Numbers/Wishlist search boxes to type="search" (which browsers and password managers exempt from address/credential autofill) and added explicit ignore hints for LastPass/1Password/Bitwarden',
+    'Stripped the native search-input styling (magnifier/clear icons) so they still look identical to before',
+  ]},
   { ver: '4.12.1', type: 'patch', date: '25 Jun 2026', title: 'Stopped browser autofill suggesting your email in search boxes', changes: [
     'The Meetings/Templates/Numbers/Wishlist search boxes had no autocomplete attribute, so some browsers would offer to autofill them with saved values (e.g. your email) like a regular form field',
     'Added autocomplete="off" to all four so they stay plain search-as-you-type boxes',
