@@ -1938,7 +1938,7 @@
           <option value="open">Open</option>
           <option value="done">Shipped</option>
         </select>
-        <input type="text" id="wl-search" placeholder="Search…" oninput="renderWishlist()">
+        <input type="text" id="wl-search" placeholder="Search…" autocomplete="off" oninput="renderWishlist()">
       </div>
       <div class="wl-list" id="wl-list"></div>
     </div>
@@ -2325,7 +2325,7 @@
         <div class="card">
           <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Saved templates</div>
           <div class="add-point-row" style="margin-bottom:14px;">
-            <input type="text" id="tpl-search" placeholder="Search templates by name..." oninput="renderTemplates()">
+            <input type="text" id="tpl-search" placeholder="Search templates by name..." autocomplete="off" oninput="renderTemplates()">
           </div>
           <div id="templates-list"></div>
         </div>
@@ -2357,7 +2357,7 @@
         <div class="card">
           <div class="card-title"><i class="ti ti-search" style="font-size:13px;"></i> Saved numbers</div>
           <div class="add-point-row" style="margin-bottom:14px;">
-            <input type="text" id="num-search" placeholder="Search numbers by name..." oninput="renderNumbers()">
+            <input type="text" id="num-search" placeholder="Search numbers by name..." autocomplete="off" oninput="renderNumbers()">
           </div>
           <div id="numbers-list"></div>
         </div>
@@ -2468,7 +2468,7 @@
           <option value="DMG">DMG</option>
           <option value="Misc">Misc / Ad hoc</option>
         </select>
-        <input type="text" id="mtg-search" placeholder="Search notes..." oninput="renderMeetings()">
+        <input type="text" id="mtg-search" placeholder="Search notes..." autocomplete="off" oninput="renderMeetings()">
       </div>
       <div id="meetings-list"></div>
     </div>
@@ -8695,6 +8695,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.12.1', type: 'patch', date: '25 Jun 2026', title: 'Stopped browser autofill suggesting your email in search boxes', changes: [
+    'The Meetings/Templates/Numbers/Wishlist search boxes had no autocomplete attribute, so some browsers would offer to autofill them with saved values (e.g. your email) like a regular form field',
+    'Added autocomplete="off" to all four so they stay plain search-as-you-type boxes',
+  ]},
   { ver: '4.12.0', type: 'minor', date: '23 Jun 2026', title: 'New nav logo icon — translucent glass cube with a colour shift', changes: [
     'Replaced the flat-fill rotating cube (nav, sign-in screen, mobile top bar) with a translucent glass cube — colour gently breathes between teal/periwinkle and violet/pink as it spins',
     'Same 3D CSS transform approach as before, just refined material/colour — no extra performance cost',
