@@ -437,6 +437,12 @@
   .home-hero-ghost-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: var(--text); opacity: 0.5; }
   #page-home .hub-grid .app-card:nth-child(4) { grid-column: span 2; }
 
+  /* ── Daily briefing card on Home ── */
+  .home-briefing-card { position: relative; z-index: 1; display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; margin-bottom: 18px; border-radius: var(--radius); background: color-mix(in srgb, var(--surface) 75%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 0.5px solid var(--border-md); animation: fadeIn 0.2s ease; }
+  .home-briefing-ico { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--amber-bg); color: var(--amber-text); font-size: 15px; }
+  .home-briefing-text { font-size: 13px; line-height: 1.55; color: var(--text-2); padding-top: 5px; }
+  .home-briefing-text b { color: var(--text); font-weight: 600; }
+
   /* DASHBOARD */
   .dash-grid { display: flex; gap: 16px; align-items: center; }
   .dash-ring { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; animation: taskSlideIn 0.45s cubic-bezier(.2,.85,.25,1) both; }
@@ -578,6 +584,8 @@
   .thb-helpdesk { background: rgba(55,138,221,0.12); color: #378ADD; }
   .thb-projects { background: rgba(239,159,39,0.12); color: #EF9F27; }
   .thb-personal { background: rgba(127,119,221,0.12); color: #7F77DD; }
+  .task-streak-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; background: rgba(239,168,0,0.14); color: #ef9f27; }
+  .task-streak-badge i { font-size: 11px; }
   .freq-group-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); margin: 1.5rem 0 8px; }
   .freq-group-label i { font-size: 14px; }
   .freq-group-label:has(.ti-clock-bolt) i { color: var(--amber-text); }
@@ -1195,6 +1203,11 @@
   .mtg-anz-empty { font-size: 12px; color: var(--text-3); padding: 4px 0; }
   .mtg-anz-insert { margin-top: 12px; font-size: 12px; padding: 7px 14px; border-radius: 9px; border: none; background: var(--purple-text); color: #fff; cursor: pointer; font-family: inherit; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
   .mtg-anz-insert:hover { opacity: 0.85; }
+  .mtg-context-card { border: 0.5px solid var(--blue-text); border-radius: var(--radius); background: var(--blue-bg); padding: 12px 14px; margin-bottom: 14px; animation: fadeIn 0.15s ease; }
+  .mtg-context-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--blue-text); }
+  .mtg-context-head i { font-size: 14px; }
+  .mtg-context-date { margin-left: auto; font-weight: 500; opacity: 0.85; }
+  .mtg-context-notes { font-size: 12px; color: var(--text-2); line-height: 1.5; white-space: pre-wrap; }
 
   .kpi-upload-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
   .kpi-upload-row:last-child { border-bottom: none; }
@@ -1223,7 +1236,8 @@
   .kpi-modal-preview { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow: auto; color: #000000; }
   #task-edit-modal-overlay .kpi-modal-preview,
   #add-task-modal-overlay .kpi-modal-preview,
-  #add-jobreminder-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  #add-jobreminder-modal-overlay .kpi-modal-preview,
+  #activity-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
   .add-task-trigger { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 14px; margin-bottom: 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); color: var(--text-2); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
   .add-task-trigger:hover { border-color: var(--teal); color: var(--teal-text); background: var(--teal-bg); }
   .add-task-trigger i { font-size: 15px; }
@@ -1684,6 +1698,7 @@
       <h1 id="home-greeting">Good evening, Zarif</h1>
       <p id="home-date">Loading…</p>
     </div>
+    <div id="home-briefing"></div>
     <div class="hub-grid">
       <div class="app-card" id="home-card-tasks" onclick="showPage('tasks')">
         <div class="home-hero-ghost-wrap">
@@ -2418,7 +2433,7 @@
       <div class="card-title"><i class="ti ti-plus" style="font-size:13px;"></i> Add meeting notes</div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Meeting</div>
-        <select class="field-input" id="mtg-type" onchange="toggleMiscFields();updateMtgAnzPanel()">
+        <select class="field-input" id="mtg-type" onchange="toggleMiscFields();updateMtgAnzPanel();updateMtgContextPanel()">
           <option value="" disabled selected>— Choose meeting type —</option>
           <option value="ANZWL">ANZWL</option>
           <option value="Wpay">Wpay</option>
@@ -2427,6 +2442,7 @@
         </select>
       </div>
       <div id="mtg-anz-panel"></div>
+      <div id="mtg-context-panel"></div>
       <div class="mtg-misc-fields" id="mtg-misc-fields">
         <div class="queue-block">
           <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Requester</div>
@@ -3176,6 +3192,20 @@
   </div>
 </div>
 
+<!-- Activity history — searchable full log behind the Insights "Recent activity" card -->
+<div class="kpi-modal-overlay" id="activity-modal-overlay" onclick="if(event.target===this)closeActivityModal()">
+  <div class="kpi-modal" style="width:480px; max-height:78vh; display:flex; flex-direction:column;">
+    <div class="kpi-modal-header">
+      <strong><i class="ti ti-history" style="margin-right:6px;"></i>Activity history</strong>
+      <button class="icon-btn" onclick="closeActivityModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="padding:14px 18px 0;">
+      <input type="search" id="activity-search" name="activity-search" class="field-input" placeholder="Search activity..." autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" oninput="renderActivityModal()">
+    </div>
+    <div class="kpi-modal-preview" id="activity-modal-body" style="overflow-y:auto; flex:1; margin:14px 18px 18px;"></div>
+  </div>
+</div>
+
 <script>
 // ===== GLOBE LOADER =====
 let _globeLoaderActive = true;
@@ -3538,6 +3568,7 @@ let breaks = DEFAULT_BREAKS.map(r => ({...r}));
 let customTasks = [];
 let taskOverrides = {};
 let taskOrder = {};
+let taskStreaks = {};
 
 const DEFAULT_KB_FACTS = [
   "Tip: Use the 'All' tab to see every task grouped by frequency, regardless of whether it's due today.",
@@ -3557,6 +3588,22 @@ function saveCustomTasks() { dbSet('zarif_custom_tasks', customTasks); }
 function saveTaskOverrides() { dbSet('zarif_task_overrides', taskOverrides); }
 function saveTaskOrder() { dbSet('zarif_task_order', taskOrder); }
 function getOrder(id) { return taskOrder[id] !== undefined ? taskOrder[id] : 0; }
+function saveTaskStreaks() { dbSet('zarif_task_streaks', taskStreaks); }
+
+// Per-task day streaks for daily recurring tasks — separate from the overall
+// "all tasks done today" streak in loadStreak()/updateStreak().
+function bumpTaskStreak(id, freq) {
+  if (freq !== 'daily') return;
+  const today = todayInputDate();
+  const yday = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+  const s = taskStreaks[id] || { count: 0, best: 0, lastDate: '' };
+  if (s.lastDate === today) return;
+  s.count = (s.lastDate === yday) ? s.count + 1 : 1;
+  s.lastDate = today;
+  s.best = Math.max(s.best || 0, s.count);
+  taskStreaks[id] = s;
+  saveTaskStreaks();
+}
 
 let taskHubFilter = 'all';
 
@@ -3585,7 +3632,11 @@ function toggle(id) {
   const k = taskKey(id);
   const wasDone = done[k];
   done[k] = !done[k];
-  if (!wasDone) logActivity('task');
+  if (!wasDone) {
+    const t0 = [...TASKS, ...customTasks].find(x => String(x.id) === String(id));
+    logActivity('task', t0 ? t0.name : '');
+    if (t0) bumpTaskStreak(id, t0.freq);
+  }
   justToggledId = !wasDone ? id : null;
   skipListAnim = true;
   save();
@@ -3619,9 +3670,9 @@ function updateStreak(allDoneToday) {
 // ===== Activity log (powers the Insights dashboard) =====
 let activityLog = null;
 function loadActivity() { return dbGet('zarif_activity') || []; }
-function logActivity(type) {
+function logActivity(type, label) {
   if (!activityLog) activityLog = loadActivity();
-  activityLog.push({ t: Date.now(), type });
+  activityLog.push(label ? { t: Date.now(), type, label } : { t: Date.now(), type });
   // keep only the last 120 days to stay light
   const cutoff = Date.now() - 120 * 86400000;
   if (activityLog.length > 50) activityLog = activityLog.filter(a => a.t >= cutoff);
@@ -3745,7 +3796,7 @@ function renderInsights() {
     return `<div class="ins-feed-row">
       <div class="ins-feed-ico statcard-ico ${m.cls}"><i class="ti ${m.ico}"></i></div>
       <div class="ins-feed-body">
-        <div class="ins-feed-title">${m.label}</div>
+        <div class="ins-feed-title">${m.label}${a.label ? ': ' + esc(a.label) : ''}</div>
         <div class="ins-feed-time">${insTimeAgo(a.t)}</div>
       </div>
     </div>`;
@@ -3859,6 +3910,7 @@ function renderInsights() {
         <div class="ins-card">
           <div class="ins-card-head">
             <div class="ins-card-title">Recent activity</div>
+            ${log.length ? `<button class="icon-btn" title="Search full history" onclick="openActivityModal()"><i class="ti ti-search"></i></button>` : ''}
           </div>
           <div class="ins-feed">
             ${feed || '<div class="ins-feed-empty">No activity yet — get started!</div>'}
@@ -3915,6 +3967,41 @@ function renderInsights() {
         <span>More</span>
       </div>`}
     </div>`;
+}
+
+function openActivityModal() {
+  const search = document.getElementById('activity-search');
+  if (search) search.value = '';
+  renderActivityModal();
+  document.getElementById('activity-modal-overlay').classList.add('active');
+}
+function closeActivityModal() {
+  document.getElementById('activity-modal-overlay').classList.remove('active');
+}
+function renderActivityModal() {
+  const body = document.getElementById('activity-modal-body');
+  if (!body) return;
+  if (!activityLog) activityLog = loadActivity();
+  const q = (document.getElementById('activity-search').value || '').trim().toLowerCase();
+  const rows = activityLog.slice().reverse().filter(a => {
+    if (!q) return true;
+    const m = INS_FEED_META[a.type] || INS_FEED_META.task;
+    return (m.label + ' ' + (a.label || '')).toLowerCase().includes(q);
+  });
+  if (!rows.length) {
+    body.innerHTML = `<div class="ins-feed-empty">${q ? 'No activity matches your search.' : 'No activity yet.'}</div>`;
+    return;
+  }
+  body.innerHTML = rows.map(a => {
+    const m = INS_FEED_META[a.type] || INS_FEED_META.task;
+    return `<div class="ins-feed-row">
+      <div class="ins-feed-ico statcard-ico ${m.cls}"><i class="ti ${m.ico}"></i></div>
+      <div class="ins-feed-body">
+        <div class="ins-feed-title">${m.label}${a.label ? ': ' + esc(a.label) : ''}</div>
+        <div class="ins-feed-time">${insTimeAgo(a.t)}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function animateCount(el, to) {
@@ -4006,6 +4093,27 @@ function deleteCustomTask(id) {
   saveCustomTasks();
   saveTaskOverrides();
   save();
+  renderTasks();
+}
+
+// Push a date/once task's due date forward by 1 day — for the in-app reminders
+// (job reminders included) rather than having to open the edit form just to defer.
+function snoozeTask(id) {
+  const builtIn = TASKS.find(t => String(t.id) === String(id));
+  const custom = customTasks.find(t => String(t.id) === String(id));
+  const t = custom || builtIn;
+  if (!t) return;
+  const baseDate = (taskOverrides[id] && taskOverrides[id].date) || t.date;
+  if (!baseDate) return;
+  const [y, m, d] = baseDate.split('-').map(Number);
+  const next = ymd(new Date(y, m - 1, d + 1));
+  if (custom) {
+    custom.date = next;
+    saveCustomTasks();
+  } else {
+    taskOverrides[id] = { ...(taskOverrides[id] || {}), date: next };
+    saveTaskOverrides();
+  }
   renderTasks();
 }
 
@@ -4428,26 +4536,32 @@ function renderDueSoon() {
   if (!el) return;
   const nowMin = melbNowMinutes();
   const WINDOW = 60; // show tasks due within the next 60 minutes
+  const today = todayInputDate();
+  // a task "needs attention" if it's overdue/imminent by time, OR it's a dated
+  // task (incl. job reminders) with no time that's overdue or due today —
+  // those would otherwise only surface once you scroll the full task list.
   const tasks = getTodayTasks().filter(t => {
-    if (!t.time || isDone(t.id)) return false;
-    const taskMin = timeToMin(t.time);
-    // overdue (past but not done) OR coming up within the window
-    return taskMin <= nowMin || (taskMin > nowMin && taskMin - nowMin <= WINDOW);
+    if (isDone(t.id)) return false;
+    if (t.time) {
+      const taskMin = timeToMin(t.time);
+      return taskMin <= nowMin || (taskMin > nowMin && taskMin - nowMin <= WINDOW);
+    }
+    return t.freq === 'date' && t.date && t.date <= today;
   });
   if (!tasks.length) { el.innerHTML = ''; return; }
   // sort: overdue first (by priority then time), then upcoming (by time then priority)
   tasks.sort((a, b) => {
-    const aMin = timeToMin(a.time), bMin = timeToMin(b.time);
-    const aOver = aMin <= nowMin, bOver = bMin <= nowMin;
+    const aMin = a.time ? timeToMin(a.time) : -1, bMin = b.time ? timeToMin(b.time) : -1;
+    const aOver = a.time ? aMin <= nowMin : a.date < today, bOver = b.time ? bMin <= nowMin : b.date < today;
     if (aOver !== bOver) return aOver ? -1 : 1;
     if (aOver) return PO[a.priority] - PO[b.priority] || aMin - bMin;
     return aMin - bMin || PO[a.priority] - PO[b.priority];
   });
   const count = tasks.length;
-  const overdueCount = tasks.filter(t => timeToMin(t.time) <= nowMin).length;
+  const overdueCount = tasks.filter(t => t.time ? timeToMin(t.time) <= nowMin : t.date < today).length;
   const subtitle = overdueCount > 0
     ? `${overdueCount} overdue · ${count - overdueCount} upcoming`
-    : `${count} due within the hour`;
+    : `${count} due now`;
   let html = `<div class="due-soon-section">
     <div class="due-soon-header">
       <i class="ti ti-alarm"></i>
@@ -4657,6 +4771,7 @@ function showPage(p, hub) {
   if (typeof updatePomoFloat === 'function') updatePomoFloat();
   if (p === 'home' && typeof renderHomeDashboard === 'function') renderHomeDashboard();
   if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
+  if (p === 'meetings' && typeof updateMtgContextPanel === 'function') updateMtgContextPanel();
   if (p === 'insights' && typeof renderInsights === 'function') renderInsights();
   if (p === 'settings' && typeof updateNotifPermStatus === 'function') updateNotifPermStatus();
   window.scrollTo(0, 0);
@@ -4895,16 +5010,23 @@ function taskHTML(t, showFreqPill) {
   const jobBadge = t.jobReminder
     ? `<span class="task-hub-badge" style="background:var(--amber-bg);color:var(--amber-text);"><i class="ti ti-briefcase" style="font-size:10px;margin-right:3px"></i>Job</span>`
     : '';
+  const streakInfo = (freq === 'daily') ? taskStreaks[t.id] : null;
+  const streakBadge = (streakInfo && streakInfo.count >= 2)
+    ? `<span class="task-streak-badge" title="${streakInfo.count}-day streak · best ${streakInfo.best}"><i class="ti ti-flame"></i>${streakInfo.count}</span>`
+    : '';
+  const snoozeBtn = (!d && (t.freq === 'date' || t.freq === 'once') && t.date)
+    ? `<button class="task-move-btn" title="Snooze 1 day" onclick="event.stopPropagation(); snoozeTask('${t.id}')"><i class="ti ti-clock-pause"></i></button>`
+    : '';
   return `<div class="task ${pCls}${d?' done':''}" onclick="${click}">
     <div class="cb${d?' on':''}${(d && String(t.id)===String(justToggledId))?' cb-pop':''}" title="Mark done" onclick="event.stopPropagation(); toggle('${t.id}')"><i class="ti ti-check"></i></div>
     <div class="tbody">
       <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}"><i class="ti ${bIcon}"></i>${bLbl}</span></div>
-      <div class="tmeta">${freqPill}${timePill}${reminderPill}${jobBadge}${hubBadge}<div class="pills">${pills}</div></div>
+      <div class="tmeta">${freqPill}${timePill}${reminderPill}${jobBadge}${streakBadge}${hubBadge}<div class="pills">${pills}</div></div>
       ${note}
     </div>
     <div class="task-actions">
       <div class="task-move-col">${upBtn}${downBtn}</div>
-      ${aiBtn}${editBtn}${delBtn}
+      ${snoozeBtn}${aiBtn}${editBtn}${delBtn}
     </div>
   </div>`;
 }
@@ -4948,6 +5070,46 @@ function renderHomeDashboard() {
   const todayTasks = getTodayTasks();
   const donePct = todayTasks.length ? Math.round(todayTasks.filter(t => isDone(t.id)).length / todayTasks.length * 100) : 0;
   animateGhostRing(document.getElementById('home-hero-ghost-ring'), document.getElementById('home-hero-ghost-pct'), donePct);
+  renderHomeBriefing();
+}
+
+// ===== Daily briefing (Home) =====
+function getDailyBriefing() {
+  const todayTasks = getTodayTasks();
+  const pending = todayTasks.filter(t => !isDone(t.id));
+  const overdue = pending.filter(t => t.freq === 'date' && t.date && t.date < todayInputDate());
+  const high = pending.filter(t => t.priority === 'HIGH');
+  const jobsDue = pending.filter(t => t.jobReminder);
+  const todayStr = todayInputDate();
+  const meetingsToday = (typeof meetings !== 'undefined' ? meetings : []).filter(m => m.date === todayStr);
+
+  const parts = [];
+  if (todayTasks.length === 0) {
+    parts.push('Nothing scheduled today — a clear day.');
+  } else if (pending.length === 0) {
+    parts.push('Everything is done for today — nice work.');
+  } else {
+    parts.push(`<b>${pending.length}</b> task${pending.length !== 1 ? 's' : ''} left today${high.length ? `, <b>${high.length}</b> high priority` : ''}.`);
+  }
+  if (overdue.length) parts.push(`<b>${overdue.length}</b> overdue.`);
+  if (jobsDue.length) parts.push(`<b>${jobsDue.length}</b> job reminder${jobsDue.length !== 1 ? 's' : ''} due.`);
+  if (meetingsToday.length) {
+    const next = meetingsToday.filter(m => m.time).sort((a, b) => a.time.localeCompare(b.time))[0];
+    parts.push(next
+      ? `Meeting today: ${esc(next.type === 'Misc' ? 'Ad hoc' : next.type)} at ${fmtTime(next.time)}.`
+      : `${meetingsToday.length} meeting${meetingsToday.length !== 1 ? 's' : ''} logged for today.`);
+  }
+  return parts;
+}
+
+function renderHomeBriefing() {
+  const el = document.getElementById('home-briefing');
+  if (!el) return;
+  const parts = getDailyBriefing();
+  el.innerHTML = `<div class="home-briefing-card">
+    <div class="home-briefing-ico"><i class="ti ti-sparkles"></i></div>
+    <div class="home-briefing-text">${parts.join(' ')}</div>
+  </div>`;
 }
 
 function animateGhostRing(el, pctEl, targetPct) {
@@ -5222,7 +5384,10 @@ function calToggle(id, dateStr) {
   const key = (task.freq === 'date' || task.freq === 'once') ? taskKey(id) : `${id}__${dateStr}`;
   const wasDone = done[key];
   done[key] = !done[key];
-  if (!wasDone) logActivity('task');
+  if (!wasDone) {
+    logActivity('task', task.name);
+    if (dateStr === todayInputDate()) bumpTaskStreak(id, task.freq);
+  }
   save();
   const panelEl = document.getElementById('cal-panel');
   if (panelEl) panelEl.outerHTML = buildCalPanel(dateStr);
@@ -6388,6 +6553,28 @@ function insertAnzBriefIntoNotes() {
   ta.focus();
 }
 
+// Surface the previous meeting's notes for the selected type, so you don't have
+// to scroll Past Meetings to remember what was discussed last time.
+function updateMtgContextPanel() {
+  const panel = document.getElementById('mtg-context-panel');
+  if (!panel) return;
+  const type = (document.getElementById('mtg-type') || {}).value;
+  if (!type || type === 'Misc') { panel.innerHTML = ''; return; }
+  const prior = meetings
+    .filter(m => m.type === type)
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)[0];
+  if (!prior) { panel.innerHTML = ''; return; }
+  const preview = prior.notes.length > 280 ? prior.notes.slice(0, 280).trim() + '…' : prior.notes;
+  panel.innerHTML = `<div class="mtg-context-card">
+    <div class="mtg-context-head">
+      <i class="ti ti-history"></i>
+      <span>Last ${esc(type)} meeting</span>
+      <span class="mtg-context-date">${fmtMeetingDate(prior.date)}</span>
+    </div>
+    <div class="mtg-context-notes">${esc(preview)}</div>
+  </div>`;
+}
+
 function addMeeting() {
   const type = document.getElementById('mtg-type').value;
   const date = document.getElementById('mtg-date').value;
@@ -6409,13 +6596,14 @@ function addMeeting() {
   }
   meetings.push(entry);
   saveMeetings();
-  logActivity('meeting');
+  logActivity('meeting', type === 'Misc' ? 'Ad hoc' : type);
   if (reminderMins != null) requestNotifPermission();
   document.getElementById('mtg-notes').value = '';
   if (timeEl) timeEl.value = '';
   if (remindEl) remindEl.value = '';
   dpSetValue('mtg-date', todayInputDate());
   renderMeetings();
+  updateMtgContextPanel();
 }
 
 function deleteMeeting(id) {
@@ -8852,6 +9040,14 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.14.0', type: 'minor', date: '27 Jun 2026', title: 'Daily briefing, task streaks, meeting context capsule, snooze & a searchable activity history', changes: [
+    'Home now opens with a one-line daily briefing: tasks left today, anything overdue, job reminders due, and today\'s next meeting',
+    '"Needs Attention" on the Tasks page now also surfaces dated tasks and job reminders due today/overdue, not just timed ones',
+    'Daily recurring tasks now track a day streak (🔥 badge once it hits 2+) separate from the overall all-tasks streak already on Insights',
+    'Dated/once tasks and job reminders get a one-click "Snooze 1 day" button instead of having to open the edit form to push the date',
+    'Meetings: picking a meeting type now shows a "Last [type] meeting" card with that meeting\'s date and notes for quick context',
+    'Insights → Recent activity entries now name what was completed (e.g. "Completed a task: Daily tasks message"), and a new search icon opens the full searchable activity history',
+  ]},
   { ver: '4.13.1', type: 'patch', date: '27 Jun 2026', title: 'Fixed white background on the Amtek Job Reminder form', changes: [
     'The add/edit form popup was missing the dark-theme override other modals have, so it rendered with a white background — fixed to match the rest of the app',
   ]},
@@ -10624,6 +10820,7 @@ async function initApp() {
   customTasks   = dbGet('zarif_custom_tasks')   || [];
   taskOverrides = dbGet('zarif_task_overrides') || {};
   taskOrder     = dbGet('zarif_task_order')     || {};
+  taskStreaks   = dbGet('zarif_task_streaks')   || {};
   kbFacts       = (dbGet('zarif_kb_facts') || DEFAULT_KB_FACTS.slice()).map(f => typeof f === 'string' ? { text: f, createdAt: null } : f);
   hubLayout     = loadHubLayout();
   pomo          = loadPomo();
