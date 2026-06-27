@@ -2046,6 +2046,7 @@
 
     <div class="tasks-sidebar">
       <button class="add-task-trigger" onclick="openAddTaskModal()"><i class="ti ti-plus"></i> Add your own task</button>
+      <button class="add-task-trigger" onclick="openAddJobReminderModal()"><i class="ti ti-briefcase"></i> Amtek Job Reminder</button>
       <div class="card kb-card">
         <div class="card-title"><i class="ti ti-bulb"></i> Knowledge base</div>
         <div class="kb-fact" id="kb-fact"></div>
@@ -3123,6 +3124,57 @@
   </div>
 </div>
 
+<!-- Amtek Job Reminder — add/edit -->
+<div class="kpi-modal-overlay" id="add-jobreminder-modal-overlay">
+  <div class="kpi-modal">
+    <div class="kpi-modal-header">
+      <strong id="jr-modal-title">Amtek Job Reminder</strong>
+      <button class="icon-btn" onclick="closeAddJobReminderModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="kpi-modal-preview">
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Job name</div>
+        <input class="field-input" id="jr-name" placeholder="e.g. Replace EFTPOS terminal — Store 412">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">URL link</div>
+        <input class="field-input" id="jr-url" placeholder="https://...">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Description</div>
+        <textarea id="jr-description" rows="4" placeholder="What needs to be done..."></textarea>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due date</div>
+        <div id="jr-date-holder"></div>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Priority</div>
+        <select class="field-input" id="jr-priority">
+          <option value="HIGH">High</option>
+          <option value="MEDIUM" selected>Medium</option>
+          <option value="LOW">Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="kpi-modal-actions">
+      <button class="kpi-file-btn" onclick="closeAddJobReminderModal()">Cancel</button>
+      <button class="generate-btn" style="width:auto; margin-bottom:0; padding:8px 18px;" id="jr-save-btn" onclick="saveJobReminder()"><i class="ti ti-plus" style="font-size:15px;"></i> Add reminder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Amtek Job Reminder — read-only detail, opened by clicking the task -->
+<div class="kpi-modal-overlay" id="jobreminder-detail-overlay" onclick="if(event.target===this)closeJobReminderDetail()">
+  <div class="kpi-modal" style="width:460px;">
+    <div class="kpi-modal-header">
+      <strong><i class="ti ti-briefcase" style="margin-right:6px;color:var(--amber-text);"></i><span id="jrd-title">Job reminder</span></strong>
+      <button class="icon-btn" onclick="closeJobReminderDetail()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="kpi-modal-preview" id="jrd-body" style="background:var(--surface2); color:var(--text); border-color:var(--border-md);"></div>
+  </div>
+</div>
+
 <script>
 // ===== GLOBE LOADER =====
 let _globeLoaderActive = true;
@@ -3956,6 +4008,97 @@ function deleteCustomTask(id) {
   renderTasks();
 }
 
+// ===== AMTEK JOB REMINDER =====
+// A job reminder is a custom task (so it inherits the regular due-date/priority/sync
+// behaviour for free) plus a URL + description. Clicking it opens a read-only detail
+// modal instead of toggling done, since the checkbox already handles that separately.
+let editingJobReminderId = null;
+
+function openAddJobReminderModal() {
+  editingJobReminderId = null;
+  document.getElementById('jr-modal-title').textContent = 'Amtek Job Reminder';
+  document.getElementById('jr-save-btn').innerHTML = '<i class="ti ti-plus" style="font-size:15px;"></i> Add reminder';
+  document.getElementById('jr-name').value = '';
+  document.getElementById('jr-url').value = '';
+  document.getElementById('jr-description').value = '';
+  document.getElementById('jr-priority').value = 'MEDIUM';
+  document.getElementById('jr-date-holder').innerHTML = makeDatePicker('jr-date', todayInputDate(), null, 'Pick a date');
+  document.getElementById('add-jobreminder-modal-overlay').classList.add('active');
+}
+
+function openEditJobReminder(id) {
+  const t = customTasks.find(ct => String(ct.id) === String(id));
+  if (!t) return;
+  editingJobReminderId = id;
+  document.getElementById('jr-modal-title').textContent = 'Edit job reminder';
+  document.getElementById('jr-save-btn').innerHTML = '<i class="ti ti-check" style="font-size:15px;"></i> Save';
+  document.getElementById('jr-name').value = t.name || '';
+  document.getElementById('jr-url').value = t.jobUrl || '';
+  document.getElementById('jr-description').value = t.note || '';
+  document.getElementById('jr-priority').value = t.priority || 'MEDIUM';
+  document.getElementById('jr-date-holder').innerHTML = makeDatePicker('jr-date', t.date || todayInputDate(), null, 'Pick a date');
+  document.getElementById('add-jobreminder-modal-overlay').classList.add('active');
+}
+
+function closeAddJobReminderModal() {
+  document.getElementById('add-jobreminder-modal-overlay').classList.remove('active');
+}
+
+function saveJobReminder() {
+  const nameEl = document.getElementById('jr-name');
+  const name = nameEl.value.trim();
+  if (!name) return;
+  const url = document.getElementById('jr-url').value.trim();
+  const description = document.getElementById('jr-description').value.trim();
+  const priority = document.getElementById('jr-priority').value;
+  const dateEl = document.getElementById('jr-date');
+  const date = (dateEl && dateEl.value) ? dateEl.value : todayInputDate();
+
+  if (editingJobReminderId) {
+    const t = customTasks.find(ct => String(ct.id) === String(editingJobReminderId));
+    if (t) { t.name = name; t.jobUrl = url; t.note = description; t.priority = priority; t.date = date; }
+  } else {
+    customTasks.push({ id: 'jr' + Date.now(), freq: 'date', date, priority, name, days: 'all', assignees: ['Me'], note: description, custom: true, hub: 'helpdesk', jobReminder: true, jobUrl: url });
+  }
+  saveCustomTasks();
+  editingJobReminderId = null;
+  closeAddJobReminderModal();
+  renderTasks();
+}
+
+function openJobReminderDetail(id) {
+  const t = getAllTasks().find(x => String(x.id) === String(id));
+  if (!t) return;
+  document.getElementById('jrd-title').textContent = t.name;
+  const dueLabel = t.date ? fmtShortDate(t.date) : '—';
+  const pCls = t.priority === 'HIGH' ? 'b-high' : t.priority === 'MEDIUM' ? 'b-medium' : 'b-low';
+  const bIcon = t.priority === 'HIGH' ? 'ti-flame' : t.priority === 'MEDIUM' ? 'ti-point' : 'ti-leaf';
+  const bLbl = t.priority[0] + t.priority.slice(1).toLowerCase();
+  document.getElementById('jrd-body').innerHTML = `
+    <div class="queue-block">
+      <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Description</div>
+      <div style="font-size:13px; line-height:1.5; color:var(--text-2); white-space:pre-wrap;">${t.note ? esc(t.note) : '<span style="color:var(--text-3)">No description</span>'}</div>
+    </div>
+    <div class="queue-block">
+      <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due date</div>
+      <div style="font-size:13px; color:var(--text);"><i class="ti ti-calendar-event" style="margin-right:4px;"></i>${dueLabel}</div>
+    </div>
+    <div class="queue-block">
+      <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Priority</div>
+      <span class="badge ${pCls}"><i class="ti ${bIcon}"></i>${bLbl}</span>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:6px;">
+      <button class="generate-btn" style="margin-top:0; flex:1;" onclick="window.open(${jsAttr(t.jobUrl || '')}, '_blank')" ${t.jobUrl ? '' : 'disabled'}><i class="ti ti-external-link" style="font-size:15px;"></i> Open link</button>
+      <button class="copy-btn" style="margin-top:0; width:auto; padding:0 14px;" onclick="closeJobReminderDetail(); openEditJobReminder('${t.id}')"><i class="ti ti-pencil" style="font-size:14px;"></i></button>
+      <button class="copy-btn" style="margin-top:0; width:auto; padding:0 14px;" onclick="closeJobReminderDetail(); deleteCustomTask('${t.id}')"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+    </div>`;
+  document.getElementById('jobreminder-detail-overlay').classList.add('active');
+}
+
+function closeJobReminderDetail() {
+  document.getElementById('jobreminder-detail-overlay').classList.remove('active');
+}
+
 // ===== KNOWLEDGE BASE SIDEBAR =====
 function saveKbFacts() { dbSet('zarif_kb_facts', kbFacts); }
 
@@ -4734,10 +4877,12 @@ function taskHTML(t, showFreqPill) {
   const reminderPill = t.reminderTime
     ? `<span class="time-pill" title="Reminder set"><i class="ti ti-bell"></i>${fmtTime(t.reminderTime)}</span>`
     : '';
-  const click = t.id === 1 ? `showPage('message')` : t.id === 8 ? `showPage('calldata')` : t.id === 3 ? `showPage('awjobs')` : t.id === 7 ? `showPage('standup')` : `toggle('${t.id}')`;
+  const click = t.jobReminder ? `openJobReminderDetail('${t.id}')` : t.id === 1 ? `showPage('message')` : t.id === 8 ? `showPage('calldata')` : t.id === 3 ? `showPage('awjobs')` : t.id === 7 ? `showPage('standup')` : `toggle('${t.id}')`;
   const delBtn = t.custom ? `<button class="task-del-btn" onclick="event.stopPropagation(); deleteCustomTask('${t.id}')"><i class="ti ti-trash"></i></button>` : '';
   const aiBtn = `<button class="task-ai-btn" title="Ask AI about this task" onclick="event.stopPropagation(); openAiModal('task','${t.id}')"><i class="ti ti-sparkles"></i></button>`;
-  const editBtn = `<button class="task-edit-btn" onclick="event.stopPropagation(); openTaskEdit('${t.id}')"><i class="ti ti-pencil"></i></button>`;
+  const editBtn = t.jobReminder
+    ? `<button class="task-edit-btn" onclick="event.stopPropagation(); openEditJobReminder('${t.id}')"><i class="ti ti-pencil"></i></button>`
+    : `<button class="task-edit-btn" onclick="event.stopPropagation(); openTaskEdit('${t.id}')"><i class="ti ti-pencil"></i></button>`;
   const upBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', -1)"><i class="ti ti-chevron-up"></i></button>`;
   const downBtn = `<button class="task-move-btn" onclick="event.stopPropagation(); moveTask('${t.id}', 1)"><i class="ti ti-chevron-down"></i></button>`;
   const hub = t.hub || 'helpdesk';
@@ -4746,11 +4891,14 @@ function taskHTML(t, showFreqPill) {
   const hubBadge = taskHubFilter === 'all'
     ? `<span class="task-hub-badge thb-${hub}"><i class="ti ${hubIcons[hub]}" style="font-size:10px;margin-right:3px"></i>${hubLabels[hub]}</span>`
     : '';
+  const jobBadge = t.jobReminder
+    ? `<span class="task-hub-badge" style="background:var(--amber-bg);color:var(--amber-text);"><i class="ti ti-briefcase" style="font-size:10px;margin-right:3px"></i>Job</span>`
+    : '';
   return `<div class="task ${pCls}${d?' done':''}" onclick="${click}">
     <div class="cb${d?' on':''}${(d && String(t.id)===String(justToggledId))?' cb-pop':''}" title="Mark done" onclick="event.stopPropagation(); toggle('${t.id}')"><i class="ti ti-check"></i></div>
     <div class="tbody">
       <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}"><i class="ti ${bIcon}"></i>${bLbl}</span></div>
-      <div class="tmeta">${freqPill}${timePill}${reminderPill}${hubBadge}<div class="pills">${pills}</div></div>
+      <div class="tmeta">${freqPill}${timePill}${reminderPill}${jobBadge}${hubBadge}<div class="pills">${pills}</div></div>
       ${note}
     </div>
     <div class="task-actions">
@@ -8703,6 +8851,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.13.0', type: 'minor', date: '27 Jun 2026', title: 'New: Amtek Job Reminder', changes: [
+    '"Amtek Job Reminder" button added to the Tasks page sidebar — add a job with a URL link, name, description, due date and priority',
+    'It shows up as a regular task on its due date (synced with the normal task list, sortable/filterable like anything else), tagged with a small "Job" badge',
+    'Clicking it (not the checkbox) opens a detail popup with the description, due date and priority, plus an "Open link" button that jumps straight to the URL — edit/delete it from there too',
+  ]},
   { ver: '4.12.3', type: 'patch', date: '25 Jun 2026', title: 'Search boxes still got autofilled — reset the field IDs', changes: [
     'Chrome appears to cache a learned "this field = address/email" prediction per field id/name on this domain, which kept reapplying even with type="search" and autocomplete="off" — even in a fresh tab',
     'Renamed the 4 search box ids/names (Meetings, Templates, Numbers, Wishlist) so Chrome has no prior learned mapping for them to replay',
