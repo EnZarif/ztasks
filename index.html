@@ -1222,7 +1222,8 @@
   .kpi-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; color: var(--text); }
   .kpi-modal-preview { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow: auto; color: #000000; }
   #task-edit-modal-overlay .kpi-modal-preview,
-  #add-task-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  #add-task-modal-overlay .kpi-modal-preview,
+  #add-jobreminder-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
   .add-task-trigger { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 14px; margin-bottom: 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); color: var(--text-2); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
   .add-task-trigger:hover { border-color: var(--teal); color: var(--teal-text); background: var(--teal-bg); }
   .add-task-trigger i { font-size: 15px; }
@@ -8851,6 +8852,9 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.13.1', type: 'patch', date: '27 Jun 2026', title: 'Fixed white background on the Amtek Job Reminder form', changes: [
+    'The add/edit form popup was missing the dark-theme override other modals have, so it rendered with a white background — fixed to match the rest of the app',
+  ]},
   { ver: '4.13.0', type: 'minor', date: '27 Jun 2026', title: 'New: Amtek Job Reminder', changes: [
     '"Amtek Job Reminder" button added to the Tasks page sidebar — add a job with a URL link, name, description, due date and priority',
     'It shows up as a regular task on its due date (synced with the normal task list, sortable/filterable like anything else), tagged with a small "Job" badge',
