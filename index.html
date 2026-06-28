@@ -604,6 +604,45 @@
 
   /* ── Theme switch crossfade ── */
   .theme-flash { position: fixed; inset: 0; z-index: 10000; opacity: 1; pointer-events: none; transition: opacity 0.35s ease; }
+
+  /* ── Command palette (Ctrl/Cmd+K) ── */
+  .cmdk-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: flex-start; justify-content: center; padding: 12vh 20px; }
+  .cmdk-overlay.active { display: flex; }
+  .cmdk-box { width: 100%; max-width: 560px; background: var(--surface2); border: 1px solid var(--border-md); border-radius: 14px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6); overflow: hidden; animation: fadeIn 0.12s ease; }
+  .cmdk-input-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .cmdk-input-row i { font-size: 17px; color: var(--text-3); flex-shrink: 0; }
+  .cmdk-input-row input { flex: 1; background: none; border: none; outline: none; font-family: inherit; font-size: 15px; color: var(--text); min-width: 0; }
+  .cmdk-input-row kbd { flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--text-3); background: var(--surface); border: 1px solid var(--border-md); border-radius: 6px; padding: 2px 7px; }
+  .cmdk-results { max-height: 60vh; overflow-y: auto; padding: 6px; }
+  .cmdk-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; cursor: pointer; font-size: 13.5px; color: var(--text-2); }
+  .cmdk-row i { font-size: 16px; color: var(--text-3); flex-shrink: 0; width: 18px; text-align: center; }
+  .cmdk-row-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .cmdk-row-sub { font-size: 10.5px; color: var(--text-3); flex-shrink: 0; text-transform: uppercase; letter-spacing: .04em; }
+  .cmdk-row.sel { background: var(--blue-bg); }
+  .cmdk-row.sel .cmdk-row-label, .cmdk-row.sel i { color: var(--blue-text); }
+  .cmdk-empty { padding: 24px; text-align: center; font-size: 13px; color: var(--text-3); }
+
+  /* ── Quick add (natural-language task entry) ── */
+  .quick-add-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); margin-bottom: 14px; }
+  .quick-add-bar i:first-child { font-size: 16px; color: var(--amber-text); flex-shrink: 0; }
+  .quick-add-bar input { flex: 1; background: none; border: none; outline: none; font-family: inherit; font-size: 13px; color: var(--text); min-width: 0; }
+  .quick-add-bar button { flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px; border: none; background: var(--blue-text); color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; transition: opacity 0.15s; }
+  .quick-add-bar button:hover { opacity: 0.85; }
+
+  /* ── Bulk select + drag-to-reorder ── */
+  .bulk-cb { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--border-md); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; color: transparent; transition: all 0.15s; align-self: flex-start; margin-top: 2px; }
+  .bulk-cb i { font-size: 12px; }
+  .bulk-cb.on { background: var(--blue-text); border-color: var(--blue-text); color: #000; }
+  .task.bulk-selected { outline: 1.5px solid var(--blue-text); outline-offset: -1px; }
+  .task-drag-handle { flex-shrink: 0; align-self: center; cursor: grab; color: var(--text-3); font-size: 14px; padding: 4px 2px; opacity: 0.5; transition: opacity 0.15s; }
+  .task-drag-handle:hover { opacity: 1; }
+  .task-drag-handle:active { cursor: grabbing; }
+  .bulk-action-bar { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--surface2); color: var(--text); border: 1px solid var(--border-md); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; box-shadow: 0 16px 36px -14px rgba(0,0,0,0.55); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+  .bulk-action-bar.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .bulk-action-bar button { display: inline-flex; align-items: center; gap: 6px; background: var(--blue-text); color: #000; border: none; border-radius: 8px; padding: 7px 13px; font-weight: 600; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+  .bulk-action-bar button.bulk-danger { background: var(--coral-text); }
+  .bulk-action-bar button.bulk-ghost { background: transparent; border: 1px solid var(--border-md); color: var(--text-2); }
+  @media (max-width: 600px) { .bulk-action-bar { left: 12px; right: 12px; transform: translateY(20px); flex-wrap: wrap; } .bulk-action-bar.show { transform: translateY(0); } }
   /* hub badge on each task row */
   .task-hub-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; flex-shrink: 0; }
   .thb-helpdesk { background: rgba(55,138,221,0.12); color: #378ADD; }
@@ -611,6 +650,10 @@
   .thb-personal { background: rgba(127,119,221,0.12); color: #7F77DD; }
   .task-streak-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; background: rgba(239,168,0,0.14); color: #ef9f27; }
   .task-streak-badge i { font-size: 11px; }
+  .task-tag-chip { font-size: 10px; font-weight: 500; padding: 1px 8px; border-radius: 20px; flex-shrink: 0; background: var(--surface2); border: 0.5px solid var(--border-md); color: var(--text-2); }
+  .mtg-link-chip { font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; background: var(--blue-bg); color: var(--blue-text); cursor: pointer; transition: opacity 0.15s; }
+  .mtg-link-chip:hover { opacity: 0.8; }
+  .mtg-link-chip i { font-size: 11px; }
   .freq-group-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); margin: 1.5rem 0 8px; }
   .freq-group-label i { font-size: 14px; }
   .freq-group-label:has(.ti-clock-bolt) i { color: var(--amber-text); }
@@ -2084,8 +2127,10 @@
       <button class="hub-pill hp-helpdesk" data-hub="helpdesk" onclick="setTaskHubFilter('helpdesk')"><i class="ti ti-headset"></i> Helpdesk</button>
       <button class="hub-pill hp-projects" data-hub="projects" onclick="setTaskHubFilter('projects')"><i class="ti ti-folders"></i> Projects</button>
       <button class="hub-pill hp-personal" data-hub="personal" onclick="setTaskHubFilter('personal')"><i class="ti ti-user"></i> Personal</button>
+      <div id="task-tag-filter-holder"></div>
       <button class="check-tomorrow-btn" onclick="openTomorrowModal()" title="Preview tomorrow's tasks and anything still until-done"><i class="ti ti-moon-stars"></i> Check tomorrow</button>
       <button class="check-tomorrow-btn" id="focus-mode-btn" onclick="toggleFocusMode()" title="Hide everything except what's next"><i class="ti ti-focus-2"></i> Focus mode</button>
+      <button class="check-tomorrow-btn" id="bulk-select-btn" onclick="toggleBulkSelectMode()" title="Select multiple tasks to snooze or delete at once"><i class="ti ti-list-check"></i> Select</button>
     </div>
 
     <div class="tabs">
@@ -2098,6 +2143,11 @@
       <button class="tab" data-tab="calendar" onclick="switchTab('calendar')"><i class="ti ti-calendar-month"></i> Calendar</button>
     </div>
 
+    <div class="quick-add-bar">
+      <i class="ti ti-bolt"></i>
+      <input type="text" id="quick-add-input" placeholder='Quick add — e.g. "Call vendor tomorrow 2pm high priority"' autocomplete="off" onkeydown="if(event.key==='Enter'){quickAddTask();}">
+      <button onclick="quickAddTask()" title="Add task"><i class="ti ti-plus"></i></button>
+    </div>
     <div id="due-soon-section"></div>
     <div id="list"></div>
 
@@ -2525,6 +2575,14 @@
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Notes</div>
         <textarea id="mtg-notes" rows="6" placeholder="What was discussed, action items, follow ups..."></textarea>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Tags <span style="font-weight:400;">(comma-separated, optional)</span></div>
+        <input class="field-input" id="mtg-tags" placeholder="e.g. ANZ, urgent">
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Link to <span style="font-weight:400;">(optional)</span></div>
+        <select class="field-input" id="mtg-link"><option value="">— None —</option></select>
       </div>
       <button class="generate-btn" onclick="addMeeting()"><i class="ti ti-device-floppy" style="font-size:16px;"></i> Save notes</button>
     </div>
@@ -3130,6 +3188,10 @@
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Description / notes</div>
         <textarea class="field-input" id="te-note" rows="3" style="resize:vertical; font-family:inherit; font-size:13px; line-height:1.6;"></textarea>
       </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Tags <span style="font-weight:400;">(comma-separated, optional)</span></div>
+        <input class="field-input" id="te-tags" placeholder="e.g. ANZ, urgent">
+      </div>
     </div>
     <div class="kpi-modal-actions">
       <button class="kpi-file-btn" onclick="closeTaskEditModal()">Cancel</button>
@@ -3191,6 +3253,10 @@
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due by time <span style="font-weight:400;">(optional)</span></div>
         <div id="ct-time-holder"></div>
+      </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Tags <span style="font-weight:400;">(comma-separated, optional)</span></div>
+        <input class="field-input" id="ct-tags" placeholder="e.g. ANZ, urgent">
       </div>
     </div>
     <div class="kpi-modal-actions">
@@ -3273,10 +3339,23 @@
       <button class="icon-btn" onclick="closeShortcutsModal()"><i class="ti ti-x"></i></button>
     </div>
     <div class="kpi-modal-preview" style="background:var(--surface2); color:var(--text); border-color:var(--border-md);">
+      <div class="shortcut-row"><kbd>Ctrl K</kbd><span>Open the command palette (jump anywhere)</span></div>
       <div class="shortcut-row"><kbd>?</kbd><span>Show this panel</span></div>
       <div class="shortcut-row"><kbd>N</kbd><span>Add a new task (on the Tasks page)</span></div>
       <div class="shortcut-row"><kbd>Esc</kbd><span>Close any open modal or popup</span></div>
     </div>
+  </div>
+</div>
+
+<!-- Command palette — Ctrl/Cmd+K -->
+<div class="cmdk-overlay" id="cmdk-overlay" onclick="if(event.target===this)closeCommandPalette()">
+  <div class="cmdk-box">
+    <div class="cmdk-input-row">
+      <i class="ti ti-search"></i>
+      <input type="text" id="cmdk-input" placeholder="Jump to a page, task, meeting, or idea..." autocomplete="off" oninput="renderCommandPalette()" onkeydown="cmdkKeyNav(event)">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="cmdk-results" id="cmdk-results"></div>
   </div>
 </div>
 
@@ -3707,10 +3786,32 @@ function setTaskHubFilter(hub) {
   renderTasks();
 }
 
+let taskTagFilter = 'all';
+function setTaskTagFilter(tag) {
+  taskTagFilter = tag;
+  renderTasks();
+}
+function getAllTaskTags() {
+  const all = [...TASKS, ...customTasks].map(t => taskOverrides[t.id] ? {...t, ...taskOverrides[t.id]} : t);
+  const set = new Set();
+  all.forEach(t => (t.tags || []).forEach(tag => set.add(tag)));
+  return [...set].sort();
+}
+function renderTaskTagFilter() {
+  const holder = document.getElementById('task-tag-filter-holder');
+  if (!holder) return;
+  const tags = getAllTaskTags();
+  if (!tags.length) { holder.innerHTML = ''; return; }
+  holder.innerHTML = `<select class="hub-pill" id="task-tag-select" onchange="setTaskTagFilter(this.value)" style="padding:5px 10px;">
+    <option value="all">All tags</option>
+    ${tags.map(t => `<option value="${escAttr(t)}"${taskTagFilter === t ? ' selected' : ''}>#${esc(t)}</option>`).join('')}
+  </select>`;
+}
 function getAllTasks() {
   const all = [...TASKS, ...customTasks].map(t => taskOverrides[t.id] ? {...t, ...taskOverrides[t.id]} : t);
-  if (taskHubFilter === 'all') return all;
-  return all.filter(t => (t.hub || 'helpdesk') === taskHubFilter);
+  let filtered = taskHubFilter === 'all' ? all : all.filter(t => (t.hub || 'helpdesk') === taskHubFilter);
+  if (taskTagFilter !== 'all') filtered = filtered.filter(t => (t.tags || []).includes(taskTagFilter));
+  return filtered;
 }
 function taskKey(id) {
   const task = [...TASKS, ...customTasks].find(t => String(t.id) === String(id));
@@ -4235,7 +4336,9 @@ function closeShortcutsModal() {
 document.addEventListener('keydown', e => {
   const tag = (e.target.tagName || '').toLowerCase();
   const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCommandPalette(); return; }
   if (e.key === 'Escape') {
+    closeCommandPalette();
     document.querySelectorAll('.kpi-modal-overlay.active, .ai-modal-overlay.active').forEach(o => o.classList.remove('active'));
     return;
   }
@@ -4243,6 +4346,81 @@ document.addEventListener('keydown', e => {
   if (e.key === '?') { e.preventDefault(); toggleShortcutsModal(); return; }
   if ((e.key === 'n' || e.key === 'N') && currentPage === 'tasks') { e.preventDefault(); openAddTaskModal(); }
 });
+
+// ===== COMMAND PALETTE (Ctrl/Cmd+K) =====
+const CMDK_PAGE_HUB = { kpi:'helpdesk', nsla:'helpdesk', meetings:'helpdesk', message:'helpdesk', templates:'helpdesk', standup:'helpdesk', wishlist:'personal', insights:'personal', notes:'personal' };
+const CMDK_EXTRA_PAGES = [
+  { key: 'home', title: 'Home', icon: 'ti-home' },
+  { key: 'widgets', title: 'Widgets', icon: 'ti-apps' },
+  { key: 'projects', title: 'Projects', icon: 'ti-folders' },
+  { key: 'settings', title: 'Settings', icon: 'ti-settings' },
+];
+let cmdkSelectedIdx = 0;
+let _cmdkResults = [];
+function openCommandPalette() {
+  const overlay = document.getElementById('cmdk-overlay');
+  const input = document.getElementById('cmdk-input');
+  if (!overlay || !input) return;
+  overlay.classList.add('active');
+  input.value = '';
+  cmdkSelectedIdx = 0;
+  renderCommandPalette();
+  setTimeout(() => input.focus(), 10);
+}
+function closeCommandPalette() {
+  const overlay = document.getElementById('cmdk-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+function cmdkGetResults(q) {
+  q = (q || '').trim().toLowerCase();
+  const results = [];
+  const pageList = [...CMDK_EXTRA_PAGES, ...Object.keys(PAGES).map(k => ({ key: k, title: PAGES[k].title, icon: PAGES[k].icon }))];
+  pageList.forEach(p => {
+    if (!q || p.title.toLowerCase().includes(q)) {
+      results.push({ icon: p.icon, label: p.title, sub: 'Page', action: () => showPage(p.key, CMDK_PAGE_HUB[p.key]) });
+    }
+  });
+  if (q) {
+    getAllTasks().forEach(t => {
+      if (t.name.toLowerCase().includes(q)) {
+        results.push({ icon: 'ti-checklist', label: t.name, sub: 'Task', action: () => showPage('tasks') });
+      }
+    });
+    (meetings || []).forEach(m => {
+      if ((m.notes || '').toLowerCase().includes(q) || (m.type || '').toLowerCase().includes(q)) {
+        const lbl = `${m.type === 'Misc' ? 'Ad hoc' : m.type} — ${(m.notes || '').slice(0, 50)}`;
+        results.push({ icon: 'ti-notes', label: lbl, sub: 'Meeting', action: () => showPage('meetings', 'helpdesk') });
+      }
+    });
+    (wishlist || []).forEach(w => {
+      if ((w.title || '').toLowerCase().includes(q)) {
+        results.push({ icon: 'ti-sparkles', label: w.title, sub: 'Wishlist idea', action: () => showPage('wishlist', 'personal') });
+      }
+    });
+  }
+  return results.slice(0, 30);
+}
+function renderCommandPalette() {
+  const input = document.getElementById('cmdk-input');
+  const body = document.getElementById('cmdk-results');
+  if (!input || !body) return;
+  _cmdkResults = cmdkGetResults(input.value);
+  cmdkSelectedIdx = Math.min(cmdkSelectedIdx, Math.max(0, _cmdkResults.length - 1));
+  if (!_cmdkResults.length) { body.innerHTML = `<div class="cmdk-empty">No matches.</div>`; return; }
+  body.innerHTML = _cmdkResults.map((r, i) => `<div class="cmdk-row${i === cmdkSelectedIdx ? ' sel' : ''}" onmousedown="cmdkRun(${i})">
+    <i class="ti ${r.icon}"></i><span class="cmdk-row-label">${esc(r.label)}</span><span class="cmdk-row-sub">${r.sub}</span>
+  </div>`).join('');
+}
+function cmdkRun(i) {
+  const r = _cmdkResults[i];
+  if (r) r.action();
+  closeCommandPalette();
+}
+function cmdkKeyNav(e) {
+  if (e.key === 'ArrowDown') { e.preventDefault(); cmdkSelectedIdx = Math.min(cmdkSelectedIdx + 1, _cmdkResults.length - 1); renderCommandPalette(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); cmdkSelectedIdx = Math.max(cmdkSelectedIdx - 1, 0); renderCommandPalette(); }
+  else if (e.key === 'Enter') { e.preventDefault(); cmdkRun(cmdkSelectedIdx); }
+}
 
 function openActivityModal() {
   const search = document.getElementById('activity-search');
@@ -4329,6 +4507,67 @@ function renderCustomTaskDayField() {
   }
 }
 
+// ===== QUICK ADD (natural-language task entry) =====
+const QA_WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+function parseQuickAdd(text) {
+  let s = text.trim();
+  let priority = 'MEDIUM';
+  let date = null, time = null;
+
+  if (/\b(high priority|urgent|high)\b/i.test(s)) { priority = 'HIGH'; s = s.replace(/\b(high priority|urgent|high)\b/i, ''); }
+  else if (/\b(low priority|low)\b/i.test(s)) { priority = 'LOW'; s = s.replace(/\b(low priority|low)\b/i, ''); }
+  else if (/\b(medium priority|medium)\b/i.test(s)) { priority = 'MEDIUM'; s = s.replace(/\b(medium priority|medium)\b/i, ''); }
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (/\btomorrow\b/i.test(s)) { date = ymd(new Date(today.getTime() + 86400000)); s = s.replace(/\btomorrow\b/i, ''); }
+  else if (/\btoday\b/i.test(s)) { date = ymd(today); s = s.replace(/\btoday\b/i, ''); }
+  else {
+    const m = s.match(/\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/i);
+    if (m) {
+      const target = QA_WEEKDAYS.indexOf(m[1].toLowerCase());
+      let diff = (target - today.getDay() + 7) % 7;
+      if (diff === 0) diff = 7;
+      date = ymd(new Date(today.getTime() + diff * 86400000));
+      s = s.replace(m[0], '');
+    }
+  }
+
+  const tm = s.match(/\b(\d{1,2})(:(\d{2}))?\s?(am|pm)\b/i);
+  if (tm) {
+    let h = parseInt(tm[1], 10);
+    const mins = tm[3] ? parseInt(tm[3], 10) : 0;
+    const ap = tm[4].toLowerCase();
+    if (ap === 'pm' && h < 12) h += 12;
+    if (ap === 'am' && h === 12) h = 0;
+    time = String(h).padStart(2, '0') + ':' + String(mins).padStart(2, '0');
+    s = s.replace(tm[0], '');
+  }
+
+  const name = s.replace(/\s{2,}/g, ' ').replace(/^[\s,.-]+|[\s,.-]+$/g, '').trim();
+  return { name: name || text.trim(), priority, date, time };
+}
+function quickAddTask() {
+  const input = document.getElementById('quick-add-input');
+  if (!input) return;
+  const raw = input.value.trim();
+  if (!raw) return;
+  const parsed = parseQuickAdd(raw);
+  const task = { id: 'qa' + Date.now(), priority: parsed.priority, name: parsed.name, days: 'all', assignees: ['Me'], note: '', custom: true, hub: taskHubFilter !== 'all' ? taskHubFilter : 'personal', tags: [] };
+  if (parsed.date) { task.freq = 'date'; task.date = parsed.date; } else { task.freq = 'untildone'; }
+  if (parsed.time) task.time = parsed.time;
+  customTasks.push(task);
+  saveCustomTasks();
+  input.value = '';
+  renderTasks();
+}
+
+function parseTagsInput(str) {
+  return (str || '').split(',').map(t => t.trim()).filter(Boolean);
+}
+function tagChipsHtml(tags) {
+  if (!tags || !tags.length) return '';
+  return tags.map(t => `<span class="task-tag-chip">${esc(t)}</span>`).join('');
+}
 function addCustomTask() {
   const nameEl = document.getElementById('ct-name');
   const name = nameEl.value.trim();
@@ -4342,7 +4581,9 @@ function addCustomTask() {
   const hub = hubEl ? hubEl.value : 'helpdesk';
   const timeEl = document.getElementById('ct-time');
   const time = timeEl && timeEl.value ? timeEl.value : '';
-  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note: '', custom: true, hub, time };
+  const tagsEl = document.getElementById('ct-tags');
+  const tags = tagsEl ? parseTagsInput(tagsEl.value) : [];
+  const task = { id: 'c' + Date.now(), freq, priority, name, days: 'all', assignees: ['Me'], note: '', custom: true, hub, time, tags };
   if (freq === 'weekly' && dayVal !== 'all') {
     task.days = [parseInt(dayVal, 10)];
   } else if (freq === 'monthly' && dayVal !== 'all') {
@@ -4358,6 +4599,7 @@ function addCustomTask() {
   saveCustomTasks();
   nameEl.value = '';
   if (timeEl) timeEl.value = '';
+  if (tagsEl) tagsEl.value = '';
   renderTasks();
 }
 
@@ -4607,6 +4849,8 @@ function openTaskEdit(id) {
   document.getElementById('te-freq').value = task.freq;
   document.getElementById('te-hub').value = task.hub || 'helpdesk';
   document.getElementById('te-note').value = task.note || '';
+  const teTagsEl = document.getElementById('te-tags');
+  if (teTagsEl) teTagsEl.value = (task.tags || []).join(', ');
   renderTaskEditDayField(task.freq, task);
   const th = document.getElementById('te-time-holder');
   if (th) th.innerHTML = timeField('te-time', task.time || '');
@@ -4667,6 +4911,8 @@ function saveTaskEdit() {
   const teReminder = document.getElementById('te-reminder');
   override.reminderTime = teReminder && teReminder.value ? teReminder.value : '';
   override.note = document.getElementById('te-note').value.trim();
+  const teTagsEl = document.getElementById('te-tags');
+  override.tags = teTagsEl ? parseTagsInput(teTagsEl.value) : [];
   taskOverrides[editingTaskId] = { ...(taskOverrides[editingTaskId] || {}), ...override };
   saveTaskOverrides();
   if (override.reminderTime) requestNotifPermission();
@@ -4946,6 +5192,111 @@ function moveTask(id, dir) {
   renderTasks();
 }
 
+// ===== Drag-to-reorder (mouse/touch drag, same grouping rules as moveTask) =====
+let _taskDragId = null;
+function taskDragStart(e, id) {
+  _taskDragId = id;
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', String(id)); } catch (err) {}
+  }
+}
+function taskDragOver(e, overId) {
+  if (_taskDragId == null || String(_taskDragId) === String(overId)) return;
+  e.preventDefault();
+}
+function taskDrop(e, targetId) {
+  e.preventDefault();
+  const id = _taskDragId;
+  _taskDragId = null;
+  if (id == null || String(id) === String(targetId)) return;
+  reorderTaskTo(id, targetId);
+}
+function reorderTaskTo(id, targetId) {
+  const all = getAllTasks();
+  const task = all.find(t => String(t.id) === String(id));
+  const target = all.find(t => String(t.id) === String(targetId));
+  if (!task || !target || task.priority !== target.priority) return;
+  let group;
+  if (currentTab === 'today') {
+    group = getTodayTasks().filter(t => t.priority === task.priority);
+  } else if (currentTab === 'all') {
+    group = all.filter(t => t.freq === task.freq && t.priority === task.priority).sort((a, b) => getOrder(a.id) - getOrder(b.id));
+  } else {
+    group = all.filter(t => t.freq === currentTab && t.priority === task.priority).sort((a, b) => getOrder(a.id) - getOrder(b.id));
+  }
+  const fromIdx = group.findIndex(t => String(t.id) === String(id));
+  const toIdx = group.findIndex(t => String(t.id) === String(targetId));
+  if (fromIdx === -1 || toIdx === -1) return;
+  const [moved] = group.splice(fromIdx, 1);
+  group.splice(toIdx, 0, moved);
+  group.forEach((t, i) => { taskOrder[t.id] = i; });
+  saveTaskOrder();
+  renderTasks();
+}
+
+// ===== Bulk task select/snooze/delete =====
+let bulkSelectMode = false;
+let bulkSelectedIds = new Set();
+function toggleBulkSelectMode() {
+  bulkSelectMode = !bulkSelectMode;
+  bulkSelectedIds.clear();
+  renderTasks();
+}
+function toggleBulkSelect(id) {
+  id = String(id);
+  if (bulkSelectedIds.has(id)) bulkSelectedIds.delete(id); else bulkSelectedIds.add(id);
+  renderTasks();
+}
+function bulkSnoozeSelected() {
+  const ids = new Set(bulkSelectedIds);
+  getAllTasks().forEach(t => {
+    if (ids.has(String(t.id)) && (t.freq === 'date' || t.freq === 'once') && t.date) snoozeTask(t.id);
+  });
+  bulkSelectedIds.clear();
+  renderTasks();
+}
+function bulkDeleteSelected() {
+  const ids = new Set(bulkSelectedIds);
+  if (!ids.size) return;
+  const removed = customTasks.filter(t => ids.has(String(t.id)));
+  if (removed.length) {
+    customTasks = customTasks.filter(t => !ids.has(String(t.id)));
+    removed.forEach(t => { delete done[taskKey(t.id)]; delete taskOverrides[t.id]; });
+    saveCustomTasks();
+    saveTaskOverrides();
+    save();
+  }
+  bulkSelectedIds.clear();
+  renderTasks();
+  if (removed.length) {
+    showUndoToast(`${removed.length} task${removed.length > 1 ? 's' : ''} deleted`, () => {
+      customTasks.push(...removed);
+      saveCustomTasks();
+      renderTasks();
+    });
+  }
+}
+function renderBulkBar() {
+  let el = document.getElementById('bulk-action-bar');
+  if (!bulkSelectMode || bulkSelectedIds.size === 0) {
+    if (el) el.classList.remove('show');
+    return;
+  }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'bulk-action-bar';
+    el.className = 'bulk-action-bar';
+    document.body.appendChild(el);
+  }
+  const n = bulkSelectedIds.size;
+  el.innerHTML = `<span>${n} selected</span>
+    <button onclick="bulkSnoozeSelected()"><i class="ti ti-clock-pause"></i> Snooze 1 day</button>
+    <button class="bulk-danger" onclick="bulkDeleteSelected()"><i class="ti ti-trash"></i> Delete</button>
+    <button class="bulk-ghost" onclick="toggleBulkSelectMode()">Cancel</button>`;
+  el.classList.add('show');
+}
+
 let currentHub = null;
 let currentPage = 'home';
 const HUB_PAGES = ['home','helpdesk','projects','personal'];
@@ -5076,6 +5427,7 @@ function showPage(p, hub) {
   if (p === 'home' && typeof renderHomeDashboard === 'function') renderHomeDashboard();
   if (p === 'meetings' && typeof updateMtgAnzPanel === 'function') updateMtgAnzPanel();
   if (p === 'meetings' && typeof updateMtgContextPanel === 'function') updateMtgContextPanel();
+  if (p === 'meetings' && typeof populateMtgLinkOptions === 'function') populateMtgLinkOptions();
   if (p === 'insights' && typeof renderInsights === 'function') renderInsights();
   if (p === 'settings' && typeof updateNotifPermStatus === 'function') updateNotifPermStatus();
   window.scrollTo(0, 0);
@@ -5321,11 +5673,22 @@ function taskHTML(t, showFreqPill) {
   const snoozeBtn = (!d && (t.freq === 'date' || t.freq === 'once') && t.date)
     ? `<button class="task-move-btn" title="Snooze 1 day" onclick="event.stopPropagation(); snoozeTask('${t.id}')"><i class="ti ti-clock-pause"></i></button>`
     : '';
-  return `<div class="task ${pCls}${d?' done':''}" onclick="${click}">
+  const tagChips = tagChipsHtml(t.tags);
+  const bulkSelected = bulkSelectMode && bulkSelectedIds.has(String(t.id));
+  const rowClick = bulkSelectMode ? `toggleBulkSelect('${t.id}')` : click;
+  const bulkCb = bulkSelectMode
+    ? `<div class="bulk-cb${bulkSelected ? ' on' : ''}" onclick="event.stopPropagation(); toggleBulkSelect('${t.id}')"><i class="ti ti-check"></i></div>`
+    : '';
+  const dragHandle = !bulkSelectMode
+    ? `<div class="task-drag-handle" draggable="true" ondragstart="taskDragStart(event,'${t.id}')" onclick="event.stopPropagation()" title="Drag to reorder"><i class="ti ti-grip-vertical"></i></div>`
+    : '';
+  return `<div class="task ${pCls}${d?' done':''}${bulkSelected?' bulk-selected':''}" onclick="${rowClick}" ondragover="taskDragOver(event,'${t.id}')" ondrop="taskDrop(event,'${t.id}')">
+    ${bulkCb}
+    ${dragHandle}
     <div class="cb${d?' on':''}${(d && String(t.id)===String(justToggledId))?' cb-pop':''}" title="Mark done" onclick="event.stopPropagation(); toggle('${t.id}')"><i class="ti ti-check"></i></div>
     <div class="tbody">
       <div class="trow1"><span class="tname">${t.name}</span><span class="badge ${bCls}"><i class="ti ${bIcon}"></i>${bLbl}</span></div>
-      <div class="tmeta">${freqPill}${timePill}${reminderPill}${jobBadge}${streakBadge}${hubBadge}<div class="pills">${pills}</div></div>
+      <div class="tmeta">${freqPill}${timePill}${reminderPill}${jobBadge}${streakBadge}${hubBadge}${tagChips}<div class="pills">${pills}</div></div>
       ${note}
     </div>
     <div class="task-actions">
@@ -5442,6 +5805,10 @@ function renderTasks() {
   renderUpNextRail();
   const fbtn = document.getElementById('focus-mode-btn');
   if (fbtn) fbtn.classList.toggle('active', focusMode);
+  renderTaskTagFilter();
+  renderBulkBar();
+  const selBtn = document.getElementById('bulk-select-btn');
+  if (selBtn) selBtn.classList.toggle('active', bulkSelectMode);
   const todayTasks = getTodayTasks();
   const todayTotal = todayTasks.length;
   const todayDone = todayTasks.filter(t => isDone(t.id)).length;
@@ -6901,6 +7268,33 @@ function updateMtgContextPanel() {
   </div>`;
 }
 
+function populateMtgLinkOptions() {
+  const sel = document.getElementById('mtg-link');
+  if (!sel) return;
+  const tasks = typeof getAllTasks === 'function' ? getAllTasks() : [];
+  const projs = (typeof projects !== 'undefined' ? projects : []) || [];
+  sel.innerHTML = `<option value="">— None —</option>` +
+    (tasks.length ? `<optgroup label="Tasks">${tasks.map(t => `<option value="task:${t.id}">${esc(t.name)}</option>`).join('')}</optgroup>` : '') +
+    (projs.length ? `<optgroup label="Projects">${projs.map(p => `<option value="project:${p.id}">${esc(p.title)}</option>`).join('')}</optgroup>` : '');
+}
+function openLinkedItem(type, id) {
+  if (type === 'task') showPage('tasks');
+  else if (type === 'project') openProjectPage(id);
+}
+function linkedItemChip(m) {
+  if (!m.linkType || m.linkId == null) return '';
+  let label = '';
+  if (m.linkType === 'task') {
+    const t = getAllTasks().find(x => String(x.id) === String(m.linkId));
+    label = t ? t.name : null;
+  } else if (m.linkType === 'project') {
+    const p = (projects || []).find(x => x.id === m.linkId);
+    label = p ? p.title : null;
+  }
+  if (!label) return '';
+  return `<span class="mtg-link-chip" onclick="event.stopPropagation(); openLinkedItem('${m.linkType}', ${m.linkType === 'task' ? jsAttr(m.linkId) : m.linkId})"><i class="ti ti-link"></i>${esc(label)}</span>`;
+}
+
 function addMeeting() {
   const type = document.getElementById('mtg-type').value;
   const date = document.getElementById('mtg-date').value;
@@ -6911,7 +7305,15 @@ function addMeeting() {
   const notes = document.getElementById('mtg-notes').value.trim();
   if (!type) { alert('Please choose a meeting type.'); return; }
   if (!date || !notes) { alert('Please pick a date and enter some notes.'); return; }
-  const entry = {id: nextMeetingId++, type, date, time, reminderMins, notes, savedAt: new Date().toISOString()};
+  const tagsEl = document.getElementById('mtg-tags');
+  const tags = tagsEl ? parseTagsInput(tagsEl.value) : [];
+  const entry = {id: nextMeetingId++, type, date, time, reminderMins, notes, tags, savedAt: new Date().toISOString()};
+  const linkEl = document.getElementById('mtg-link');
+  if (linkEl && linkEl.value) {
+    const [lt, lid] = linkEl.value.split(':');
+    entry.linkType = lt;
+    entry.linkId = lt === 'task' ? lid : parseInt(lid, 10);
+  }
   if (type === 'Misc') {
     entry.requester = document.getElementById('mtg-requester').value.trim();
     entry.agenda = document.getElementById('mtg-agenda').value.trim();
@@ -6927,6 +7329,8 @@ function addMeeting() {
   document.getElementById('mtg-notes').value = '';
   if (timeEl) timeEl.value = '';
   if (remindEl) remindEl.value = '';
+  if (tagsEl) tagsEl.value = '';
+  if (linkEl) linkEl.value = '';
   dpSetValue('mtg-date', todayInputDate());
   renderMeetings();
   updateMtgContextPanel();
@@ -6975,6 +7379,8 @@ function saveMeetingEdit(id) {
   } else {
     delete m.requester; delete m.agenda; delete m.attendees;
   }
+  const teTags = document.getElementById(`mtg-edit-tags-${id}`);
+  m.tags = teTags ? parseTagsInput(teTags.value) : (m.tags || []);
   saveMeetings();
   editingMeetingId = null;
   renderMeetings();
@@ -6996,7 +7402,8 @@ function renderMeetings() {
     .filter(m => {
       const q = query;
       if (!q) return true;
-      return [m.notes, m.requester, m.agenda, m.attendees].some(f => f && f.toLowerCase().includes(q));
+      if ([m.notes, m.requester, m.agenda, m.attendees].some(f => f && f.toLowerCase().includes(q))) return true;
+      return (m.tags || []).some(t => t.toLowerCase().includes(q));
     })
     .sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
 
@@ -7059,6 +7466,10 @@ function renderMeetings() {
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Notes</div>
         <textarea id="mtg-edit-notes-${m.id}" rows="6">${esc(m.notes)}</textarea>
       </div>
+      <div class="queue-block">
+        <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Tags <span style="font-weight:400;">(comma-separated, optional)</span></div>
+        <input class="field-input" id="mtg-edit-tags-${m.id}" value="${escAttr((m.tags||[]).join(', '))}" placeholder="e.g. ANZ, urgent">
+      </div>
       <div style="display:flex; gap:8px;">
         <button class="generate-btn" style="margin-top:0;" onclick="saveMeetingEdit(${m.id})"><i class="ti ti-check" style="font-size:16px;"></i> Save</button>
         <button class="copy-btn" style="margin-top:0;" onclick="cancelMeetingEdit()"><i class="ti ti-x" style="font-size:15px;"></i> Cancel</button>
@@ -7081,6 +7492,7 @@ function renderMeetings() {
       </div>
       ${miscDisplay(m)}
       <div class="meeting-item-notes">${esc(m.notes)}</div>
+      ${(m.tags && m.tags.length) || m.linkType ? `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">${tagChipsHtml(m.tags)}${linkedItemChip(m)}</div>` : ''}
       ${m.savedAt ? `<div style="font-size:10.5px;color:var(--text-3);margin-top:6px;"><i class="ti ti-clock" style="font-size:10px;margin-right:3px;"></i>Logged ${fmtTs(m.savedAt)}</div>` : ''}
     </div>`;
   }).join('');
@@ -9383,6 +9795,14 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.17.0', type: 'minor', date: '28 Jun 2026', title: 'Command palette, tags, quick add, bulk actions, drag-to-reorder, and linked meetings', changes: [
+    'Press Ctrl/Cmd+K anywhere to open a command palette — jump to any page, task, meeting, or wishlist idea from one search box',
+    'Tasks and meetings can now have free-form tags (comma-separated) — shows as small chips, and the Tasks page gets a tag filter dropdown next to the Hub filter',
+    'New "Quick add" bar above the task list — type something like "Call vendor tomorrow 2pm high priority" and it parses the date, time and priority automatically',
+    '"Select" mode on the Tasks page lets you multi-select tasks and snooze or delete several at once, with the same Undo safety net',
+    'Tasks can now be dragged by the new grip handle to reorder them, instead of only the up/down arrows — same priority-group rules as before',
+    'Meeting notes can now be linked to a task or project — shows as a clickable chip on the meeting card that jumps straight there',
+  ]},
   { ver: '4.16.0', type: 'minor', date: '28 Jun 2026', title: 'Confetti, sound effects, keyboard shortcuts, undo, and two new Insights cards', changes: [
     'Hit 100% of today\'s tasks and you get a confetti burst (plus a little completion chime if you turn on Sound effects in Settings)',
     'New "Sound effects" toggle in Settings — soft synthesized chimes on task completion and on finishing your whole day, off by default',
