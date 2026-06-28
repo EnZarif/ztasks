@@ -589,6 +589,21 @@
   .focus-mode-banner i { font-size: 15px; flex-shrink: 0; }
   .focus-mode-banner button { margin-left: auto; flex-shrink: 0; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 16px; border: 1px solid var(--purple-text); background: transparent; color: var(--purple-text); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
   .focus-mode-banner button:hover { background: var(--purple-text); color: #000; }
+
+  /* ── Undo toast ── */
+  .undo-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--surface2); color: var(--text); border: 1px solid var(--border-md); border-radius: 12px; padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 14px; font-size: 13px; box-shadow: 0 16px 36px -14px rgba(0,0,0,0.55); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+  .undo-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .undo-toast button { background: var(--blue-text); color: #000; border: none; border-radius: 8px; padding: 7px 13px; font-weight: 600; font-size: 12.5px; cursor: pointer; font-family: inherit; flex-shrink: 0; transition: opacity 0.15s; }
+  .undo-toast button:hover { opacity: 0.85; }
+  @media (max-width: 600px) { .undo-toast { left: 12px; right: 12px; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateY(20px); width: auto; } .undo-toast.show { transform: translateY(0); } }
+
+  /* ── Confetti (100% tasks done for the day) ── */
+  .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 9998; overflow: hidden; }
+  .confetti-piece { position: absolute; top: -16px; width: 8px; height: 14px; opacity: 0.9; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) translateX(var(--drift)) rotate(var(--rot)); opacity: 0.4; } }
+
+  /* ── Theme switch crossfade ── */
+  .theme-flash { position: fixed; inset: 0; z-index: 10000; opacity: 1; pointer-events: none; transition: opacity 0.35s ease; }
   /* hub badge on each task row */
   .task-hub-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; flex-shrink: 0; }
   .thb-helpdesk { background: rgba(55,138,221,0.12); color: #378ADD; }
@@ -1247,7 +1262,11 @@
   #task-edit-modal-overlay .kpi-modal-preview,
   #add-task-modal-overlay .kpi-modal-preview,
   #add-jobreminder-modal-overlay .kpi-modal-preview,
-  #activity-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  #activity-modal-overlay .kpi-modal-preview,
+  #shortcuts-modal-overlay .kpi-modal-preview { background: var(--surface2); color: var(--text); border-color: var(--border-md); }
+  .shortcut-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; color: var(--text-2); }
+  .shortcut-row:last-child { border-bottom: none; }
+  .shortcut-row kbd { flex-shrink: 0; min-width: 28px; text-align: center; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--text); background: var(--surface); border: 1px solid var(--border-md); border-radius: 6px; padding: 3px 7px; box-shadow: 0 1px 0 var(--border-md); }
   .add-task-trigger { width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 14px; margin-bottom: 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); color: var(--text-2); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
   .add-task-trigger:hover { border-color: var(--teal); color: var(--teal-text); background: var(--teal-bg); }
   .add-task-trigger i { font-size: 15px; }
@@ -1630,6 +1649,16 @@
   .ins-heat-cell { aspect-ratio: 1; border-radius: 2px; background: var(--teal); }
   .ins-heat-legend { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--text-3); margin-top: 12px; justify-content: flex-end; }
   .ins-heat-legend-cell { width: 13px; height: 13px; border-radius: 2px; background: var(--teal); }
+
+  /* 90-day GitHub-style calendar heatmap */
+  .cal-heat-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .cal-heat-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 3px; min-width: 480px; height: 100px; }
+  .cal-heat-cell { border-radius: 2px; background: var(--teal); }
+  .cal-heat-cell.future { background: transparent; }
+
+  /* "On this day" card */
+  .on-this-day { border: 0.5px solid var(--purple-text); background: var(--purple-bg); }
+  .otd-text { font-size: 13px; color: var(--text-2); line-height: 1.55; }
 
   @media (max-width: 880px) {
     .ins-layout { grid-template-columns: 1fr; }
@@ -2810,6 +2839,18 @@
         </div>
         <div class="settings-row">
           <div class="settings-row-info">
+            <div class="settings-row-label">Sound effects</div>
+            <div class="settings-row-desc">Soft chime when you complete a task or finish your whole day</div>
+          </div>
+          <div class="settings-row-ctrl">
+            <label class="toggle-switch">
+              <input type="checkbox" id="settings-sound-enabled" onchange="applySettings()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-info">
             <div class="settings-row-label">Show knowledge base sidebar</div>
             <div class="settings-row-desc">The rotating fact panel beside your task list</div>
           </div>
@@ -3224,6 +3265,21 @@
   </div>
 </div>
 
+<!-- Keyboard shortcuts overlay — press ? -->
+<div class="kpi-modal-overlay" id="shortcuts-modal-overlay" onclick="if(event.target===this)closeShortcutsModal()">
+  <div class="kpi-modal" style="width:380px;">
+    <div class="kpi-modal-header">
+      <strong><i class="ti ti-keyboard" style="margin-right:6px;"></i>Keyboard shortcuts</strong>
+      <button class="icon-btn" onclick="closeShortcutsModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="kpi-modal-preview" style="background:var(--surface2); color:var(--text); border-color:var(--border-md);">
+      <div class="shortcut-row"><kbd>?</kbd><span>Show this panel</span></div>
+      <div class="shortcut-row"><kbd>N</kbd><span>Add a new task (on the Tasks page)</span></div>
+      <div class="shortcut-row"><kbd>Esc</kbd><span>Close any open modal or popup</span></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== GLOBE LOADER =====
 let _globeLoaderActive = true;
@@ -3544,8 +3600,17 @@ function applyTheme(theme) {
 }
 
 function pickTheme(name) {
+  const oldBg = getComputedStyle(document.body).backgroundColor;
   localStorage.setItem('zarif_theme', name);
   applyTheme(name);
+  if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    const flash = document.createElement('div');
+    flash.className = 'theme-flash';
+    flash.style.background = oldBg;
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => { flash.style.opacity = '0'; });
+    setTimeout(() => flash.remove(), 420);
+  }
 }
 
 function toggleTheme() {
@@ -3663,6 +3728,7 @@ function toggle(id) {
     const t0 = [...TASKS, ...customTasks].find(x => String(x.id) === String(id));
     logActivity('task', t0 ? t0.name : '');
     if (t0) bumpTaskStreak(id, t0.freq);
+    playChimeDone();
   }
   justToggledId = !wasDone ? id : null;
   skipListAnim = true;
@@ -3694,6 +3760,84 @@ function updateStreak(allDoneToday) {
   if (label) label.textContent = s.best > 0 ? `Day streak · best ${s.best}` : 'Day streak';
   return (s.lastDate === today || s.lastDate === yday) ? s.count : 0;
 }
+// ===== UNDO TOAST =====
+let _undoTimer = null;
+function showUndoToast(message, undoFn) {
+  clearTimeout(_undoTimer);
+  let el = document.getElementById('undo-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'undo-toast';
+    el.className = 'undo-toast';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `<span>${esc(message)}</span><button onclick="_undoToastAction()">Undo</button>`;
+  window._undoToastFn = undoFn;
+  requestAnimationFrame(() => el.classList.add('show'));
+  _undoTimer = setTimeout(() => { el.classList.remove('show'); window._undoToastFn = null; }, 5000);
+}
+function _undoToastAction() {
+  if (window._undoToastFn) window._undoToastFn();
+  clearTimeout(_undoTimer);
+  const el = document.getElementById('undo-toast');
+  if (el) el.classList.remove('show');
+  window._undoToastFn = null;
+}
+
+// ===== SOUND EFFECTS (synthesized — no audio assets needed) =====
+let _audioCtx = null;
+function soundEnabled() { return !!(dbGet('zarif_settings') || {}).soundEnabled; }
+function playTone(freq, dur, vol) {
+  if (!soundEnabled()) return;
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _audioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = vol != null ? vol : 0.07;
+    osc.connect(gain); gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.start(now);
+    osc.stop(now + dur);
+  } catch (e) { /* audio unsupported/blocked — fail silently */ }
+}
+function playChimeDone() { playTone(880, 0.18); setTimeout(() => playTone(1320, 0.22), 90); }
+function playChimeAllDone() { playTone(660, 0.15); setTimeout(() => playTone(880, 0.15), 100); setTimeout(() => playTone(1320, 0.3), 200); }
+
+// ===== CONFETTI (100% tasks done for the day) =====
+let _confettiShownDate = null;
+function maybeFireConfetti(allDoneToday, totalToday) {
+  if (!allDoneToday || totalToday === 0) return;
+  const today = todayInputDate();
+  if (_confettiShownDate === today) return;
+  _confettiShownDate = today;
+  fireConfetti();
+  playChimeAllDone();
+}
+function fireConfetti() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#378ADD', '#EF9F27', '#D4537E', '#639922', '#7F77DD'];
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti-wrap';
+  const n = 70;
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDuration = (2.2 + Math.random() * 1.4) + 's';
+    p.style.animationDelay = (Math.random() * 0.4) + 's';
+    p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    p.style.setProperty('--drift', (Math.random() * 160 - 80) + 'px');
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 4200);
+}
+
 // ===== Activity log (powers the Insights dashboard) =====
 let activityLog = null;
 function loadActivity() { return dbGet('zarif_activity') || []; }
@@ -3993,8 +4137,112 @@ function renderInsights() {
         <span class="ins-heat-legend-cell" style="opacity:1"></span>
         <span>More</span>
       </div>`}
-    </div>`;
+    </div>
+
+    ${renderCalendarHeatmapCard(log)}
+    ${renderOnThisDayCard()}`;
 }
+
+// ===== 90-day GitHub-style calendar heatmap =====
+function buildCalendarHeatmapData(log, days) {
+  const dayMs = 86400000;
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const counts = {};
+  log.forEach(a => {
+    if (a.type !== 'task') return;
+    const d = new Date(a.t); d.setHours(0, 0, 0, 0);
+    counts[ymd(d)] = (counts[ymd(d)] || 0) + 1;
+  });
+  const start = new Date(todayStart.getTime() - (days - 1) * dayMs);
+  const gridStart = new Date(start.getTime() - start.getDay() * dayMs);
+  const totalCells = Math.round((todayStart.getTime() - gridStart.getTime()) / dayMs) + 1;
+  const weeks = Math.ceil(totalCells / 7);
+  const cells = [];
+  for (let i = 0; i < weeks * 7; i++) {
+    const d = new Date(gridStart.getTime() + i * dayMs);
+    const key = ymd(d);
+    cells.push({ date: key, count: counts[key] || 0, future: d.getTime() > todayStart.getTime() });
+  }
+  return { cells, weeks };
+}
+function renderCalendarHeatmapCard(log) {
+  const taskCount = log.filter(a => a.type === 'task').length;
+  if (!taskCount) {
+    return `<div class="ins-card" style="margin-top:16px">
+      <div class="ins-card-head"><div><div class="ins-card-title">90-day overview</div><div class="ins-card-sub">Every day you've completed a task</div></div></div>
+      <div class="ins-feed-empty">Nothing to map yet — completions will fill this grid over time.</div>
+    </div>`;
+  }
+  const { cells, weeks } = buildCalendarHeatmapData(log, 90);
+  const max = Math.max(1, ...cells.map(c => c.count));
+  const cellsHtml = cells.map(c => {
+    if (c.future) return `<div class="cal-heat-cell future"></div>`;
+    const op = c.count === 0 ? 0.08 : (0.25 + 0.75 * (c.count / max)).toFixed(2);
+    return `<div class="cal-heat-cell" style="opacity:${op}" title="${fmtShortDate(c.date)}: ${c.count} task${c.count === 1 ? '' : 's'}"></div>`;
+  }).join('');
+  return `<div class="ins-card" style="margin-top:16px">
+    <div class="ins-card-head">
+      <div><div class="ins-card-title">90-day overview</div><div class="ins-card-sub">Every day you've completed a task, GitHub-style</div></div>
+      <div class="ins-card-sub"><i class="ti ti-calendar" style="font-size:13px"></i></div>
+    </div>
+    <div class="cal-heat-wrap"><div class="cal-heat-grid" style="grid-template-columns: repeat(${weeks}, 1fr);">${cellsHtml}</div></div>
+    <div class="ins-heat-legend">
+      <span>Less</span>
+      <span class="ins-heat-legend-cell" style="opacity:0.15"></span>
+      <span class="ins-heat-legend-cell" style="opacity:0.45"></span>
+      <span class="ins-heat-legend-cell" style="opacity:0.75"></span>
+      <span class="ins-heat-legend-cell" style="opacity:1"></span>
+      <span>More</span>
+    </div>
+  </div>`;
+}
+
+// ===== "On this day" callback — surfaces a meeting/task event from N weeks ago =====
+function getOnThisDay() {
+  if (!activityLog) activityLog = loadActivity();
+  const ago = [{ n: 7, label: '1 week ago' }, { n: 28, label: '4 weeks ago' }, { n: 84, label: '12 weeks ago' }];
+  const dayMs = 86400000;
+  for (const { n, label } of ago) {
+    const target = new Date(); target.setHours(0, 0, 0, 0);
+    target.setTime(target.getTime() - n * dayMs);
+    const targetKey = ymd(target);
+    const meeting = (meetings || []).find(m => m.date === targetKey);
+    if (meeting) return { label, type: 'meeting', text: `${meeting.type === 'Misc' ? 'Ad hoc' : meeting.type} meeting: ${meeting.notes.slice(0, 120)}${meeting.notes.length > 120 ? '…' : ''}` };
+    const taskEvent = activityLog.find(a => a.type === 'task' && a.label && ymd(new Date(a.t)) === targetKey);
+    if (taskEvent) return { label, type: 'task', text: `You completed "${taskEvent.label}"` };
+  }
+  return null;
+}
+function renderOnThisDayCard() {
+  const hit = getOnThisDay();
+  if (!hit) return '';
+  return `<div class="ins-card on-this-day" style="margin-top:16px">
+    <div class="ins-card-head">
+      <div><div class="ins-card-title"><i class="ti ti-history" style="margin-right:6px;color:var(--purple-text)"></i>On this day</div><div class="ins-card-sub">${hit.label}</div></div>
+    </div>
+    <div class="otd-text">${esc(hit.text)}</div>
+  </div>`;
+}
+
+function toggleShortcutsModal() {
+  const el = document.getElementById('shortcuts-modal-overlay');
+  if (el) el.classList.toggle('active');
+}
+function closeShortcutsModal() {
+  const el = document.getElementById('shortcuts-modal-overlay');
+  if (el) el.classList.remove('active');
+}
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.kpi-modal-overlay.active, .ai-modal-overlay.active').forEach(o => o.classList.remove('active'));
+    return;
+  }
+  if (typing) return;
+  if (e.key === '?') { e.preventDefault(); toggleShortcutsModal(); return; }
+  if ((e.key === 'n' || e.key === 'N') && currentPage === 'tasks') { e.preventDefault(); openAddTaskModal(); }
+});
 
 function openActivityModal() {
   const search = document.getElementById('activity-search');
@@ -4114,6 +4362,8 @@ function addCustomTask() {
 }
 
 function deleteCustomTask(id) {
+  const idx = customTasks.findIndex(t => String(t.id) === String(id));
+  const removed = idx > -1 ? customTasks[idx] : null;
   customTasks = customTasks.filter(t => t.id !== id);
   delete done[taskKey(id)];
   delete taskOverrides[id];
@@ -4121,6 +4371,13 @@ function deleteCustomTask(id) {
   saveTaskOverrides();
   save();
   renderTasks();
+  if (removed) {
+    showUndoToast('Task deleted', () => {
+      customTasks.splice(Math.min(idx, customTasks.length), 0, removed);
+      saveCustomTasks();
+      renderTasks();
+    });
+  }
 }
 
 // Push a date/once task's due date forward by 1 day — for the in-app reminders
@@ -4642,6 +4899,26 @@ function renderUpNextRail() {
     hero.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${y}deg)`;
   });
   hero.addEventListener('mouseleave', () => { hero.style.transform = ''; });
+})();
+
+// Hover tilt on launcher/app cards everywhere (Home, Helpdesk, Personal hub grids) —
+// delegated on document since these cards are re-rendered dynamically.
+(function initAppCardTilt() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let activeCard = null;
+  document.addEventListener('mousemove', e => {
+    const card = e.target.closest && e.target.closest('.app-card:not(.soon)');
+    if (card !== activeCard) {
+      if (activeCard) activeCard.style.transform = '';
+      activeCard = card;
+    }
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width - 0.5) * 5;
+    const y = ((e.clientY - r.top) / r.height - 0.5) * -5;
+    card.style.transform = `perspective(900px) rotateY(${x}deg) rotateX(${y}deg) translateY(-2px)`;
+  });
+  document.addEventListener('mouseleave', () => { if (activeCard) { activeCard.style.transform = ''; activeCard = null; } }, true);
 })();
 
 function moveTask(id, dir) {
@@ -5182,6 +5459,7 @@ function renderTasks() {
 
   const allDone = todayTotal > 0 && todayDone === todayTotal;
   animateCount(document.getElementById('s-streak'), updateStreak(allDone));
+  maybeFireConfetti(allDone, todayTotal);
 
   const upEl = document.getElementById('dash-upcoming');
   if (upEl) {
@@ -6655,10 +6933,18 @@ function addMeeting() {
 }
 
 function deleteMeeting(id) {
-  if (!confirm('Delete these meeting notes?')) return;
+  const idx = meetings.findIndex(m => m.id === id);
+  const removed = idx > -1 ? meetings[idx] : null;
   meetings = meetings.filter(m => m.id !== id);
   saveMeetings();
   renderMeetings();
+  if (removed) {
+    showUndoToast('Meeting notes deleted', () => {
+      meetings.splice(Math.min(idx, meetings.length), 0, removed);
+      saveMeetings();
+      renderMeetings();
+    });
+  }
 }
 
 function toggleEditMeeting(id) {
@@ -9029,9 +9315,18 @@ function wlToggleDone(id) {
 }
 
 function wlDelete(id) {
+  const idx = wishlist.findIndex(w => w.id === id);
+  const removed = idx > -1 ? wishlist[idx] : null;
   wishlist = wishlist.filter(w => w.id !== id);
   saveWishlist();
   renderWishlist();
+  if (removed) {
+    showUndoToast('Idea deleted', () => {
+      wishlist.splice(Math.min(idx, wishlist.length), 0, removed);
+      saveWishlist();
+      renderWishlist();
+    });
+  }
 }
 
 const WL_TAG_LABELS = { feature:'Feature', ux:'UX / Design', bug:'Bug fix', perf:'Performance', idea:'Idea' };
@@ -9088,6 +9383,15 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.16.0', type: 'minor', date: '28 Jun 2026', title: 'Confetti, sound effects, keyboard shortcuts, undo, and two new Insights cards', changes: [
+    'Hit 100% of today\'s tasks and you get a confetti burst (plus a little completion chime if you turn on Sound effects in Settings)',
+    'New "Sound effects" toggle in Settings — soft synthesized chimes on task completion and on finishing your whole day, off by default',
+    'Deleting a task, meeting note, or wishlist idea now shows an "Undo" toast for 5 seconds instead of (or alongside) a blocking confirm dialog — meeting-note delete no longer interrupts you with a popup at all',
+    'New keyboard shortcuts: press "?" to see the shortcuts list, "N" to add a task while on the Tasks page, and "Esc" now closes any open modal/popup app-wide',
+    'Switching themes now crossfades instead of snapping instantly',
+    'Launcher cards (Home, Helpdesk, Personal) now tilt slightly toward your cursor on hover, matching the existing Task Manager hero card effect',
+    'Insights gets two new cards: a 90-day GitHub-style activity calendar, and "On this day" which surfaces a meeting or completed task from 1/4/12 weeks ago',
+  ]},
   { ver: '4.15.1', type: 'patch', date: '28 Jun 2026', title: 'Mobile/iPad pass on the new features, and Navy is now the default theme', changes: [
     'The Tasks page Hub filter row (All/Helpdesk/Projects/Personal + Check tomorrow + Focus mode) was wrapping into a messy 3-line stack on phone widths — now scrolls horizontally in one row, same as the tab row above it',
     'Checked the daily briefing card, streak badges, snooze button, meeting context capsule and the new activity history modal on phone and iPad widths — all render cleanly, no further changes needed there',
@@ -9836,6 +10140,9 @@ function loadSettings() {
   const compactEl = document.getElementById('settings-compact');
   if (compactEl) compactEl.checked = !!s.compact;
 
+  const soundEl = document.getElementById('settings-sound-enabled');
+  if (soundEl) soundEl.checked = !!s.soundEnabled;
+
   applySettings(s);
 }
 
@@ -9850,6 +10157,8 @@ function applySettings(s) {
     if (compactEl) s.compact = compactEl.checked;
     const nameEl = document.getElementById('settings-display-name');
     if (nameEl) s.displayName = nameEl.value.trim() || 'Zarif';
+    const soundEl = document.getElementById('settings-sound-enabled');
+    if (soundEl) s.soundEnabled = soundEl.checked;
   }
 
   // Display name
@@ -9914,6 +10223,8 @@ function saveAppSettings() {
   s.showHero = heroEl ? heroEl.checked : true;
   const compactEl = document.getElementById('settings-compact');
   s.compact = compactEl ? compactEl.checked : false;
+  const soundEl = document.getElementById('settings-sound-enabled');
+  s.soundEnabled = soundEl ? soundEl.checked : false;
   dbSet('zarif_settings', s);
   applySettings(s);
   const btn = event.currentTarget;
