@@ -178,26 +178,30 @@
   /* per-hub icon tiles: monochrome gold, opacity-tiered */
   .nav-btn[data-page="home"] i { background: color-mix(in srgb, var(--amber-text) 85%, transparent); color: var(--hero-bg); }
   .nav-btn[data-page="tasks"] i { background: color-mix(in srgb, var(--amber-text) 68%, transparent); color: var(--hero-bg); }
-  .nav-btn[data-page="tasks"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="tasks"].active { background: color-mix(in srgb, var(--amber-text) 24%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
   .nav-btn[data-page="helpdesk"] i { background: color-mix(in srgb, var(--amber-text) 40%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="projects"] i { background: color-mix(in srgb, var(--amber-text) 28%, transparent); color: var(--amber-text); }
   .nav-btn[data-page="personal"] i { background: color-mix(in srgb, var(--amber-text) 18%, transparent); color: var(--amber-text); }
   /* Widgets + Settings share one accent identity (teal) end-to-end — icon, label and press overlay all move together instead of Widgets being amber-branded and Settings being flat grey */
   .nav-btn[data-page="widgets"], .nav-btn[data-page="settings"] { color: var(--text); }
-  .nav-btn[data-page="widgets"] i, .nav-btn[data-page="settings"] i { background: color-mix(in srgb, var(--teal) 22%, transparent); color: var(--teal-text); }
-  .nav-btn[data-page="widgets"]:hover i, .nav-btn[data-page="settings"]:hover i { background: color-mix(in srgb, var(--teal) 38%, transparent); color: var(--teal-text); transform: scale(1.08); box-shadow: 0 0 12px color-mix(in srgb, var(--teal) 45%, transparent); }
+  .nav-btn[data-page="widgets"] i, .nav-btn[data-page="settings"] i { background: color-mix(in srgb, var(--teal) 38%, transparent); color: var(--teal-text); }
+  .nav-btn[data-page="widgets"]:hover i, .nav-btn[data-page="settings"]:hover i { background: color-mix(in srgb, var(--teal) 55%, transparent); color: var(--teal-text); transform: scale(1.08); box-shadow: 0 0 12px color-mix(in srgb, var(--teal) 45%, transparent); }
   /* page currently open: icon fills solid so it's obvious at a glance which one you're on */
   .nav-btn[data-page="widgets"].active i, .nav-btn[data-page="settings"].active i { background: var(--teal); color: #fff; box-shadow: 0 0 10px color-mix(in srgb, var(--teal) 55%, transparent); }
-  .nav-btn[data-page="widgets"].active, .nav-btn[data-page="settings"].active { background: color-mix(in srgb, var(--teal) 14%, transparent); box-shadow: inset 3px 0 0 var(--teal); }
+  .nav-btn[data-page="widgets"].active, .nav-btn[data-page="settings"].active { background: color-mix(in srgb, var(--teal) 24%, transparent); box-shadow: inset 3px 0 0 var(--teal); }
   /* pressed: icon flips to a solid filled accent for an instant, on top of the label/overlay press effect */
   .nav-btn[data-page="widgets"]:active, .nav-btn[data-page="settings"]:active { color: var(--teal); background: var(--teal-bg); }
   .nav-btn[data-page="widgets"]:active i, .nav-btn[data-page="settings"]:active i { background: var(--teal); color: #fff; box-shadow: 0 0 0 2px color-mix(in srgb, var(--teal) 60%, transparent) inset; }
+  .nav-search-btn { color: var(--text); }
+  .nav-search-btn i { background: color-mix(in srgb, var(--teal) 38%, transparent); color: var(--teal-text); }
+  .nav-search-btn:hover i { background: color-mix(in srgb, var(--teal) 55%, transparent); color: var(--teal-text); transform: scale(1.08); box-shadow: 0 0 12px color-mix(in srgb, var(--teal) 45%, transparent); }
+  .nav-search-btn:active i { background: var(--teal); color: #fff; box-shadow: 0 0 0 2px color-mix(in srgb, var(--teal) 60%, transparent) inset; }
   /* active: tinted pill + left accent bar (gold, uniform) */
   .nav-btn.active { color: var(--text); font-weight: 500; }
-  .nav-btn[data-page="home"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
-  .nav-btn[data-page="helpdesk"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
-  .nav-btn[data-page="projects"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
-  .nav-btn[data-page="personal"].active { background: color-mix(in srgb, var(--amber-text) 14%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="home"].active { background: color-mix(in srgb, var(--amber-text) 24%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="helpdesk"].active { background: color-mix(in srgb, var(--amber-text) 24%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="projects"].active { background: color-mix(in srgb, var(--amber-text) 24%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
+  .nav-btn[data-page="personal"].active { background: color-mix(in srgb, var(--amber-text) 24%, transparent); box-shadow: inset 3px 0 0 var(--amber-text); }
   .nav-bottom { margin-left: auto; padding-top: 0; border-top: none; display: flex; flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; }
   .nav-clock { flex-shrink: 0; padding: 8px 11px; gap: 8px; }
   .nav-clock .clock-card-time-val { font-size: 18px; }
@@ -608,7 +612,7 @@
   /* ── Command palette (Ctrl/Cmd+K) ── */
   .cmdk-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: flex-start; justify-content: center; padding: 12vh 20px; }
   .cmdk-overlay.active { display: flex; }
-  .cmdk-box { width: 100%; max-width: 560px; background: var(--surface2); border: 1px solid var(--border-md); border-radius: 14px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6); overflow: hidden; animation: fadeIn 0.12s ease; }
+  .cmdk-box { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--border-md); border-radius: 14px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6); overflow: hidden; animation: fadeIn 0.12s ease; }
   .cmdk-input-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
   .cmdk-input-row i { font-size: 17px; color: var(--text-3); flex-shrink: 0; }
   .cmdk-input-row input { flex: 1; background: none; border: none; outline: none; font-family: inherit; font-size: 15px; color: var(--text); min-width: 0; }
@@ -1861,7 +1865,7 @@
   <button class="nav-logo nav-logo-btn" onclick="showPage('home')"><div class="nav-logo-icon"><div class="nav-cube"><div class="nav-cube-face nav-cube-front"></div><div class="nav-cube-face nav-cube-back"></div><div class="nav-cube-face nav-cube-right"></div><div class="nav-cube-face nav-cube-left"></div><div class="nav-cube-face nav-cube-top"></div><div class="nav-cube-face nav-cube-bottom"></div></div></div><span class="nav-wordmark">central<span class="nav-wordmark-dot">.</span></span></button>
   <div class="nav-links">
     <button class="nav-btn" data-page="widgets" onclick="showPage('widgets')"><i class="ti ti-apps"></i><span>Widgets</span></button>
-    <button class="nav-btn" onclick="openGlobalSearch()" title="Search everything (tasks, job list, checklists, meetings, ideas)"><i class="ti ti-search"></i><span>Search</span></button>
+    <button class="nav-btn nav-search-btn" onclick="openGlobalSearch()" title="Search everything (tasks, job list, checklists, meetings, ideas)"><i class="ti ti-search"></i><span>Search</span></button>
   </div>
   <div class="nav-bottom">
     <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><i class="ti ti-settings"></i><span>Settings</span></button>
@@ -10588,6 +10592,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.20.2', type: 'patch', date: '29 Jun 2026', title: 'Less translucent nav bar and Ctrl+K box', changes: [
+    'The Ctrl+K command palette (and the new global search) had a near-transparent background — now solid like every other modal in the app',
+    'Nav bar icon circles (Widgets, Search, Settings, Theme) and the active-page highlight pill were quite faint — bumped their opacity up so they read clearly at a glance',
+  ]},
   { ver: '4.20.1', type: 'patch', date: '29 Jun 2026', title: 'Restyled global search', changes: [
     'Results are now grouped under section headers (Tasks, Job list, Checklist items, Projects, Meetings, Wishlist ideas) instead of one flat list',
     'Each result is now an accent-bar card matching the Job List redesign, with an animated accent-coloured underline on the search input',
