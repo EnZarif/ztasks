@@ -788,10 +788,18 @@
   .jl-due { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: var(--surface2); color: var(--text-3); border: 0.5px solid var(--border-md); }
   .jl-due.soon { background: rgba(239,159,39,0.15); color: #efb157; border-color: transparent; }
   .jl-due.overdue { background: rgba(239,68,68,0.15); color: #ef4444; border-color: transparent; }
+  .jl-due.stale { background: rgba(239,159,39,0.1); color: #d99a4a; border-color: transparent; }
   .jl-link-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: var(--teal-bg); color: var(--teal-text); }
   .jl-actions { display: flex; gap: 2px; flex-shrink: 0; margin-left: auto; }
   .jl-icon-btn { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 3px 5px; border-radius: 5px; }
   .jl-icon-btn:hover { color: var(--text-2); background: var(--bg); }
+  .jl-archive-toggle { width: 100%; display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-3); font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 6px 2px; font-family: inherit; }
+  .jl-archive-toggle:hover { color: var(--text-2); }
+  .jl-archive-list { display: flex; flex-direction: column; gap: 8px; opacity: 0.75; }
+  .toast-host { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; max-width: 360px; }
+  .toast-item { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.5; color: var(--text-2); box-shadow: 0 8px 24px rgba(0,0,0,0.35); opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; }
+  .toast-item.show { opacity: 1; transform: translateY(0); }
+  .toast-item i { margin-right: 6px; color: var(--teal-text); }
   .kb-card { min-height: 150px; display: flex; flex-direction: column; }
   .kb-fact { font-size: 13px; line-height: 1.65; color: var(--text-2); flex: 1; opacity: 1; transition: opacity 0.35s ease; min-height: 60px; }
   .kb-fact.fading { opacity: 0; }
@@ -1834,6 +1842,7 @@
   <button class="nav-logo nav-logo-btn" onclick="showPage('home')"><div class="nav-logo-icon"><div class="nav-cube"><div class="nav-cube-face nav-cube-front"></div><div class="nav-cube-face nav-cube-back"></div><div class="nav-cube-face nav-cube-right"></div><div class="nav-cube-face nav-cube-left"></div><div class="nav-cube-face nav-cube-top"></div><div class="nav-cube-face nav-cube-bottom"></div></div></div><span class="nav-wordmark">central<span class="nav-wordmark-dot">.</span></span></button>
   <div class="nav-links">
     <button class="nav-btn" data-page="widgets" onclick="showPage('widgets')"><i class="ti ti-apps"></i><span>Widgets</span></button>
+    <button class="nav-btn" onclick="openGlobalSearch()" title="Search everything (tasks, job list, checklists, meetings, ideas)"><i class="ti ti-search"></i><span>Search</span></button>
   </div>
   <div class="nav-bottom">
     <button class="nav-btn" data-page="settings" onclick="showPage('settings')"><i class="ti ti-settings"></i><span>Settings</span></button>
@@ -3443,7 +3452,11 @@
       </div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">URL link</div>
-        <input class="field-input" id="jl-url" placeholder="https://...">
+        <div style="display:flex; gap:6px;">
+          <input class="field-input" id="jl-url" placeholder="https://..." oninput="document.getElementById('jl-fetch-status').textContent=''">
+          <button class="task-edit-btn" type="button" title="Paste link from clipboard and try to fill the name from the page title" id="jl-paste-btn" onclick="pasteJlUrlFromClipboard()"><i class="ti ti-clipboard"></i></button>
+        </div>
+        <div id="jl-fetch-status" style="font-size:11px; color:var(--text-3); margin-top:4px;"></div>
       </div>
       <div class="queue-block">
         <div class="field-label" style="margin-bottom:6px; font-size:12px; color:var(--text-3);">Due date</div>
@@ -3502,6 +3515,19 @@
       <kbd>Esc</kbd>
     </div>
     <div class="cmdk-results" id="cmdk-results"></div>
+  </div>
+</div>
+
+<!-- Global search — searches inside content (task notes, job list links, checklist items,
+     meeting notes, wishlist), not just page/title names like the command palette does -->
+<div class="cmdk-overlay" id="gsearch-overlay" onclick="if(event.target===this)closeGlobalSearch()">
+  <div class="cmdk-box">
+    <div class="cmdk-input-row">
+      <i class="ti ti-search"></i>
+      <input type="text" id="gsearch-input" placeholder="Search tasks, job list, checklists, meetings, ideas..." autocomplete="off" oninput="renderGlobalSearch()" onkeydown="gsearchKeyNav(event)">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="cmdk-results" id="gsearch-results"></div>
   </div>
 </div>
 
@@ -4567,6 +4593,7 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCommandPalette(); return; }
   if (e.key === 'Escape') {
     closeCommandPalette();
+    closeGlobalSearch();
     document.querySelectorAll('.kpi-modal-overlay.active, .ai-modal-overlay.active').forEach(o => o.classList.remove('active'));
     return;
   }
@@ -4650,6 +4677,91 @@ function cmdkKeyNav(e) {
   else if (e.key === 'Enter') { e.preventDefault(); cmdkRun(cmdkSelectedIdx); }
 }
 
+// ===== GLOBAL SEARCH =====
+// Unlike the command palette (which jumps to pages/titles), this digs into the actual
+// content: task notes, job list names/URLs, every project's checklist item text, meeting
+// notes, and wishlist notes — so you can find a buried detail, not just a destination.
+let gsearchSelectedIdx = 0;
+let _gsearchResults = [];
+function openGlobalSearch() {
+  const overlay = document.getElementById('gsearch-overlay');
+  const input = document.getElementById('gsearch-input');
+  if (!overlay || !input) return;
+  overlay.classList.add('active');
+  input.value = '';
+  gsearchSelectedIdx = 0;
+  renderGlobalSearch();
+  setTimeout(() => input.focus(), 10);
+}
+function closeGlobalSearch() {
+  const overlay = document.getElementById('gsearch-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+function gsearchGetResults(q) {
+  q = (q || '').trim().toLowerCase();
+  if (!q) return [];
+  const results = [];
+  getAllTasks().forEach(t => {
+    if (t.name.toLowerCase().includes(q) || (t.note || '').toLowerCase().includes(q)) {
+      results.push({ icon: 'ti-checklist', label: t.name, sub: 'Task', action: () => showPage('tasks') });
+    }
+  });
+  (jobLists || []).forEach(j => {
+    if ((j.name || '').toLowerCase().includes(q) || (j.url || '').toLowerCase().includes(q)) {
+      results.push({ icon: 'ti-list-details', label: j.name, sub: 'Job list', action: () => showPage('tasks') });
+    }
+  });
+  (projects || []).forEach(p => {
+    (p.subs || []).forEach(s => {
+      (s.todos || []).forEach(td => {
+        if ((td.text || '').toLowerCase().includes(q)) {
+          results.push({ icon: 'ti-list-check', label: td.text, sub: `${p.title} › ${s.title}`, action: () => openSubProjectPage(p.id, s.id) });
+        }
+      });
+      if (s.title.toLowerCase().includes(q)) {
+        results.push({ icon: 'ti-folder', label: s.title, sub: `Sub-project · ${p.title}`, action: () => openSubProjectPage(p.id, s.id) });
+      }
+    });
+    if (p.title.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)) {
+      results.push({ icon: 'ti-folders', label: p.title, sub: 'Project', action: () => openProjectPage(p.id) });
+    }
+  });
+  (meetings || []).forEach(m => {
+    if ((m.notes || '').toLowerCase().includes(q) || (m.type || '').toLowerCase().includes(q)) {
+      const lbl = `${m.type === 'Misc' ? 'Ad hoc' : m.type} — ${(m.notes || '').slice(0, 50)}`;
+      results.push({ icon: 'ti-notes', label: lbl, sub: 'Meeting', action: () => showPage('meetings', 'helpdesk') });
+    }
+  });
+  (wishlist || []).forEach(w => {
+    if ((w.title || '').toLowerCase().includes(q) || (w.note || '').toLowerCase().includes(q)) {
+      results.push({ icon: 'ti-sparkles', label: w.title, sub: 'Wishlist idea', action: () => showPage('wishlist', 'personal') });
+    }
+  });
+  return results.slice(0, 40);
+}
+function renderGlobalSearch() {
+  const input = document.getElementById('gsearch-input');
+  const body = document.getElementById('gsearch-results');
+  if (!input || !body) return;
+  _gsearchResults = gsearchGetResults(input.value);
+  gsearchSelectedIdx = Math.min(gsearchSelectedIdx, Math.max(0, _gsearchResults.length - 1));
+  if (!input.value.trim()) { body.innerHTML = `<div class="cmdk-empty">Start typing to search everything.</div>`; return; }
+  if (!_gsearchResults.length) { body.innerHTML = `<div class="cmdk-empty">No matches.</div>`; return; }
+  body.innerHTML = _gsearchResults.map((r, i) => `<div class="cmdk-row${i === gsearchSelectedIdx ? ' sel' : ''}" onmousedown="gsearchRun(${i})">
+    <i class="ti ${r.icon}"></i><span class="cmdk-row-label">${esc(r.label)}</span><span class="cmdk-row-sub">${esc(r.sub)}</span>
+  </div>`).join('');
+}
+function gsearchRun(i) {
+  const r = _gsearchResults[i];
+  if (r) r.action();
+  closeGlobalSearch();
+}
+function gsearchKeyNav(e) {
+  if (e.key === 'ArrowDown') { e.preventDefault(); gsearchSelectedIdx = Math.min(gsearchSelectedIdx + 1, _gsearchResults.length - 1); renderGlobalSearch(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); gsearchSelectedIdx = Math.max(gsearchSelectedIdx - 1, 0); renderGlobalSearch(); }
+  else if (e.key === 'Enter') { e.preventDefault(); gsearchRun(gsearchSelectedIdx); }
+}
+
 function openActivityModal() {
   const search = document.getElementById('activity-search');
   if (search) search.value = '';
@@ -4710,7 +4822,39 @@ function paintList(html) {
   skipListAnim = false;
   justToggledId = null;
 }
-function resetDay() { getAllTasks().forEach(t => { delete done[taskKey(t.id)]; }); save(); renderTasks(); }
+// lightweight bottom-right toast, used for the reset-day carry-over digest
+function showToast(html, duration) {
+  let host = document.getElementById('toast-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'toast-host';
+    host.className = 'toast-host';
+    document.body.appendChild(host);
+  }
+  const el = document.createElement('div');
+  el.className = 'toast-item';
+  el.innerHTML = html;
+  host.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 250);
+  }, duration || 6000);
+}
+
+function resetDay() {
+  const pending = getTodayTasks().filter(t => !isDone(t.id));
+  getAllTasks().forEach(t => { delete done[taskKey(t.id)]; });
+  save();
+  renderTasks();
+  if (pending.length) {
+    const names = pending.slice(0, 3).map(t => esc(t.name)).join(', ');
+    const extra = pending.length > 3 ? ` +${pending.length - 3} more` : '';
+    showToast(`<i class="ti ti-history"></i><b>${pending.length}</b> task${pending.length !== 1 ? 's' : ''} didn't get done yesterday: ${names}${extra}`);
+  } else {
+    showToast(`<i class="ti ti-confetti"></i>Everything was done yesterday — clean reset.`);
+  }
+}
 
 function renderCustomTaskDayField() {
   const freq = document.getElementById('ct-freq').value;
@@ -4968,6 +5112,7 @@ function closeJobReminderDetail() {
 // sub-project: linking adds a checklist item there, and ticking this off delivers it.
 let jobLists = [];
 let editingJobListId = null;
+let _jlArchiveOpen = false;
 
 function saveJobLists() { dbSet('zarif_job_lists', jobLists); }
 
@@ -4988,12 +5133,49 @@ function fillJlSubProjectSelect(selectedVal) {
   sel.value = selectedVal || '';
 }
 
+// pastes a URL from the clipboard into the URL field, then tries to fetch the page and
+// pull its <title> to auto-fill the name — only works for sites that allow CORS from here
+async function pasteJlUrlFromClipboard() {
+  const statusEl = document.getElementById('jl-fetch-status');
+  const btn = document.getElementById('jl-paste-btn');
+  let text = '';
+  try {
+    text = (await navigator.clipboard.readText()).trim();
+  } catch (e) {
+    if (statusEl) statusEl.textContent = "Couldn't read clipboard — paste the link manually.";
+    return;
+  }
+  if (!text) return;
+  document.getElementById('jl-url').value = text;
+  const nameEl = document.getElementById('jl-name');
+  if (nameEl.value.trim()) return; // don't overwrite a name the user already typed
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2 spd-spin"></i>'; }
+  if (statusEl) statusEl.textContent = 'Fetching page title…';
+  try {
+    const res = await fetch(text);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const title = (doc.querySelector('title') || {}).textContent;
+    if (title && title.trim() && !nameEl.value.trim()) {
+      nameEl.value = title.trim();
+      if (statusEl) statusEl.textContent = 'Name filled from the page title.';
+    } else if (statusEl) {
+      statusEl.textContent = 'No title found — enter a name manually.';
+    }
+  } catch (e) {
+    if (statusEl) statusEl.textContent = "Couldn't read that page (likely blocked by the site) — enter a name manually.";
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-clipboard"></i>'; }
+  }
+}
+
 function openAddJobListModal() {
   editingJobListId = null;
   document.getElementById('jl-modal-title').textContent = 'Amtek Job List';
   document.getElementById('jl-save-btn').innerHTML = '<i class="ti ti-plus" style="font-size:15px;"></i> Add to list';
   document.getElementById('jl-name').value = '';
   document.getElementById('jl-url').value = '';
+  document.getElementById('jl-fetch-status').textContent = '';
   document.getElementById('jl-date-holder').innerHTML = makeDatePicker('jl-date', '', null, 'Pick a date');
   fillJlSubProjectSelect('');
   document.getElementById('add-joblist-modal-overlay').classList.add('active');
@@ -5007,6 +5189,7 @@ function openEditJobList(id) {
   document.getElementById('jl-save-btn').innerHTML = '<i class="ti ti-check" style="font-size:15px;"></i> Save';
   document.getElementById('jl-name').value = j.name || '';
   document.getElementById('jl-url').value = j.url || '';
+  document.getElementById('jl-fetch-status').textContent = '';
   document.getElementById('jl-date-holder').innerHTML = makeDatePicker('jl-date', j.date || '', null, 'Pick a date');
   fillJlSubProjectSelect((j.projId != null && j.subId != null) ? `${j.projId}:${j.subId}` : '');
   document.getElementById('add-joblist-modal-overlay').classList.add('active');
@@ -5059,7 +5242,7 @@ function saveJobList() {
       else if (!projId) j.todoId = null;
     }
   } else {
-    const j = { id: 'jl' + Date.now(), name, url, date, done: false, projId: projId || null, subId: subId || null, todoId: null };
+    const j = { id: 'jl' + Date.now(), name, url, date, done: false, projId: projId || null, subId: subId || null, todoId: null, createdAt: Date.now() };
     if (projId && subId) linkJobListTodo(j);
     jobLists.push(j);
   }
@@ -5099,6 +5282,7 @@ function toggleJobListDone(id) {
   const j = jobLists.find(x => String(x.id) === String(id));
   if (!j) return;
   j.done = !j.done;
+  j.completedAt = j.done ? Date.now() : null;
   if (j.todoId && j.projId && j.subId) {
     const p = projects.find(x => x.id === j.projId);
     const s = p && (p.subs || []).find(x => x.id === j.subId);
@@ -5117,6 +5301,20 @@ function toggleJobListDone(id) {
   else removeLinkedTask(j);
   saveJobLists();
   renderJobListSidebar();
+}
+
+// records when a job list link was last opened, for the "stale" warning
+function markJobListOpened(id, url) {
+  const j = jobLists.find(x => String(x.id) === String(id));
+  if (j) { j.lastOpenedAt = Date.now(); saveJobLists(); }
+  if (url) window.open(url, '_blank');
+}
+
+const JL_STALE_DAYS = 5;
+function jlStaleDays(j) {
+  const ref = j.lastOpenedAt || j.createdAt;
+  if (!ref) return null;
+  return Math.floor((Date.now() - ref) / 86400000);
 }
 
 function deleteJobList(id) {
@@ -5140,6 +5338,41 @@ function jlDueChip(dateStr) {
   return `<span class="jl-due ${cls}"><i class="ti ti-calendar-event"></i> ${esc(fmtShortDate(dateStr))}</span>`;
 }
 
+function jlRowHtml(j) {
+  let linkBadge = '';
+  if (j.projId && j.subId) {
+    const p = projects.find(x => x.id === j.projId);
+    const s = p && (p.subs || []).find(x => x.id === j.subId);
+    if (s) linkBadge = `<span class="jl-link-badge" title="Linked to ${esc(p.title)} › ${esc(s.title)} checklist"><i class="ti ti-link"></i> ${esc(s.title)}</span>`;
+  }
+  const dueChip = jlDueChip(j.date);
+  const staleDays = !j.done ? jlStaleDays(j) : null;
+  const staleChip = (staleDays !== null && staleDays >= JL_STALE_DAYS)
+    ? `<span class="jl-due stale" title="Not opened or checked in ${staleDays} days"><i class="ti ti-alert-triangle"></i> ${staleDays}d stale</span>` : '';
+  const openAttr = j.url ? `onclick="markJobListOpened('${j.id}',${jsAttr(j.url)})"` : '';
+  return `<div class="jl-item${j.done ? ' done' : ''}">
+      <label class="jl-cb-wrap">
+        <input type="checkbox" class="jl-cb" ${j.done ? 'checked' : ''} onchange="toggleJobListDone('${j.id}')">
+        <i class="ti ti-check jl-cb-check"></i>
+      </label>
+      <div class="jl-body">
+        <span class="jl-name${j.url ? ' jl-clickable' : ''}" ${openAttr} title="${j.url ? 'Open link' : ''}">${esc(j.name)}</span>
+        <div class="jl-meta">${dueChip}${staleChip}${linkBadge}</div>
+      </div>
+      <div class="jl-actions">
+        <button class="jl-icon-btn" onclick="openEditJobList('${j.id}')"><i class="ti ti-pencil"></i></button>
+        <button class="jl-icon-btn" onclick="deleteJobList('${j.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+}
+
+function toggleJlArchive() {
+  _jlArchiveOpen = !_jlArchiveOpen;
+  renderJobListSidebar();
+}
+
+const JL_ARCHIVE_AFTER_MS = 24 * 60 * 60 * 1000;
+
 function renderJobListSidebar() {
   const el = document.getElementById('jl-list');
   if (!el) return;
@@ -5147,31 +5380,23 @@ function renderJobListSidebar() {
     el.innerHTML = '<div class="jl-empty">No job list links yet — add one above.</div>';
     return;
   }
-  const sorted = [...jobLists].sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
-  el.innerHTML = sorted.map(j => {
-    let linkBadge = '';
-    if (j.projId && j.subId) {
-      const p = projects.find(x => x.id === j.projId);
-      const s = p && (p.subs || []).find(x => x.id === j.subId);
-      if (s) linkBadge = `<span class="jl-link-badge" title="Linked to ${esc(p.title)} › ${esc(s.title)} checklist"><i class="ti ti-link"></i> ${esc(s.title)}</span>`;
-    }
-    const dueChip = jlDueChip(j.date);
-    const openAttr = j.url ? `onclick="window.open(${jsAttr(j.url)},'_blank')"` : '';
-    return `<div class="jl-item${j.done ? ' done' : ''}">
-      <label class="jl-cb-wrap">
-        <input type="checkbox" class="jl-cb" ${j.done ? 'checked' : ''} onchange="toggleJobListDone('${j.id}')">
-        <i class="ti ti-check jl-cb-check"></i>
-      </label>
-      <div class="jl-body">
-        <span class="jl-name${j.url ? ' jl-clickable' : ''}" ${openAttr} title="${j.url ? 'Open link' : ''}">${esc(j.name)}</span>
-        <div class="jl-meta">${dueChip}${linkBadge}</div>
-      </div>
-      <div class="jl-actions">
-        <button class="jl-icon-btn" onclick="openEditJobList('${j.id}')"><i class="ti ti-pencil"></i></button>
-        <button class="jl-icon-btn" onclick="deleteJobList('${j.id}')"><i class="ti ti-trash"></i></button>
-      </div>
-    </div>`;
-  }).join('');
+  const now = Date.now();
+  const archived = jobLists.filter(j => j.done && j.completedAt && (now - j.completedAt) >= JL_ARCHIVE_AFTER_MS);
+  const active = jobLists.filter(j => !archived.includes(j));
+  const sortedActive = [...active].sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+
+  let html = sortedActive.length
+    ? sortedActive.map(jlRowHtml).join('')
+    : '<div class="jl-empty">Nothing active — add one above.</div>';
+
+  if (archived.length) {
+    const sortedArchived = [...archived].sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+    html += `<button class="jl-archive-toggle" onclick="toggleJlArchive()">
+      <i class="ti ti-chevron-${_jlArchiveOpen ? 'down' : 'right'}"></i> Recently completed (${archived.length})
+    </button>`;
+    if (_jlArchiveOpen) html += `<div class="jl-archive-list">${sortedArchived.map(jlRowHtml).join('')}</div>`;
+  }
+  el.innerHTML = html;
 }
 
 // ===== KNOWLEDGE BASE SIDEBAR =====
@@ -10335,6 +10560,13 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.20.0', type: 'minor', date: '29 Jun 2026', title: 'Job list auto-archive & stale warnings, clipboard quick-add, reset-day digest, and a global search', changes: [
+    'Amtek Job List: entries you\'ve had ticked off for more than 24 hours now move into a collapsible "Recently completed" section instead of cluttering the card',
+    'Amtek Job List: entries that haven\'t been opened or edited in 5+ days now show a "stale" warning chip, so nothing quietly goes unchecked',
+    'Amtek Job List: a clipboard button next to the URL field pastes the link and tries to auto-fill the name from the page\'s title (works for sites that allow it — falls back to manual entry otherwise)',
+    '"Reset today" now shows a quick toast summarising what didn\'t get done before clearing it for the new day',
+    'New "Search" button in the nav opens a global search that digs into actual content — task notes, job list names/links, every checklist item across all your projects, meeting notes, and wishlist ideas — separate from the Ctrl+K command palette, which only jumps to pages and titles',
+  ]},
   { ver: '4.19.2', type: 'minor', date: '29 Jun 2026', title: 'Job list completions sync to your tasks, and accent colour now tints your name', changes: [
     'Ticking off an Amtek Job List entry now also drops a completed task into today\'s Task Manager list (counts toward streak/activity history) — unticking removes it again',
     'Your custom accent colour now also tints the "Zarif" in the "Hey, Zarif" greeting on the Tasks page, and the big "Zarif." on the Home landing page, not just buttons and badges',
