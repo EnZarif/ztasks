@@ -768,20 +768,30 @@
   @media (max-width: 900px) { .tasks-layout { grid-template-columns: 1fr; } }
   .tasks-sidebar { position: sticky; top: 20px; }
   .jl-card { padding: 14px 16px; }
-  .jl-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+  .jl-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
   .jl-empty { font-size: 12px; color: var(--text-3); padding: 6px 0; }
-  .jl-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
-  .jl-item:last-child { border-bottom: none; }
-  .jl-cb { flex-shrink: 0; accent-color: var(--teal); width: 14px; height: 14px; cursor: pointer; }
-  .jl-name { font-size: 12.5px; color: var(--text); flex: 1 1 auto; min-width: 80px; }
-  .jl-name:hover { color: var(--teal-text); text-decoration: underline; }
-  .jl-item.done .jl-name { color: var(--text-3); text-decoration: line-through; }
-  .jl-meta { display: flex; align-items: center; gap: 5px; flex-basis: 100%; flex-wrap: wrap; padding-left: 22px; }
-  .jl-due { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: var(--surface2); color: var(--text-3); }
+  .jl-item { position: relative; display: flex; align-items: flex-start; gap: 10px; background: var(--surface2); border-radius: 8px; padding: 10px 12px 10px 14px; overflow: hidden; }
+  .jl-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--teal); }
+  .jl-item.done::before { background: var(--text-3); }
+  .jl-cb-wrap { position: relative; flex-shrink: 0; margin-top: 1px; width: 18px; height: 18px; display: inline-block; cursor: pointer; }
+  .jl-cb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin: 0; border-radius: 50%; border: 1.5px solid var(--teal-text); background: rgba(74,158,232,0.08); cursor: pointer; transition: all 0.15s; }
+  .jl-cb:hover { border-color: var(--teal); }
+  .jl-cb:checked { background: linear-gradient(135deg, var(--teal), #2a6db8); border-color: var(--teal); box-shadow: 0 0 0 4px rgba(74,158,232,0.18); }
+  .jl-cb-check { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; color: #fff; opacity: 0; pointer-events: none; transition: opacity 0.12s; }
+  .jl-cb:checked ~ .jl-cb-check { opacity: 1; }
+  .jl-body { flex: 1; min-width: 0; }
+  .jl-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .jl-name.jl-clickable { cursor: pointer; }
+  .jl-name.jl-clickable:hover { color: var(--teal-text); text-decoration: underline; }
+  .jl-item.done .jl-name { color: var(--text-3); text-decoration: line-through; font-weight: 500; }
+  .jl-meta { display: flex; align-items: center; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+  .jl-due { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: var(--surface2); color: var(--text-3); border: 0.5px solid var(--border-md); }
+  .jl-due.soon { background: rgba(239,159,39,0.15); color: #efb157; border-color: transparent; }
+  .jl-due.overdue { background: rgba(239,68,68,0.15); color: #ef4444; border-color: transparent; }
   .jl-link-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: var(--teal-bg); color: var(--teal-text); }
   .jl-actions { display: flex; gap: 2px; flex-shrink: 0; margin-left: auto; }
   .jl-icon-btn { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 3px 5px; border-radius: 5px; }
-  .jl-icon-btn:hover { color: var(--text-2); background: var(--surface2); }
+  .jl-icon-btn:hover { color: var(--text-2); background: var(--bg); }
   .kb-card { min-height: 150px; display: flex; flex-direction: column; }
   .kb-fact { font-size: 13px; line-height: 1.65; color: var(--text-2); flex: 1; opacity: 1; transition: opacity 0.35s ease; min-height: 60px; }
   .kb-fact.fading { opacity: 0; }
@@ -5091,6 +5101,16 @@ function deleteJobList(id) {
   renderJobListSidebar();
 }
 
+// urgency-coloured due chip — overdue/soon/later scheme matching the ANZ meeting brief's
+function jlDueChip(dateStr) {
+  if (!dateStr) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = new Date(dateStr); due.setHours(0,0,0,0);
+  const days = Math.round((due - today) / 86400000);
+  const cls = days < 0 ? 'overdue' : days <= 7 ? 'soon' : '';
+  return `<span class="jl-due ${cls}"><i class="ti ti-calendar-event"></i> ${esc(fmtShortDate(dateStr))}</span>`;
+}
+
 function renderJobListSidebar() {
   const el = document.getElementById('jl-list');
   if (!el) return;
@@ -5106,12 +5126,17 @@ function renderJobListSidebar() {
       const s = p && (p.subs || []).find(x => x.id === j.subId);
       if (s) linkBadge = `<span class="jl-link-badge" title="Linked to ${esc(p.title)} › ${esc(s.title)} checklist"><i class="ti ti-link"></i> ${esc(s.title)}</span>`;
     }
-    const dueChip = j.date ? `<span class="jl-due">${fmtShortDate(j.date)}</span>` : '';
+    const dueChip = jlDueChip(j.date);
     const openAttr = j.url ? `onclick="window.open(${jsAttr(j.url)},'_blank')"` : '';
     return `<div class="jl-item${j.done ? ' done' : ''}">
-      <input type="checkbox" class="jl-cb" ${j.done ? 'checked' : ''} onchange="toggleJobListDone('${j.id}')">
-      <span class="jl-name"${j.url ? ' style="cursor:pointer"' : ''} ${openAttr} title="${j.url ? 'Open link' : ''}">${esc(j.name)}</span>
-      <div class="jl-meta">${dueChip}${linkBadge}</div>
+      <label class="jl-cb-wrap">
+        <input type="checkbox" class="jl-cb" ${j.done ? 'checked' : ''} onchange="toggleJobListDone('${j.id}')">
+        <i class="ti ti-check jl-cb-check"></i>
+      </label>
+      <div class="jl-body">
+        <span class="jl-name${j.url ? ' jl-clickable' : ''}" ${openAttr} title="${j.url ? 'Open link' : ''}">${esc(j.name)}</span>
+        <div class="jl-meta">${dueChip}${linkBadge}</div>
+      </div>
       <div class="jl-actions">
         <button class="jl-icon-btn" onclick="openEditJobList('${j.id}')"><i class="ti ti-pencil"></i></button>
         <button class="jl-icon-btn" onclick="deleteJobList('${j.id}')"><i class="ti ti-trash"></i></button>
@@ -10281,6 +10306,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.19.1', type: 'patch', date: '29 Jun 2026', title: 'Restyled the Amtek Job List', changes: [
+    'Each entry is now its own accent-bar card instead of a plain row, with a bolder job name',
+    'Checkbox is now a circular gradient-fill control with a soft glow once checked',
+    'Due-date chip is colour-coded — red if overdue, amber if due within a week, neutral otherwise',
+  ]},
   { ver: '4.19.0', type: 'minor', date: '29 Jun 2026', title: 'New: Amtek Job List', changes: [
     '"Add Amtek Job List" button added to the Tasks page sidebar — links out to a list of jobs being actioned by the team, separate from your task list',
     'Each entry has a name, a clickable URL link, and an optional due date',
