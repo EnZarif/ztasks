@@ -622,6 +622,25 @@
   .cmdk-row.sel .cmdk-row-label, .cmdk-row.sel i { color: var(--blue-text); }
   .cmdk-empty { padding: 24px; text-align: center; font-size: 13px; color: var(--text-3); }
 
+  /* Global search — accent-bar cards grouped by category, animated accent underline */
+  .gsearch-box { border-color: var(--border-md); }
+  .gsearch-input-row { position: relative; }
+  .gsearch-input-row i:first-child { color: var(--teal-text); }
+  .gsearch-underline { position: absolute; left: 16px; right: 16px; bottom: -0.5px; height: 2px; overflow: hidden; background: var(--border); }
+  .gsearch-underline::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 35%; background: var(--teal); animation: gsearchGlide 2.2s ease-in-out infinite; }
+  @keyframes gsearchGlide { 0%, 100% { transform: translateX(-10%); } 50% { transform: translateX(195%); } }
+  .gsearch-group-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal-text); padding: 10px 10px 5px; }
+  .gsearch-group-label:first-child { padding-top: 6px; }
+  .gsearch-row { position: relative; display: flex; align-items: center; gap: 10px; margin: 0 6px 6px; padding: 9px 12px 9px 14px; border-radius: 8px; background: var(--surface2); overflow: hidden; cursor: pointer; font-size: 13px; color: var(--text-2); }
+  .gsearch-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; transition: background 0.1s; }
+  .gsearch-row.sel { background: var(--teal-bg); color: var(--text); }
+  .gsearch-row.sel::before { background: var(--teal); }
+  .gsearch-row i { font-size: 15px; color: var(--text-3); width: 16px; text-align: center; flex-shrink: 0; }
+  .gsearch-row.sel i { color: var(--teal-text); }
+  .gsearch-row-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gsearch-row-path { margin-left: auto; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: var(--surface); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; white-space: nowrap; }
+  .gsearch-row.sel .gsearch-row-path { background: var(--teal-bg); color: var(--teal-text); }
+
   /* ── Quick add (natural-language task entry) ── */
   .quick-add-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); margin-bottom: 14px; }
   .quick-add-bar i:first-child { font-size: 16px; color: var(--amber-text); flex-shrink: 0; }
@@ -3521,11 +3540,12 @@
 <!-- Global search — searches inside content (task notes, job list links, checklist items,
      meeting notes, wishlist), not just page/title names like the command palette does -->
 <div class="cmdk-overlay" id="gsearch-overlay" onclick="if(event.target===this)closeGlobalSearch()">
-  <div class="cmdk-box">
-    <div class="cmdk-input-row">
+  <div class="cmdk-box gsearch-box">
+    <div class="cmdk-input-row gsearch-input-row">
       <i class="ti ti-search"></i>
       <input type="text" id="gsearch-input" placeholder="Search tasks, job list, checklists, meetings, ideas..." autocomplete="off" oninput="renderGlobalSearch()" onkeydown="gsearchKeyNav(event)">
       <kbd>Esc</kbd>
+      <div class="gsearch-underline"></div>
     </div>
     <div class="cmdk-results" id="gsearch-results"></div>
   </div>
@@ -4697,46 +4717,49 @@ function closeGlobalSearch() {
   const overlay = document.getElementById('gsearch-overlay');
   if (overlay) overlay.classList.remove('active');
 }
+// group order controls section header order in the results list
+const GSEARCH_GROUP_ORDER = ['Tasks', 'Job list', 'Checklist items', 'Projects', 'Meetings', 'Wishlist ideas'];
 function gsearchGetResults(q) {
   q = (q || '').trim().toLowerCase();
   if (!q) return [];
   const results = [];
   getAllTasks().forEach(t => {
     if (t.name.toLowerCase().includes(q) || (t.note || '').toLowerCase().includes(q)) {
-      results.push({ icon: 'ti-checklist', label: t.name, sub: 'Task', action: () => showPage('tasks') });
+      results.push({ icon: 'ti-checklist', label: t.name, group: 'Tasks', path: '', action: () => showPage('tasks') });
     }
   });
   (jobLists || []).forEach(j => {
     if ((j.name || '').toLowerCase().includes(q) || (j.url || '').toLowerCase().includes(q)) {
-      results.push({ icon: 'ti-list-details', label: j.name, sub: 'Job list', action: () => showPage('tasks') });
+      results.push({ icon: 'ti-list-details', label: j.name, group: 'Job list', path: '', action: () => showPage('tasks') });
     }
   });
   (projects || []).forEach(p => {
     (p.subs || []).forEach(s => {
       (s.todos || []).forEach(td => {
         if ((td.text || '').toLowerCase().includes(q)) {
-          results.push({ icon: 'ti-list-check', label: td.text, sub: `${p.title} › ${s.title}`, action: () => openSubProjectPage(p.id, s.id) });
+          results.push({ icon: 'ti-list-check', label: td.text, group: 'Checklist items', path: `${p.title} › ${s.title}`, action: () => openSubProjectPage(p.id, s.id) });
         }
       });
       if (s.title.toLowerCase().includes(q)) {
-        results.push({ icon: 'ti-folder', label: s.title, sub: `Sub-project · ${p.title}`, action: () => openSubProjectPage(p.id, s.id) });
+        results.push({ icon: 'ti-folder', label: s.title, group: 'Projects', path: p.title, action: () => openSubProjectPage(p.id, s.id) });
       }
     });
     if (p.title.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)) {
-      results.push({ icon: 'ti-folders', label: p.title, sub: 'Project', action: () => openProjectPage(p.id) });
+      results.push({ icon: 'ti-folders', label: p.title, group: 'Projects', path: '', action: () => openProjectPage(p.id) });
     }
   });
   (meetings || []).forEach(m => {
     if ((m.notes || '').toLowerCase().includes(q) || (m.type || '').toLowerCase().includes(q)) {
-      const lbl = `${m.type === 'Misc' ? 'Ad hoc' : m.type} — ${(m.notes || '').slice(0, 50)}`;
-      results.push({ icon: 'ti-notes', label: lbl, sub: 'Meeting', action: () => showPage('meetings', 'helpdesk') });
+      const lbl = (m.notes || '').slice(0, 50) || (m.type === 'Misc' ? 'Ad hoc' : m.type);
+      results.push({ icon: 'ti-notes', label: lbl, group: 'Meetings', path: m.type === 'Misc' ? 'Ad hoc' : m.type, action: () => showPage('meetings', 'helpdesk') });
     }
   });
   (wishlist || []).forEach(w => {
     if ((w.title || '').toLowerCase().includes(q) || (w.note || '').toLowerCase().includes(q)) {
-      results.push({ icon: 'ti-sparkles', label: w.title, sub: 'Wishlist idea', action: () => showPage('wishlist', 'personal') });
+      results.push({ icon: 'ti-sparkles', label: w.title, group: 'Wishlist ideas', path: '', action: () => showPage('wishlist', 'personal') });
     }
   });
+  results.sort((a, b) => GSEARCH_GROUP_ORDER.indexOf(a.group) - GSEARCH_GROUP_ORDER.indexOf(b.group));
   return results.slice(0, 40);
 }
 function renderGlobalSearch() {
@@ -4747,9 +4770,14 @@ function renderGlobalSearch() {
   gsearchSelectedIdx = Math.min(gsearchSelectedIdx, Math.max(0, _gsearchResults.length - 1));
   if (!input.value.trim()) { body.innerHTML = `<div class="cmdk-empty">Start typing to search everything.</div>`; return; }
   if (!_gsearchResults.length) { body.innerHTML = `<div class="cmdk-empty">No matches.</div>`; return; }
-  body.innerHTML = _gsearchResults.map((r, i) => `<div class="cmdk-row${i === gsearchSelectedIdx ? ' sel' : ''}" onmousedown="gsearchRun(${i})">
-    <i class="ti ${r.icon}"></i><span class="cmdk-row-label">${esc(r.label)}</span><span class="cmdk-row-sub">${esc(r.sub)}</span>
-  </div>`).join('');
+  let lastGroup = null;
+  body.innerHTML = _gsearchResults.map((r, i) => {
+    const header = r.group !== lastGroup ? `<div class="gsearch-group-label">${esc(r.group)}</div>` : '';
+    lastGroup = r.group;
+    return `${header}<div class="gsearch-row${i === gsearchSelectedIdx ? ' sel' : ''}" onmousedown="gsearchRun(${i})">
+      <i class="ti ${r.icon}"></i><span class="gsearch-row-label">${esc(r.label)}</span>${r.path ? `<span class="gsearch-row-path">${esc(r.path)}</span>` : ''}
+    </div>`;
+  }).join('');
 }
 function gsearchRun(i) {
   const r = _gsearchResults[i];
@@ -10560,6 +10588,11 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.20.1', type: 'patch', date: '29 Jun 2026', title: 'Restyled global search', changes: [
+    'Results are now grouped under section headers (Tasks, Job list, Checklist items, Projects, Meetings, Wishlist ideas) instead of one flat list',
+    'Each result is now an accent-bar card matching the Job List redesign, with an animated accent-coloured underline on the search input',
+    'Fully tied to your custom accent colour — both the icon and selected-row highlight pick it up automatically',
+  ]},
   { ver: '4.20.0', type: 'minor', date: '29 Jun 2026', title: 'Job list auto-archive & stale warnings, clipboard quick-add, reset-day digest, and a global search', changes: [
     'Amtek Job List: entries you\'ve had ticked off for more than 24 hours now move into a collapsible "Recently completed" section instead of cluttering the card',
     'Amtek Job List: entries that haven\'t been opened or edited in 5+ days now show a "stale" warning chip, so nothing quietly goes unchecked',
