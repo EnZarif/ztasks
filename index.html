@@ -509,19 +509,6 @@
   }
 
   /* UP NEXT RAIL */
-  .up-next-rail { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 10px; margin-bottom: 4px; }
-  .next-card { flex: 0 0 190px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; padding: 14px 16px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s, border-color 0.15s; animation: taskSlideIn 0.4s cubic-bezier(.2,.85,.25,1) both; }
-  .up-next-rail .next-card:nth-child(1){animation-delay:.04s} .up-next-rail .next-card:nth-child(2){animation-delay:.09s} .up-next-rail .next-card:nth-child(3){animation-delay:.14s} .up-next-rail .next-card:nth-child(4){animation-delay:.19s}
-  .next-card:hover { transform: perspective(700px) rotateX(5deg) rotateY(-5deg) translateY(-5px) scale(1.03); box-shadow: 0 24px 38px -18px rgba(0,0,0,0.55); border-color: var(--border-md); }
-  .next-card-dot { position: absolute; top: 14px; right: 14px; width: 8px; height: 8px; border-radius: 50%; }
-  .next-card-dot.p-high { background: #E05A3A; box-shadow: 0 0 0 4px rgba(224,90,58,0.18); }
-  .next-card-dot.p-medium { background: #185FA5; box-shadow: 0 0 0 4px rgba(24,95,165,0.18); }
-  .next-card-dot.p-low { background: #639922; box-shadow: 0 0 0 4px rgba(99,153,34,0.18); }
-  .next-card-when { font-size: 11px; color: var(--text-3); margin-bottom: 8px; }
-  .next-card.urgent .next-card-when { color: var(--coral-text); font-weight: 600; }
-  .next-card-name { font-size: 14px; font-weight: 600; line-height: 1.3; margin-bottom: 10px; padding-right: 14px; }
-  .next-card-hub { font-size: 10.5px; color: var(--text-2); display: inline-flex; align-items: center; gap: 5px; background: var(--surface2); padding: 3px 9px; border-radius: 7px; }
-  @media (prefers-reduced-motion: reduce) { .next-card { animation: none; transition: none; } .next-card:hover { transform: none; } }
   @media (max-width: 560px) {
     .dash-grid { flex-direction: column; align-items: stretch; }
     .dash-ring { flex-direction: row; justify-content: center; gap: 10px; }
@@ -1955,7 +1942,6 @@
     </div>
     <div id="home-briefing"></div>
     <div id="home-highlights"></div>
-    <div id="home-nextbest"></div>
     <div class="hub-grid" id="home-hub-grid">
       <div class="app-card" id="home-card-tasks" onclick="showPage('tasks')">
         <div class="home-hero-ghost-wrap">
@@ -2289,8 +2275,6 @@
 
     <div id="tasks-highlights"></div>
     <div id="tasks-nextbest"></div>
-
-    <div id="up-next-rail" class="up-next-rail" style="display:none"></div>
 
     <div id="today-banner" style="display:none" class="today-banner">
       <i class="ti ti-calendar-event"></i>
@@ -6119,38 +6103,6 @@ function renderDueSoon() {
   el.innerHTML = html;
 }
 
-function renderUpNextRail() {
-  const el = document.getElementById('up-next-rail');
-  if (!el) return;
-  const nowMin = melbNowMinutes();
-  const tasks = getTodayTasks()
-    .filter(t => !isDone(t.id))
-    .sort((a, b) => {
-      const aMin = a.time ? timeToMin(a.time) : 9999, bMin = b.time ? timeToMin(b.time) : 9999;
-      return (aMin - bMin) || (PO[a.priority] - PO[b.priority]);
-    })
-    .slice(0, 4);
-  if (!tasks.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
-  el.style.display = 'flex';
-  const hubIcon = { helpdesk: 'ti-headset', projects: 'ti-folders', personal: 'ti-user-heart' };
-  const hubLabel = { helpdesk: 'Helpdesk', projects: 'Projects', personal: 'Personal' };
-  el.innerHTML = tasks.map(t => {
-    let when = 'Due today', urgent = false;
-    if (t.time) {
-      const taskMin = timeToMin(t.time);
-      if (taskMin <= nowMin) { when = 'Overdue · ' + fmtTime(t.time); urgent = true; }
-      else { when = 'Due ' + fmtTime(t.time); urgent = (taskMin - nowMin) <= 60; }
-    }
-    const hub = t.hub || 'helpdesk';
-    return `<div class="next-card${urgent ? ' urgent' : ''}" onclick="switchTab('today')">
-      <div class="next-card-dot p-${(t.priority||'medium').toLowerCase()}"></div>
-      <div class="next-card-when">${esc(when)}</div>
-      <div class="next-card-name">${esc(t.name)}</div>
-      <div class="next-card-hub"><i class="ti ${hubIcon[hub]}"></i> ${hubLabel[hub]}</div>
-    </div>`;
-  }).join('');
-}
-
 // ===== "Today's Highlights" — date/weekly/monthly tasks specifically "booked in" for
 // today, deliberately excluding daily recurring tasks, untildone tasks, and weekly/monthly
 // tasks with no actual day constraint (weekly "every day" / monthly with no day-range) —
@@ -6899,14 +6851,13 @@ function renderHomeDashboard() {
   animateGhostRing(document.getElementById('home-hero-ghost-ring'), document.getElementById('home-hero-ghost-pct'), donePct);
   renderHomeBriefing();
   renderHighlightsBanner('home-highlights');
-  renderNextBestTask('home-nextbest');
   applyHomeTimeOrdering();
 }
 
 // ===== Time-of-day-aware Home ordering =====
 // Same Home sections, just reordered by when you're actually looking: mornings lead with
-// what's special to today, afternoons lead with the single next thing to do, evenings lead
-// with the wrap-up summary (which now also previews tomorrow).
+// what's special to today, evenings lead with the wrap-up summary (which now also previews
+// tomorrow). Next Best Task lives on the Tasks page only, not Home.
 function getHomeTimeMode() {
   const h = now.getHours();
   if (h < 12) return 'morning';
@@ -6916,13 +6867,10 @@ function getHomeTimeMode() {
 function applyHomeTimeOrdering() {
   const briefing = document.getElementById('home-briefing');
   const highlights = document.getElementById('home-highlights');
-  const nextbest = document.getElementById('home-nextbest');
   const anchor = document.getElementById('home-hub-grid');
-  if (!briefing || !highlights || !nextbest || !anchor || !anchor.parentElement) return;
+  if (!briefing || !highlights || !anchor || !anchor.parentElement) return;
   const mode = getHomeTimeMode();
-  const order = mode === 'morning' ? [highlights, nextbest, briefing]
-    : mode === 'afternoon' ? [nextbest, briefing, highlights]
-    : [briefing, highlights, nextbest];
+  const order = mode === 'evening' ? [briefing, highlights] : [highlights, briefing];
   order.forEach(el => anchor.parentElement.insertBefore(el, anchor));
 }
 // Is this task scheduled to appear on a given date (used for tomorrow's preview) —
@@ -7016,7 +6964,6 @@ function animateGhostRing(el, pctEl, targetPct) {
 function renderTasks() {
   if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
   renderDueSoon();
-  renderUpNextRail();
   renderHighlightsBanner('tasks-highlights');
   renderNextBestTask('tasks-nextbest');
   const fbtn = document.getElementById('focus-mode-btn');
@@ -11063,6 +11010,10 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.23.1', type: 'patch', date: '30 Jun 2026', title: 'Removed the "Up Next" card rail, moved Next Best Task to Tasks-only', changes: [
+    'Removed the row of 4 "Due today" cards that used to sit below the Tasks hero — redundant now that Needs Attention and Today\'s Highlights cover that ground',
+    '"Next best task" no longer shows on the Home landing page — it\'s now Tasks-page only',
+  ]},
   { ver: '4.23.0', type: 'minor', date: '30 Jun 2026', title: 'Productivity batch: quick-capture, next best task, streaks, and end-of-day wrap', changes: [
     'Press "A" anywhere to open quick-capture — type anything and it auto-sorts into a task, an Amtek Job List entry, or a wishlist idea (job/URL keywords → Job List, "idea:"/"wishlist" → Wishlist, everything else → task, reusing the same natural-language date/time/priority parsing as Quick Add)',
     'New "Next best task" card on Home and the Tasks page — a single bolded recommendation (highest priority, soonest due, not snoozed) instead of a full list, with Mark done and Skip',
