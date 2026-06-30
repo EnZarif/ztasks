@@ -4223,7 +4223,12 @@ function maybeFireConfetti(allDoneToday, totalToday) {
 }
 function fireConfetti() {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const colors = ['#378ADD', '#EF9F27', '#D4537E', '#639922', '#7F77DD'];
+  // Pulled live from the active theme's CSS variables (not hardcoded hex) so confetti always
+  // matches the current theme, including a custom accent colour picked in Settings.
+  const cs = getComputedStyle(document.documentElement);
+  const v = name => cs.getPropertyValue(name).trim();
+  const colors = [v('--teal'), v('--teal-text'), v('--amber-text'), v('--coral-text'), v('--green-text'), v('--purple-text')]
+    .filter(Boolean);
   const wrap = document.createElement('div');
   wrap.className = 'confetti-wrap';
   const n = 70;
@@ -11043,6 +11048,9 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.24.1', type: 'patch', date: '30 Jun 2026', title: 'Confetti now matches your theme and accent colour', changes: [
+    'The 100%-done confetti burst used a fixed set of hardcoded colours before — it now pulls live from the active theme\'s CSS variables, so it matches whichever theme you\'re on and follows your custom accent colour from Settings',
+  ]},
   { ver: '4.24.0', type: 'minor', date: '30 Jun 2026', title: 'Task list overhaul: gradient-wash cards and a timeline rail for Today', changes: [
     'Every task card now uses a subtle priority-coloured gradient wash across the background instead of a left border strip, with the priority shown as bold coloured text in the meta row',
     'The Today tab\'s "Scheduled" group is now a vertical timeline rail — timed tasks anchor next to their time with a connecting line, instead of a flat stacked list; untimed tasks still collect below in a renamed "Anytime" group',
