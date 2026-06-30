@@ -4018,6 +4018,9 @@ function getAllTasks() {
 function taskKey(id) {
   const task = [...TASKS, ...customTasks].find(t => String(t.id) === String(id));
   if (task && task.freq === 'weekly') return `${weekKey}_${id}`;
+  // date/once tasks are one-off — use a date-independent key so they stay
+  // completed across day boundaries instead of re-appearing the next morning
+  if (task && (task.freq === 'date' || task.freq === 'once')) return `perm_${id}`;
   return `${todayKey}_${id}`;
 }
 function isDone(id) { return !!done[taskKey(id)]; }
@@ -4882,7 +4885,10 @@ function showToast(html, duration) {
 
 function resetDay() {
   const pending = getTodayTasks().filter(t => !isDone(t.id));
-  getAllTasks().forEach(t => { delete done[taskKey(t.id)]; });
+  // skip date/once tasks — they use a permanent key and should stay done across resets
+  getAllTasks().forEach(t => {
+    if (t.freq !== 'date' && t.freq !== 'once') delete done[taskKey(t.id)];
+  });
   save();
   renderTasks();
   if (pending.length) {
@@ -10598,6 +10604,12 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.20.4', type: 'patch', date: '30 Jun 2026', title: 'Fixed: one-off tasks re-appearing after midnight', changes: [
+    'Date-specific and one-off tasks (like "Zac desk setup") were using a day-scoped "done" key that reset at midnight, causing them to reappear as overdue each morning even after being marked complete',
+    'They now use a permanent "done" key that persists indefinitely — tick it off once, it stays done',
+    '"Reset today" no longer wipes the done state for date/once tasks (it was also clearing them, which is wrong for one-off tasks)',
+    'Any task you already completed under the old system will be automatically migrated on first load — you should not need to re-tick anything',
+  ]},
   { ver: '4.20.3', type: 'patch', date: '29 Jun 2026', title: 'Darker accent-glow search interfaces', changes: [
     'Global search box is now darker than the page background, with a soft accent-coloured underglow and a brighter glow on the selected row so it pops more',
     'The Ctrl+K command palette now matches: same darker box, accent underglow, animated accent underline on the input, and accent-bar selected rows — it used to highlight selections in a fixed blue, now it follows your custom accent colour like everything else',
@@ -12613,6 +12625,21 @@ async function initApp() {
   const _before = customTasks.length;
   customTasks = customTasks.filter(t => !(t.freq === 'once' && t.date !== todayInputDate()));
   if (customTasks.length !== _before) saveCustomTasks();
+
+  // migrate: copy any date/once done flags that were stored under the old day-scoped
+  // key format to the new permanent key, so they don't reset when the date rolls over
+  let _doneMigrated = false;
+  customTasks.forEach(t => {
+    if (t.freq !== 'date' && t.freq !== 'once') return;
+    const permKey = `perm_${t.id}`;
+    if (done[permKey]) return;
+    for (let d = 0; d <= 7; d++) {
+      const past = new Date(now); past.setDate(past.getDate() - d);
+      const dayKey = `${past.getFullYear()}-${past.getMonth()}-${past.getDate()}_${t.id}`;
+      if (done[dayKey]) { done[permKey] = true; _doneMigrated = true; break; }
+    }
+  });
+  if (_doneMigrated) save();
 
   // Hide loading overlay and render
   const loadEl = document.getElementById('app-loading');
