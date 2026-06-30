@@ -461,6 +461,16 @@
   .th-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal-text); flex-shrink: 0; }
   .th-name { font-weight: 500; }
   .th-freq { margin-left: auto; font-size: 10px; color: var(--text-3); flex-shrink: 0; }
+  .nb-card { position: relative; z-index: 1; padding: 14px 16px; margin-bottom: 18px; border-radius: var(--radius-lg); background: color-mix(in srgb, var(--surface) 90%, black 10%); border: 0.5px solid var(--border-md); overflow: hidden; animation: fadeIn 0.2s ease; }
+  .nb-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+  .nb-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .nb-eyebrow { font-size: 10.5px; font-weight: 700; color: var(--teal-text); text-transform: uppercase; letter-spacing: 0.04em; }
+  .nb-skip { font-size: 10.5px; color: var(--text-3); cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
+  .nb-skip:hover { color: var(--text-2); }
+  .nb-name { font-size: 15.5px; font-weight: 700; margin-bottom: 4px; cursor: pointer; }
+  .nb-meta { font-size: 11px; color: var(--text-3); margin-bottom: 10px; display: flex; gap: 8px; align-items: center; }
+  .nb-btn { font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; background: var(--teal-bg); color: var(--teal-text); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .nb-btn:hover { background: var(--teal); color: #fff; }
   .home-briefing-ico { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--amber-bg); color: var(--amber-text); font-size: 15px; }
   .home-briefing-text { font-size: 13px; line-height: 1.55; color: var(--text-2); padding-top: 5px; }
   .home-briefing-text b { color: var(--text); font-weight: 600; }
@@ -663,6 +673,17 @@
   .gsearch-row-path { margin-left: auto; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: var(--surface); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; white-space: nowrap; }
   .gsearch-row.sel .gsearch-row-path { background: var(--teal-bg); color: var(--teal-text); }
 
+  /* Quick-capture — global "a" hotkey, single box that auto-classifies what you type */
+  .qcapture-box { border-color: var(--border-md); }
+  .qcapture-input-row { position: relative; }
+  .qcapture-input-row i:first-child { color: var(--teal-text); }
+  .qcapture-preview { display: flex; align-items: center; gap: 10px; padding: 12px 16px 14px; }
+  .qcapture-preview-label { font-size: 10.5px; color: var(--text-3); flex-shrink: 0; }
+  .qcapture-chip { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 4px 10px 4px 8px; border-radius: 20px; background: var(--teal-bg); color: var(--teal-text); flex-shrink: 0; }
+  .qcapture-chip i { font-size: 12px; }
+  .qcapture-hint { margin-left: auto; font-size: 10.5px; color: var(--text-3); white-space: nowrap; }
+  .qcapture-hint kbd { font-size: 10px; background: var(--bg); border: 1px solid var(--border-md); border-radius: 5px; padding: 1px 6px; }
+
   /* ── Quick add (natural-language task entry) ── */
   .quick-add-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-lg); border: 1px dashed var(--border-md); background: var(--surface); margin-bottom: 14px; }
   .quick-add-bar i:first-child { font-size: 16px; color: var(--amber-text); flex-shrink: 0; }
@@ -844,6 +865,22 @@
   .toast-item { background: var(--surface); border: 0.5px solid var(--border-md); border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.5; color: var(--text-2); box-shadow: 0 8px 24px rgba(0,0,0,0.35); opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; }
   .toast-item.show { opacity: 1; transform: translateY(0); }
   .toast-item i { margin-right: 6px; color: var(--teal-text); }
+
+  /* End-of-day wrap toast — itemized list with per-item drop + bulk push-to-tomorrow */
+  .eod-toast { position: fixed; bottom: 20px; right: 20px; z-index: 201; width: 320px; background: color-mix(in srgb, var(--surface) 85%, black 15%); border: 1px solid var(--border-md); border-radius: 14px; padding: 14px 16px; box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+  .eod-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .eod-head { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .eod-head i { color: var(--teal-text); }
+  .eod-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; max-height: 180px; overflow-y: auto; }
+  .eod-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); padding: 5px 8px; border-radius: 7px; background: var(--surface2); }
+  .eod-item .eod-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal-text); flex-shrink: 0; }
+  .eod-item .eod-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eod-item .eod-x { margin-left: auto; font-size: 11px; color: var(--text-3); cursor: pointer; flex-shrink: 0; }
+  .eod-item .eod-x:hover { color: var(--text-2); }
+  .eod-actions { display: flex; gap: 8px; }
+  .eod-btn { font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; border: none; font-family: inherit; }
+  .eod-btn.primary { background: var(--teal); color: #fff; }
+  .eod-btn.ghost { background: var(--surface2); color: var(--text-2); border: 1px solid var(--border-md); }
   .kb-card { min-height: 150px; display: flex; flex-direction: column; }
   .kb-fact { font-size: 13px; line-height: 1.65; color: var(--text-2); flex: 1; opacity: 1; transition: opacity 0.35s ease; min-height: 60px; }
   .kb-fact.fading { opacity: 0; }
@@ -1918,7 +1955,8 @@
     </div>
     <div id="home-briefing"></div>
     <div id="home-highlights"></div>
-    <div class="hub-grid">
+    <div id="home-nextbest"></div>
+    <div class="hub-grid" id="home-hub-grid">
       <div class="app-card" id="home-card-tasks" onclick="showPage('tasks')">
         <div class="home-hero-ghost-wrap">
           <div class="home-hero-ghost-ring" id="home-hero-ghost-ring"></div>
@@ -2250,6 +2288,7 @@
     </div>
 
     <div id="tasks-highlights"></div>
+    <div id="tasks-nextbest"></div>
 
     <div id="up-next-rail" class="up-next-rail" style="display:none"></div>
 
@@ -3546,6 +3585,7 @@
     </div>
     <div class="kpi-modal-preview" style="background:var(--surface2); color:var(--text); border-color:var(--border-md);">
       <div class="shortcut-row"><kbd>Ctrl K</kbd> <kbd>Ctrl Q</kbd><span>Open the command palette (jump anywhere)</span></div>
+      <div class="shortcut-row"><kbd>A</kbd><span>Quick-capture — type anything, auto-sorted into a task / job list / idea</span></div>
       <div class="shortcut-row"><kbd>?</kbd><span>Show this panel</span></div>
       <div class="shortcut-row"><kbd>N</kbd><span>Add a new task (on the Tasks page)</span></div>
       <div class="shortcut-row"><kbd>Esc</kbd><span>Close any open modal or popup</span></div>
@@ -3577,6 +3617,20 @@
       <div class="gsearch-underline"></div>
     </div>
     <div class="cmdk-results" id="gsearch-results"></div>
+  </div>
+</div>
+
+<!-- Quick-capture — press "a" anywhere, type anything, it auto-classifies into a task / job
+     list entry / wishlist idea so you never have to pick where it goes first -->
+<div class="cmdk-overlay" id="qcapture-overlay" onclick="if(event.target===this)closeQuickCapture()">
+  <div class="cmdk-box qcapture-box">
+    <div class="cmdk-input-row qcapture-input-row">
+      <i class="ti ti-bolt"></i>
+      <input type="text" id="qcapture-input" placeholder="Type anything — task, job, idea..." autocomplete="off" oninput="renderQuickCapturePreview()" onkeydown="qcaptureKeyNav(event)">
+      <kbd>Esc</kbd>
+      <div class="cmdk-underline"></div>
+    </div>
+    <div class="qcapture-preview" id="qcapture-preview"></div>
   </div>
 </div>
 
@@ -3989,6 +4043,28 @@ function bumpTaskStreak(id, freq) {
   s.best = Math.max(s.best || 0, s.count);
   taskStreaks[id] = s;
   saveTaskStreaks();
+}
+
+// Streaks for weekly/fortnightly/monthly recurring tasks — settled once per day at
+// reset time (not at completion time, since a missed occurrence must reset the streak
+// even if the user never opens the app that day).
+const STREAK_RECURRING_FREQS = ['weekly', 'fortnightly', 'monthly'];
+function settleRecurringStreaks() {
+  let changed = false;
+  getTodayTasks().forEach(t => {
+    if (!STREAK_RECURRING_FREQS.includes(t.freq)) return;
+    const s = taskStreaks[t.id] || { count: 0, best: 0, lastDate: '' };
+    if (isDone(t.id)) {
+      s.count = (s.count || 0) + 1;
+      s.lastDate = todayInputDate();
+      s.best = Math.max(s.best || 0, s.count);
+    } else {
+      s.count = 0;
+    }
+    taskStreaks[t.id] = s;
+    changed = true;
+  });
+  if (changed) saveTaskStreaks();
 }
 
 let taskHubFilter = 'all';
@@ -4649,11 +4725,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeCommandPalette();
     closeGlobalSearch();
+    closeQuickCapture();
+    closeEodWrapToast();
     document.querySelectorAll('.kpi-modal-overlay.active, .ai-modal-overlay.active').forEach(o => o.classList.remove('active'));
     return;
   }
   if (typing) return;
   if (e.key === '?') { e.preventDefault(); toggleShortcutsModal(); return; }
+  if (e.key === 'a' || e.key === 'A') { e.preventDefault(); openQuickCapture(); return; }
   if ((e.key === 'n' || e.key === 'N') && currentPage === 'tasks') { e.preventDefault(); openAddTaskModal(); }
 });
 
@@ -4825,6 +4904,77 @@ function gsearchKeyNav(e) {
   else if (e.key === 'Enter') { e.preventDefault(); gsearchRun(gsearchSelectedIdx); }
 }
 
+// ===== QUICK CAPTURE (press "a" anywhere — auto-classifies into task / job list / idea) =====
+function qcaptureClassify(raw) {
+  const s = (raw || '').trim();
+  const low = s.toLowerCase();
+  const urlMatch = s.match(/https?:\/\/\S+/);
+  if (/^job:/i.test(s) || /\b(anz|anzwl|amtek)\b/i.test(s) || urlMatch) {
+    return { type: 'joblist', label: 'Job List', icon: 'ti-briefcase' };
+  }
+  if (/^idea:/i.test(s) || /\b(idea|wishlist|feature request)\b/i.test(low)) {
+    return { type: 'idea', label: 'Wishlist idea', icon: 'ti-sparkles' };
+  }
+  return { type: 'task', label: 'Task', icon: 'ti-checklist' };
+}
+function openQuickCapture() {
+  const overlay = document.getElementById('qcapture-overlay');
+  const input = document.getElementById('qcapture-input');
+  if (!overlay || !input) return;
+  overlay.classList.add('active');
+  input.value = '';
+  renderQuickCapturePreview();
+  setTimeout(() => input.focus(), 10);
+}
+function closeQuickCapture() {
+  const overlay = document.getElementById('qcapture-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+function renderQuickCapturePreview() {
+  const input = document.getElementById('qcapture-input');
+  const preview = document.getElementById('qcapture-preview');
+  if (!input || !preview) return;
+  const text = input.value.trim();
+  if (!text) { preview.innerHTML = `<span class="qcapture-preview-label">Start typing — task, job list link, or an idea.</span>`; return; }
+  const c = qcaptureClassify(text);
+  preview.innerHTML = `<span class="qcapture-preview-label">Will be added as:</span><span class="qcapture-chip"><i class="ti ${c.icon}"></i>${c.label}</span><span class="qcapture-hint"><kbd>Enter</kbd> to confirm</span>`;
+}
+function qcaptureKeyNav(e) {
+  if (e.key === 'Enter') { e.preventDefault(); qcaptureConfirm(); }
+}
+function qcaptureConfirm() {
+  const input = document.getElementById('qcapture-input');
+  if (!input) return;
+  const raw = input.value.trim();
+  if (!raw) return;
+  const c = qcaptureClassify(raw);
+  if (c.type === 'joblist') {
+    const urlMatch = raw.match(/https?:\/\/\S+/);
+    const url = urlMatch ? urlMatch[0] : '';
+    const name = raw.replace(/^job:\s*/i, '').replace(url, '').trim() || raw;
+    jobLists.push({ id: 'jl' + Date.now(), name, url, date: '', done: false, projId: null, subId: null, todoId: null, createdAt: Date.now() });
+    saveJobLists();
+    if (typeof renderJobListSidebar === 'function') renderJobListSidebar();
+    showToast(`<i class="ti ti-briefcase"></i>Added to Job List: <b>${esc(name)}</b>`);
+  } else if (c.type === 'idea') {
+    const title = raw.replace(/^idea:\s*/i, '').trim() || raw;
+    wishlist.unshift({ id: nextWishlistId++, title, desc: '', tag: 'idea', done: false, createdAt: new Date().toISOString() });
+    saveWishlist();
+    if (typeof renderWishlist === 'function') renderWishlist();
+    showToast(`<i class="ti ti-sparkles"></i>Added to Wishlist: <b>${esc(title)}</b>`);
+  } else {
+    const parsed = parseQuickAdd(raw);
+    const task = { id: 'qa' + Date.now(), priority: parsed.priority, name: parsed.name, days: 'all', assignees: ['Me'], note: '', custom: true, hub: taskHubFilter !== 'all' ? taskHubFilter : 'personal', tags: [] };
+    if (parsed.date) { task.freq = 'date'; task.date = parsed.date; } else { task.freq = 'untildone'; }
+    if (parsed.time) task.time = parsed.time;
+    customTasks.push(task);
+    saveCustomTasks();
+    if (typeof renderTasks === 'function') renderTasks();
+    showToast(`<i class="ti ti-checklist"></i>Added task: <b>${esc(parsed.name)}</b>`);
+  }
+  closeQuickCapture();
+}
+
 function openActivityModal() {
   const search = document.getElementById('activity-search');
   if (search) search.value = '';
@@ -4907,6 +5057,7 @@ function showToast(html, duration) {
 
 function resetDay() {
   const pending = getTodayTasks().filter(t => !isDone(t.id));
+  settleRecurringStreaks();
   // skip date/once tasks — they use a permanent key and should stay done across resets
   getAllTasks().forEach(t => {
     if (t.freq !== 'date' && t.freq !== 'once') delete done[taskKey(t.id)];
@@ -5797,7 +5948,7 @@ function timeField(id, value, onChangeAttr) {
 let _dueSoonLastMin = -1;
 function tickMelbClock() {
   const nowMin = melbNowMinutes();
-  if (nowMin !== _dueSoonLastMin) { _dueSoonLastMin = nowMin; renderDueSoon(); checkReminders(nowMin); }
+  if (nowMin !== _dueSoonLastMin) { _dueSoonLastMin = nowMin; renderDueSoon(); checkReminders(nowMin); checkEodWrap(nowMin); }
   const hm = melbFmt({ hour: 'numeric', minute: '2-digit', hour12: true }); // e.g. "6:01 pm"
   const m = hm.match(/(\d{1,2}:\d{2})\s*(am|pm)/i);
   const weekday = melbFmt({ weekday: 'long' });
@@ -5812,6 +5963,57 @@ function tickMelbClock() {
     const dy = document.getElementById('melb-clock-day');
     if (dy) dy.textContent = day;
   }
+}
+
+// ===== END-OF-DAY WRAP TOAST =====
+const EOD_WRAP_MINUTE = 17 * 60; // 5:00pm Melbourne time
+function getEodPendingTasks() {
+  return getTodayTasks().filter(t => !isDone(t.id) && !snoozedToday[`${todayKey}_${t.id}`]);
+}
+function checkEodWrap(nowMin) {
+  if (nowMin < EOD_WRAP_MINUTE) return;
+  if (dbGet('zarif_eod_wrap_shown') === todayInputDate()) return;
+  dbSet('zarif_eod_wrap_shown', todayInputDate());
+  const pending = getEodPendingTasks();
+  if (!pending.length) return;
+  _eodWrapIds = pending.map(t => String(t.id));
+  renderEodWrapToast();
+}
+let _eodWrapIds = [];
+function eodWrapDrop(id) {
+  _eodWrapIds = _eodWrapIds.filter(x => x !== String(id));
+  if (!_eodWrapIds.length) { closeEodWrapToast(); return; }
+  renderEodWrapToast();
+}
+function eodWrapPushAll() {
+  const ids = _eodWrapIds.slice();
+  ids.forEach(id => snoozeTask(id));
+  closeEodWrapToast();
+  showToast(`<i class="ti ti-moon-stars"></i>Pushed <b>${ids.length}</b> task${ids.length !== 1 ? 's' : ''} to tomorrow.`);
+}
+function closeEodWrapToast() {
+  _eodWrapIds = [];
+  const el = document.getElementById('eod-toast-el');
+  if (el) { el.classList.remove('show'); setTimeout(() => el.remove(), 250); }
+}
+function renderEodWrapToast() {
+  let el = document.getElementById('eod-toast-el');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'eod-toast-el';
+    el.className = 'eod-toast';
+    document.body.appendChild(el);
+  }
+  const doneCount = getTodayTasks().filter(t => isDone(t.id)).length;
+  const items = _eodWrapIds.map(id => {
+    const t = getAllTasks().find(x => String(x.id) === String(id));
+    if (!t) return '';
+    return `<div class="eod-item"><div class="eod-dot"></div><span class="eod-name">${esc(t.name)}</span><span class="eod-x" onclick="eodWrapDrop('${id}')"><i class="ti ti-x"></i></span></div>`;
+  }).join('');
+  el.innerHTML = `<div class="eod-head"><i class="ti ti-moon-stars"></i>${doneCount} done · ${_eodWrapIds.length} left today</div>
+    <div class="eod-list">${items}</div>
+    <div class="eod-actions"><button class="eod-btn primary" onclick="eodWrapPushAll()">Push all to tomorrow</button><button class="eod-btn ghost" onclick="closeEodWrapToast()">Dismiss</button></div>`;
+  requestAnimationFrame(() => el.classList.add('show'));
 }
 
 // ===== REMINDERS / NOTIFICATIONS =====
@@ -5998,6 +6200,56 @@ function renderHighlightsBanner(containerId) {
         </div>`).join('')}
       </div>
     </div>
+  </div>`;
+}
+
+// ===== NEXT BEST TASK (single-pick suggestion, removes decision fatigue) =====
+let nextBestSkipped = {};
+function saveNextBestSkipped() { dbSet('zarif_nextbest_skipped', nextBestSkipped); }
+function nextBestDueRank(t) {
+  if (t.freq === 'date' || t.freq === 'once') return (t.date && t.date < todayInputDate()) ? 0 : 1;
+  if (t.time) return 2;
+  return 3;
+}
+function getNextBestTask() {
+  const skipped = nextBestSkipped[todayKey] || [];
+  const candidates = getTodayTasks().filter(t =>
+    !isDone(t.id) && !skipped.includes(String(t.id)) && !snoozedToday[`${todayKey}_${t.id}`]
+  );
+  if (!candidates.length) return null;
+  return candidates.sort((a, b) =>
+    PO[a.priority] - PO[b.priority] || nextBestDueRank(a) - nextBestDueRank(b) || getOrder(a.id) - getOrder(b.id)
+  )[0];
+}
+function nextBestSkip(id) {
+  if (!nextBestSkipped[todayKey]) nextBestSkipped[todayKey] = [];
+  nextBestSkipped[todayKey].push(String(id));
+  saveNextBestSkipped();
+  renderNextBestAll();
+}
+function nextBestComplete(id) {
+  toggle(id);
+  renderNextBestAll();
+}
+function renderNextBestAll() {
+  renderNextBestTask('home-nextbest');
+  renderNextBestTask('tasks-nextbest');
+}
+function renderNextBestTask(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const t = getNextBestTask();
+  if (!t) { el.innerHTML = ''; return; }
+  const meta = [`<i class="ti ti-flame"></i>${t.priority[0] + t.priority.slice(1).toLowerCase()} priority`];
+  const rank = nextBestDueRank(t);
+  if (rank === 0) meta.push('Overdue');
+  else if (rank === 1) meta.push('Due today');
+  else if (rank === 2) meta.push(fmtTime(t.time));
+  el.innerHTML = `<div class="nb-card">
+    <div class="nb-top"><span class="nb-eyebrow"><i class="ti ti-target-arrow"></i> Next best task</span><span class="nb-skip" onclick="nextBestSkip('${t.id}')">Skip <i class="ti ti-chevron-right"></i></span></div>
+    <div class="nb-name" onclick="showPage('tasks'); switchTab('today');">${esc(t.name)}</div>
+    <div class="nb-meta">${meta.join(' · ')}</div>
+    <span class="nb-btn" onclick="nextBestComplete('${t.id}')"><i class="ti ti-check"></i>Mark done</span>
   </div>`;
 }
 
@@ -6571,9 +6823,9 @@ function taskHTML(t, showFreqPill) {
   const jobBadge = t.jobReminder
     ? `<span class="task-hub-badge" style="background:var(--amber-bg);color:var(--amber-text);"><i class="ti ti-briefcase" style="font-size:10px;margin-right:3px"></i>Job</span>`
     : '';
-  const streakInfo = (freq === 'daily') ? taskStreaks[t.id] : null;
+  const streakInfo = (freq === 'daily' || STREAK_RECURRING_FREQS.includes(freq)) ? taskStreaks[t.id] : null;
   const streakBadge = (streakInfo && streakInfo.count >= 2)
-    ? `<span class="task-streak-badge" title="${streakInfo.count}-day streak · best ${streakInfo.best}"><i class="ti ti-flame"></i>${streakInfo.count}</span>`
+    ? `<span class="task-streak-badge" title="${streakInfo.count}${freq === 'daily' ? '-day' : ''} streak · best ${streakInfo.best}"><i class="ti ti-flame"></i>${streakInfo.count}</span>`
     : '';
   const isDateOnce = t.freq === 'date' || t.freq === 'once';
   const snoozeBtn = (!d && ((isDateOnce && t.date) || t.time))
@@ -6647,6 +6899,53 @@ function renderHomeDashboard() {
   animateGhostRing(document.getElementById('home-hero-ghost-ring'), document.getElementById('home-hero-ghost-pct'), donePct);
   renderHomeBriefing();
   renderHighlightsBanner('home-highlights');
+  renderNextBestTask('home-nextbest');
+  applyHomeTimeOrdering();
+}
+
+// ===== Time-of-day-aware Home ordering =====
+// Same Home sections, just reordered by when you're actually looking: mornings lead with
+// what's special to today, afternoons lead with the single next thing to do, evenings lead
+// with the wrap-up summary (which now also previews tomorrow).
+function getHomeTimeMode() {
+  const h = now.getHours();
+  if (h < 12) return 'morning';
+  if (h < 18) return 'afternoon';
+  return 'evening';
+}
+function applyHomeTimeOrdering() {
+  const briefing = document.getElementById('home-briefing');
+  const highlights = document.getElementById('home-highlights');
+  const nextbest = document.getElementById('home-nextbest');
+  const anchor = document.getElementById('home-hub-grid');
+  if (!briefing || !highlights || !nextbest || !anchor || !anchor.parentElement) return;
+  const mode = getHomeTimeMode();
+  const order = mode === 'morning' ? [highlights, nextbest, briefing]
+    : mode === 'afternoon' ? [nextbest, briefing, highlights]
+    : [briefing, highlights, nextbest];
+  order.forEach(el => anchor.parentElement.insertBefore(el, anchor));
+}
+// Is this task scheduled to appear on a given date (used for tomorrow's preview) —
+// mirrors isToday()'s per-frequency rules but parametrized by date instead of "today".
+function isScheduledOn(task, dateObj) {
+  const dow = dateObj.getDay();
+  if (task.freq === 'weekly') return task.days === 'all' || (Array.isArray(task.days) && task.days.includes(dow));
+  if (task.freq === 'fortnightly') {
+    if (!task.anchor) return false;
+    const [y, m, day] = task.anchor;
+    const anchor = new Date(y, m - 1, day);
+    const d0 = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    const diffDays = Math.round((d0 - anchor) / 86400000);
+    return diffDays >= 0 && diffDays % 14 === 0;
+  }
+  if (task.freq === 'monthly') return !!task.dayRange && dateObj.getDate() >= task.dayRange[0] && dateObj.getDate() <= task.dayRange[1];
+  const ds = ymd(dateObj);
+  if (task.freq === 'once' || task.freq === 'date') return task.date === ds;
+  return false;
+}
+function getTomorrowPreviewTasks() {
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  return getAllTasks().filter(t => isScheduledOn(t, tomorrow));
 }
 
 // ===== Daily briefing (Home) =====
@@ -6674,6 +6973,12 @@ function getDailyBriefing() {
     parts.push(next
       ? `Meeting today: ${esc(next.type === 'Misc' ? 'Ad hoc' : next.type)} at ${fmtTime(next.time)}.`
       : `${meetingsToday.length} meeting${meetingsToday.length !== 1 ? 's' : ''} logged for today.`);
+  }
+  if (getHomeTimeMode() === 'evening') {
+    const tmrw = getTomorrowPreviewTasks();
+    parts.push(tmrw.length
+      ? `Tomorrow: <b>${tmrw.length}</b> task${tmrw.length !== 1 ? 's' : ''} scheduled — ${tmrw.slice(0, 3).map(t => esc(t.name)).join(', ')}${tmrw.length > 3 ? ` +${tmrw.length - 3} more` : ''}.`
+      : `Tomorrow's looking clear so far.`);
   }
   return parts;
 }
@@ -6713,6 +7018,7 @@ function renderTasks() {
   renderDueSoon();
   renderUpNextRail();
   renderHighlightsBanner('tasks-highlights');
+  renderNextBestTask('tasks-nextbest');
   const fbtn = document.getElementById('focus-mode-btn');
   if (fbtn) fbtn.classList.toggle('active', focusMode);
   renderTaskTagFilter();
@@ -10757,6 +11063,13 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.23.0', type: 'minor', date: '30 Jun 2026', title: 'Productivity batch: quick-capture, next best task, streaks, and end-of-day wrap', changes: [
+    'Press "A" anywhere to open quick-capture — type anything and it auto-sorts into a task, an Amtek Job List entry, or a wishlist idea (job/URL keywords → Job List, "idea:"/"wishlist" → Wishlist, everything else → task, reusing the same natural-language date/time/priority parsing as Quick Add)',
+    'New "Next best task" card on Home and the Tasks page — a single bolded recommendation (highest priority, soonest due, not snoozed) instead of a full list, with Mark done and Skip',
+    'Task streaks now also track weekly, fortnightly, and monthly recurring tasks (previously daily-only) — settled once per day so a missed occurrence resets the streak even if the task is never opened',
+    'New end-of-day wrap toast — once it\'s past 5pm and you still have tasks left, a toast lists what\'s outstanding with a one-click "Push all to tomorrow" (or drop individual items first), separate from the manual "Reset today" summary',
+    'Home now reorders its briefing/highlights/next-best sections by time of day — mornings lead with Highlights, afternoons lead with Next Best Task, evenings lead with the briefing (which now also previews tomorrow\'s scheduled tasks)',
+  ]},
   { ver: '4.22.0', type: 'minor', date: '30 Jun 2026', title: 'Smarter overdue handling: auto-escalation and snooze reasons', changes: [
     'MEDIUM-priority dated tasks overdue 3+ days now quietly bump to HIGH so they don\'t get buried — a small trending-up icon next to the priority badge marks ones that were auto-escalated',
     'Auto-escalation only happens once per task — manually setting it back to Medium afterward sticks, it won\'t re-escalate itself',
@@ -12779,6 +13092,7 @@ async function initApp() {
   taskOrder     = dbGet('zarif_task_order')     || {};
   taskStreaks   = dbGet('zarif_task_streaks')   || {};
   snoozedToday  = dbGet('zarif_snoozed_today')  || {};
+  nextBestSkipped = dbGet('zarif_nextbest_skipped') || {};
   focusMode     = dbGet('zarif_focus_mode')     || false;
   kbFacts       = (dbGet('zarif_kb_facts') || DEFAULT_KB_FACTS.slice()).map(f => typeof f === 'string' ? { text: f, createdAt: null } : f);
   hubLayout     = loadHubLayout();
