@@ -2237,6 +2237,12 @@
     <div class="tasks-layout">
     <div class="tasks-main">
 
+    <div class="quick-add-bar">
+      <i class="ti ti-bolt"></i>
+      <input type="text" id="quick-add-input" placeholder='Quick add — e.g. "Call vendor tomorrow 2pm high priority"' autocomplete="off" onkeydown="if(event.key==='Enter'){quickAddTask();}">
+      <button onclick="quickAddTask()" title="Add task"><i class="ti ti-plus"></i></button>
+    </div>
+
     <div class="task-hero" id="task-hero">
       <div class="task-hero-orb o1"></div>
       <div class="task-hero-orb o2"></div>
@@ -2305,11 +2311,6 @@
       <button class="tab" data-tab="calendar" onclick="switchTab('calendar')"><i class="ti ti-calendar-month"></i> Calendar</button>
     </div>
 
-    <div class="quick-add-bar">
-      <i class="ti ti-bolt"></i>
-      <input type="text" id="quick-add-input" placeholder='Quick add — e.g. "Call vendor tomorrow 2pm high priority"' autocomplete="off" onkeydown="if(event.key==='Enter'){quickAddTask();}">
-      <button onclick="quickAddTask()" title="Add task"><i class="ti ti-plus"></i></button>
-    </div>
     <div id="due-soon-section"></div>
     <div id="list"></div>
 
@@ -11010,6 +11011,9 @@ function renderWishlist() {
 
 // ===== CHANGELOG =====
 const CHANGELOG = [
+  { ver: '4.23.2', type: 'patch', date: '30 Jun 2026', title: 'Moved Quick Add above the Tasks hero card', changes: [
+    'The "Quick add" bar on the Tasks page now sits above the hero/stats card instead of below the tabs, so it\'s the first thing you see when you land on the page',
+  ]},
   { ver: '4.23.1', type: 'patch', date: '30 Jun 2026', title: 'Removed the "Up Next" card rail, moved Next Best Task to Tasks-only', changes: [
     'Removed the row of 4 "Due today" cards that used to sit below the Tasks hero — redundant now that Needs Attention and Today\'s Highlights cover that ground',
     '"Next best task" no longer shows on the Home landing page — it\'s now Tasks-page only',
